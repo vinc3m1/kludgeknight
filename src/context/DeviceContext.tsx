@@ -17,21 +17,6 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
 
   const manager = HIDDeviceManager.getInstance();
 
-  // Load keyboard configs on mount
-  useEffect(() => {
-    const loadConfigs = async () => {
-      // Use Vite's import.meta.glob to get all keyboard configs
-      const configModules = import.meta.glob('/public/keyboards/*.json');
-      const urls = Object.keys(configModules).map(path =>
-        path.replace('/public', '/KludgeKnight')
-      );
-
-      await manager.loadConfigs(urls);
-    };
-
-    loadConfigs();
-  }, []);
-
   // Set notify callback on all devices
   useEffect(() => {
     manager.getAllDevices().forEach(device => {

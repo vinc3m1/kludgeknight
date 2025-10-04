@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "license": "GPL-3.0",
   "scripts": {
     "dev": "bunx --bun vite --host",
     "build": "bunx --bun vite build",
@@ -10,6 +11,7 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
+    "ini": "^5.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

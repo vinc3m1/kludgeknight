@@ -13,14 +13,12 @@ export class ProtocolTranslator {
 
   /**
    * Send profile mappings to keyboard hardware
-   * Encodes mappings into 9 HID buffers and sends sequentially
-   * Uses feature reports (like Rangoli's hid_send_feature_report)
+   * Encodes mappings into 9 HID buffers and sends sequentially via feature reports
    */
   async sendProfile(mappings: Map<number, KeyCode>): Promise<void> {
     const buffers = BufferCodec.encode(mappings, this.config);
 
     // Send all 9 buffers sequentially using feature reports
-    // This matches Rangoli's hid_send_feature_report usage
     // The report ID (0x0a) is in buffer[0], we need to extract it and pass the rest
     for (let i = 0; i < 9; i++) {
       const reportId = buffers[i][0];

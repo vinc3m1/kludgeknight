@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
 import type { Key } from '../types/keyboard';
 
@@ -18,19 +19,24 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   }
 
   const { config } = device;
+  const [imgWidth, setImgWidth] = useState(0);
+  const [imgHeight, setImgHeight] = useState(0);
 
-  // Calculate canvas dimensions based on keyboard config
-  const [topWidth, topHeight] = config.top;
-  const [bottomWidth, bottomHeight] = config.bottom;
-  const width = Math.max(topWidth, bottomWidth);
-  const height = topHeight + bottomHeight;
+  // Load image to get dimensions
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      setImgWidth(img.width);
+      setImgHeight(img.height);
+    };
+    img.src = config.imageUrl;
+  }, [config.imageUrl]);
 
   const renderKey = (key: Key, index: number) => {
     const hasMapping = device.hasMapping(key.bIndex);
     const isSelected = selectedKeyIndex === key.bIndex;
 
-    const [topX, topY] = key.top;
-    const [bottomX, bottomY] = key.bottom;
+    const [left, top, right, bottom] = key.rect;
 
     let fill = 'rgba(243, 244, 246, 0.3)'; // gray-100 with transparency
     let stroke = '#9ca3af'; // gray-400
@@ -46,10 +52,10 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
     return (
       <rect
         key={index}
-        x={topX}
-        y={topY}
-        width={bottomX - topX}
-        height={bottomY - topY}
+        x={left}
+        y={top}
+        width={right - left}
+        height={bottom - top}
         fill={fill}
         stroke={stroke}
         strokeWidth="1"
@@ -59,25 +65,26 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
     );
   };
 
-  const imageUrl = config.image ? `/KludgeKnight/keyboards/${config.image}` : null;
+  if (!imgWidth || !imgHeight) {
+    return <div className="flex items-center justify-center h-64 border border-gray-300 rounded bg-gray-50">
+      <p className="text-gray-500">Loading keyboard...</p>
+    </div>;
+  }
 
   return (
     <div className="border border-gray-300 rounded p-4 bg-white">
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${imgWidth} ${imgHeight}`}
         className="w-full h-auto"
         style={{ maxHeight: '400px' }}
       >
-        {imageUrl && (
-          <image
-            href={imageUrl}
-            x="0"
-            y="0"
-            width={width}
-            height={height}
-            preserveAspectRatio="xMidYMid meet"
-          />
-        )}
+        <image
+          href={config.imageUrl}
+          x="0"
+          y="0"
+          width={imgWidth}
+          height={imgHeight}
+        />
         {config.keys.map((key, index) => renderKey(key, index))}
       </svg>
 

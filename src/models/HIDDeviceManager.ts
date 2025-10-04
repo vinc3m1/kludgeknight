@@ -1,5 +1,7 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
+import { parseKBIni } from '../utils/kbIniParser';
+import { getSupportedPIDs } from '../utils/rkConfig';
 
 /**
  * Singleton manager for HID device lifecycle
@@ -24,23 +26,25 @@ export class HIDDeviceManager {
   }
 
   /**
-   * Load keyboard configurations from public/keyboards/
-   * Should be called on app initialization
+   * Get config for a PID, loading it on-demand if needed
    */
-  async loadConfigs(configUrls: string[]): Promise<void> {
-    const promises = configUrls.map(async url => {
-      try {
-        const response = await fetch(url);
-        const config: KeyboardConfig = await response.json();
-        if (config.enabled && config.keyMapEnabled) {
-          this.configs.set(config.pid, config);
-        }
-      } catch (error) {
-        console.error(`Failed to load config from ${url}:`, error);
-      }
-    });
+  private async getConfig(pid: string): Promise<KeyboardConfig | null> {
+    // Check cache first
+    if (this.configs.has(pid)) {
+      return this.configs.get(pid)!;
+    }
 
-    await Promise.all(promises);
+    // Load on-demand
+    try {
+      const config = await parseKBIni(pid);
+      if (config) {
+        this.configs.set(pid, config);
+      }
+      return config;
+    } catch (error) {
+      console.error(`Failed to load config for PID ${pid}:`, error);
+      return null;
+    }
   }
 
   /**
@@ -55,7 +59,6 @@ export class HIDDeviceManager {
     try {
       // Request device with RK vendor ID and configuration interface
       // Usage page 0x0001 (Generic Desktop), usage 0x0080 (System Control)
-      // This matches Rangoli's device filtering
       const devices = await navigator.hid.requestDevice({
         filters: [{
           vendorId: 0x258a,
@@ -118,9 +121,9 @@ export class HIDDeviceManager {
    */
   private async openDevice(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
     try {
-      // Find config for this device
-      const pid = hidDevice.productId.toString(16);
-      const config = this.configs.get(pid);
+      // Load config for this device on-demand
+      const pid = hidDevice.productId.toString(16).padStart(4, '0');
+      const config = await this.getConfig(pid);
 
       if (!config) {
         console.warn(`No configuration found for device PID ${pid}`);

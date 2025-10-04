@@ -1,25 +1,20 @@
-import { KeyCode } from './keycode';
+import type { KeyInfo } from './keycode';
 
 /**
- * Keyboard configuration loaded from JSON
+ * Keyboard configuration parsed from KB.ini and Cfg.ini
  */
 export interface KeyboardConfig {
   pid: string;
   name: string;
-  enabled: boolean;
-  keyMapEnabled: boolean;
-  top: [number, number];
-  bottom: [number, number];
   keys: Key[];
-  image?: string;
+  imageUrl: string; // Full URL to keyboard image
 }
 
 /**
- * Individual key configuration
+ * Individual key configuration from KB.ini
  */
 export interface Key {
   bIndex: number;
-  keyCode: string;
-  top: [number, number];
-  bottom: [number, number];
+  keyInfo: KeyInfo; // Reference to VK/HID/label info
+  rect: [number, number, number, number]; // [left, top, right, bottom] in image pixel coordinates
 }

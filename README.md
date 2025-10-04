@@ -1,144 +1,111 @@
-# KludgeKnight - Royal Kludge Keyboard Configuration
+# KludgeKnight
 
-Web-based port of [Rangoli](https://github.com/rnayabed/rangoli) using WebHID API and React.
+**Unofficial web-based key remapper for Royal Kludge keyboards**
 
-**Current scope**: Key remapping with profiles. Lighting features will be added later.
+Remap any key on your Royal Kludge keyboard directly in your browser. No installation required.
 
-## Features
+> ⚠️ **Disclaimer**: This is unofficial software and is not affiliated with, endorsed by, or connected to Royal Kludge in any way. Use at your own risk.
 
-- ✅ **Direct hardware control** via WebHID (Chrome/Edge only)
-- ✅ **No installation required** - runs in browser
-- ✅ **No database** - keyboard hardware is the source of truth
-- ✅ **Profile management** via JSON export/import
-- ✅ **Key remapping** with multiple profiles
-- ✅ **Ultra-simple architecture** - ~400 lines of model code
+## ✨ Features
 
-## Quick Start
+- 🌐 **Runs in your browser** - No downloads or installation
+- 🎹 **Visual keyboard layout** - See your keyboard and click to remap
+- 🔄 **Live updates** - Changes apply immediately to your hardware
+- 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
+- 🖼️ **Automatic keyboard detection** - Loads the correct layout for your model
 
-```bash
-bun install
-bun run dev
-```
+## 🚀 Getting Started
 
-Open `https://localhost:3000` (HTTPS required for WebHID)
+### Requirements
 
-## Documentation
+- **Browser**: Chrome, Edge, or Opera (WebHID support required)
+- **Connection**: HTTPS (automatic on the hosted version)
+- **Keyboard**: Royal Kludge keyboard with USB cable
 
-- **[design/DESIGN.md](./design/DESIGN.md)** - Complete technical design and API reference
+### How to Use
 
-## Usage
+1. **Visit the app** at [your-deployment-url]
+2. **Click "Connect Keyboard"** and select your keyboard from the list
+3. **Click any key** on the keyboard diagram
+4. **Select a new key** to remap it to
+5. **Done!** The change is saved to your keyboard immediately
 
-### Connect to Keyboard
+### Resetting Keys
 
-```tsx
-const { requestDevice } = useDevices();
-<Button onClick={requestDevice}>Connect Keyboard</Button>
-```
+- **Single key**: Click a remapped key and select "Reset to Default"
+- **All keys**: Click "Reset All Keys to Default" button
 
-### Remap Keys
+### ⚠️ Important Limitation
 
-```tsx
-const profile = useSelectedDevice()?.getActiveProfile();
+**The app cannot read your existing key mappings from the keyboard.** Due to firmware limitations, we can only write new mappings, not read what's currently set.
 
-<KeyCodeSelector
-  value={profile.getMapping(keyIndex)}
-  onChange={(code) => profile.setMapping(keyIndex, code)}
-/>
-```
+This means:
+- If you've already remapped keys using RK software, those mappings won't be visible here
+- The app always starts with the default keyboard layout
+- Any remapping you do will overwrite what's currently on the keyboard
 
-### Save/Load Profiles
+**Recommendation**: Start fresh by clicking "Reset All Keys to Default" before remapping.
 
-```tsx
-// Export to file
-const json = device.exportSnapshot('My Setup');
-downloadFile('keyboard.json', json);
+## ❓ FAQ
 
-// Import from file
-const json = await file.text();
-await device.importSnapshot(json);
-```
+### Which browsers work?
 
-## Architecture
+- ✅ **Chrome** (version 89+)
+- ✅ **Edge** (version 89+)
+- ✅ **Opera** (version 75+)
+- ❌ **Firefox** - Not supported (no WebHID)
+- ❌ **Safari** - Not supported (no WebHID)
 
-Everything is just data + methods:
+### Which keyboards are supported?
 
-```typescript
-// Get the connected keyboard
-const device = useSelectedDevice();
+Any Royal Kludge keyboard that works with the official RK software. The app automatically detects your keyboard model and loads the correct layout.
 
-// Direct access to data
-device.profiles[0].name     // "Gaming"
+### Is my data safe?
 
-// Direct method calls
-const profile = device.getActiveProfile();
-await profile.setMapping(5, KeyCode.A);  // Remap key 5 to 'A'
-```
+Yes! Everything happens locally in your browser. No data is sent to any server. Your keyboard mappings are saved directly to your keyboard's hardware.
 
-**No complex state management:**
-- No Zustand
-- No IndexedDB
-- No controllers/services
-- Just simple models with React Context
+### Can I use this on multiple computers?
 
-## Browser Support
+Yes! Once you remap your keys, the settings are stored in your keyboard's memory. They'll work on any computer, even without this app.
 
-**WebHID API** is required:
-- ✅ Chrome 89+
-- ✅ Edge 89+
-- ✅ Opera 75+
-- ❌ Firefox (not supported)
-- ❌ Safari (not supported)
+### Does it work on Mac/Linux?
 
-**HTTPS** is required (localhost works during development)
+Yes, as long as you're using a supported browser (Chrome, Edge, or Opera).
 
-## Development
+## 🐛 Troubleshooting
+
+**Keyboard not detected?**
+- Make sure you're using Chrome, Edge, or Opera
+- Try a different USB port or cable
+- Check that your keyboard is in wired mode (not Bluetooth)
+
+**Changes not applying?**
+- Disconnect and reconnect your keyboard
+- Try clicking "Reset All Keys to Default" and remapping again
+
+## 📄 License
+
+GPL v3 - See LICENSE file for details
+
+## 🙏 Acknowledgments
+
+This project was inspired by [Rangoli](https://github.com/rnayabed/rangoli) by Debayan Sutradhar. The protocol implementation and understanding of RK keyboards came from studying that project.
+
+---
+
+## 👨‍💻 For Developers
+
+Want to run this locally or contribute?
 
 ```bash
 # Install dependencies
 bun install
 
-# Dev server (with HTTPS for WebHID)
+# Start dev server
 bun run dev
 
 # Build for production
 bun run build
-
-# Preview production build
-bun run preview
 ```
 
-## Deployment
-
-Configured for **GitHub Pages**:
-
-1. Push to main branch
-2. GitHub Actions builds automatically
-3. Deploys to `https://username.github.io/KludgeKnight`
-
-See [design/DESIGN.md#github-pages-deployment](./design/DESIGN.md#github-pages-deployment) for setup.
-
-## Supported Keyboards
-
-All keyboards supported by Rangoli with `keyMapEnabled: true`.
-
-See [Rangoli keyboard list](../rangoli/keyboards-list.md).
-
-## Future Roadmap
-
-- **Phase 1** (Current): Key remapping with profiles ✅
-- **Phase 2**: Lighting control (RGB, modes, brightness)
-- **Phase 3**: PWA support, cloud sync, community profiles
-
-## Contributing
-
-This is a web port of Rangoli. See [Rangoli's contribution guidelines](https://github.com/rnayabed/rangoli#bugs-and-support).
-
-## License
-
-GPL v3 (same as Rangoli)
-
-## Credits
-
-- **Original Rangoli** by [Debayan Sutradhar (rnayabed)](https://github.com/rnayabed)
-- **Web Port** architecture designed for radical simplicity
-- All protocol work from the original Rangoli project
+See the source code for technical details.

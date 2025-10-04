@@ -1,9 +1,10 @@
-import { KeyCode } from '../types/keycode';
+import { KeyCode, vkToHid } from '../types/keycode';
 import type { KeyboardConfig } from '../types/keyboard';
 
 /**
  * Encodes/decodes the 9-buffer protocol for RK keyboards
- * Based on Rangoli's keyboardconfiguratorcontroller.cpp
+ *
+ * Protocol understanding inspired by Rangoli (https://github.com/rnayabed/rangoli)
  *
  * Protocol:
  * - 9 buffers of 65 bytes each
@@ -20,7 +21,7 @@ export class BufferCodec {
   /**
    * Encode key mappings into 9 HID buffers for sendReport()
    *
-   * @param mappings - Map of key buffer index to key code
+   * @param mappings - Map of key buffer index to HID scan code
    * @param config - Keyboard configuration with default keys
    * @returns Array of 9 buffers (65 bytes each)
    */
@@ -33,15 +34,12 @@ export class BufferCodec {
 
     // Fill with default key codes from config
     for (const key of config.keys) {
-      // Get custom mapping or default from config (converting string to enum)
-      const defaultKeyCode = KeyCode[key.keyCode as keyof typeof KeyCode];
-      const keyCode = mappings.get(key.bIndex) ?? defaultKeyCode;
+      // Get custom mapping or default HID code from key's VK code
+      const defaultHid = key.keyInfo.hid;
+      const customKeyCode = mappings.get(key.bIndex);
+      const hidCode = customKeyCode !== undefined ? customKeyCode : defaultHid;
 
-      if (defaultKeyCode === undefined) {
-        console.warn(`Unknown key code: ${key.keyCode} for bIndex ${key.bIndex}`);
-      }
-
-      this.setBufferKey(fullBuffer, key.bIndex * this.BYTES_PER_KEY, keyCode);
+      this.setBufferKey(fullBuffer, key.bIndex * this.BYTES_PER_KEY, hidCode);
     }
 
     // Split into 9 HID buffers with headers
@@ -76,7 +74,6 @@ export class BufferCodec {
 
   /**
    * Encode a single key code into 4 bytes (little-endian)
-   * Based on Rangoli's setBufferKey method
    *
    * @param buffer - Target buffer
    * @param offset - Offset in buffer
@@ -120,7 +117,7 @@ export class BufferCodec {
    *
    * @param buffers - Array of 9 buffers from keyboard
    * @param config - Keyboard configuration
-   * @returns Map of key buffer index to key code
+   * @returns Map of key buffer index to HID scan code
    */
   static decode(buffers: Uint8Array[], config: KeyboardConfig): Map<number, KeyCode> {
     const mappings = new Map<number, KeyCode>();
@@ -140,12 +137,12 @@ export class BufferCodec {
 
     // Extract key codes
     for (const key of config.keys) {
-      const offset = key.bufferIndex * this.BYTES_PER_KEY;
-      const keyCode = this.getBufferKey(fullBuffer, offset);
+      const offset = key.bIndex * this.BYTES_PER_KEY;
+      const hidCode = this.getBufferKey(fullBuffer, offset);
 
       // Only store if different from default
-      if (keyCode !== key.keyCode) {
-        mappings.set(key.bufferIndex, keyCode);
+      if (hidCode !== key.keyInfo.hid) {
+        mappings.set(key.bIndex, hidCode);
       }
     }
 
