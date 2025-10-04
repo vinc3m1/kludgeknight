@@ -1,4 +1,4 @@
-# RK-Web Design Document
+# KludgeKnight Design Document
 
 Web-based port of [Rangoli](https://github.com/rnayabed/rangoli) for Royal Kludge keyboard key remapping using WebHID API and React.
 
@@ -399,7 +399,7 @@ const handleImport = async (file: File) => {
 ## Project Structure
 
 ```
-rk-web/
+KludgeKnight/
 ├── design/
 │   ├── DESIGN.md              # This file
 │   ├── ARCHITECTURE.md        # Delete (merged here)
@@ -459,7 +459,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/rk-web/',
+  base: '/KludgeKnight/',
   server: {
     https: true,
     host: true
@@ -505,7 +505,7 @@ for (let i = 0; i < 9; i++) {
 
 1. Push to main branch
 2. GitHub Actions builds automatically
-3. Deploys to `https://username.github.io/rk-web`
+3. Deploys to `https://username.github.io/KludgeKnight`
 
 See `.github/workflows/deploy.yml` for CI/CD configuration.
 

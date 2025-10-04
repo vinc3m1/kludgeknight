@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  base: '/rk-web/',
+  plugins: [react(), tailwindcss()],
+  base: '/KludgeKnight/',
   server: {
     // HTTPS only needed for network access, localhost works with HTTP for WebHID
     https: process.env.HTTPS === 'true',

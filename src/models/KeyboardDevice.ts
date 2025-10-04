@@ -1,11 +1,11 @@
 import { KeyCode } from '../types/keycode';
-import type { KeyboardConfig, DeviceSnapshot } from '../types/keyboard';
-import { Profile } from './Profile';
+import type { KeyboardConfig } from '../types/keyboard';
 import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';
 
 /**
  * Represents a connected Royal Kludge keyboard
+ * Stores current key mappings and syncs to hardware
  */
 export class KeyboardDevice {
   readonly id: string;
@@ -13,8 +13,7 @@ export class KeyboardDevice {
   readonly config: KeyboardConfig;
 
   connected: boolean = true;
-  profiles: Profile[] = [];
-  activeProfileIndex: number = -1;
+  mappings: Map<number, KeyCode> = new Map();
   notify?: () => void;
 
   private translator: ProtocolTranslator;
@@ -34,134 +33,79 @@ export class KeyboardDevice {
   }
 
   /**
-   * Add a new profile and activate it
-   * Returns promise that resolves when profile is activated
+   * Set a key mapping and sync to hardware
    */
-  async addProfile(
-    name: string,
-    mappings?: Map<number, KeyCode>
-  ): Promise<Profile> {
+  async setMapping(keyIndex: number, keyCode: KeyCode): Promise<void> {
     return this.queue.enqueue(async () => {
-      const profile = new Profile(name, (m) => this.translator.sendProfile(m));
-      profile.notify = this.notify;
-
-      if (mappings) {
-        mappings.forEach((code, index) => {
-          profile.mappings.set(index, code);
-        });
+      const oldValue = this.mappings.get(keyIndex);
+      try {
+        this.mappings.set(keyIndex, keyCode);
+        await this.translator.sendProfile(this.mappings);
+        this.notify?.();
+      } catch (error) {
+        // Rollback on failure
+        if (oldValue !== undefined) {
+          this.mappings.set(keyIndex, oldValue);
+        } else {
+          this.mappings.delete(keyIndex);
+        }
+        this.notify?.();
+        throw error;
       }
-
-      this.profiles.push(profile);
-      await this.activateProfileInternal(this.profiles.length - 1);
-      this.notify?.();
-      return profile;
     });
   }
 
   /**
-   * Delete a profile by index
+   * Clear a single key mapping
    */
-  async deleteProfile(index: number): Promise<void> {
+  async clearMapping(keyIndex: number): Promise<void> {
     return this.queue.enqueue(async () => {
-      if (index < 0 || index >= this.profiles.length) {
-        throw new Error('Invalid profile index');
+      const oldValue = this.mappings.get(keyIndex);
+      if (oldValue === undefined) return;
+
+      try {
+        this.mappings.delete(keyIndex);
+        await this.translator.sendProfile(this.mappings);
+        this.notify?.();
+      } catch (error) {
+        // Rollback on failure
+        this.mappings.set(keyIndex, oldValue);
+        this.notify?.();
+        throw error;
       }
-
-      this.profiles.splice(index, 1);
-
-      // Adjust active index if needed
-      if (this.activeProfileIndex === index) {
-        this.activeProfileIndex = -1;
-      } else if (this.activeProfileIndex > index) {
-        this.activeProfileIndex--;
-      }
-
-      this.notify?.();
     });
   }
 
   /**
-   * Activate a profile by index
-   * Sends all mappings to keyboard
+   * Clear all mappings
    */
-  async activateProfile(index: number): Promise<void> {
+  async clearAll(): Promise<void> {
     return this.queue.enqueue(async () => {
-      await this.activateProfileInternal(index);
-      this.notify?.();
+      const oldMappings = new Map(this.mappings);
+      try {
+        this.mappings.clear();
+        await this.translator.sendProfile(this.mappings);
+        this.notify?.();
+      } catch (error) {
+        // Rollback on failure
+        this.mappings = oldMappings;
+        this.notify?.();
+        throw error;
+      }
     });
   }
 
   /**
-   * Internal method to activate profile (not queued)
+   * Get mapping for a key index
    */
-  private async activateProfileInternal(index: number): Promise<void> {
-    if (index < 0 || index >= this.profiles.length) {
-      throw new Error('Invalid profile index');
-    }
-
-    const profile = this.profiles[index];
-    await this.translator.sendProfile(profile.mappings);
-    this.activeProfileIndex = index;
+  getMapping(keyIndex: number): KeyCode | undefined {
+    return this.mappings.get(keyIndex);
   }
 
   /**
-   * Get the currently active profile
+   * Check if a key has a custom mapping
    */
-  getActiveProfile(): Profile | null {
-    if (this.activeProfileIndex < 0 || this.activeProfileIndex >= this.profiles.length) {
-      return null;
-    }
-    return this.profiles[this.activeProfileIndex];
-  }
-
-  /**
-   * Export all profiles to JSON snapshot
-   */
-  exportSnapshot(exportName: string): string {
-    const snapshot: DeviceSnapshot = {
-      deviceName: this.config.name,
-      exportName,
-      exportedAt: new Date().toISOString(),
-      profiles: this.profiles.map(p => p.toJSON()),
-      activeProfileIndex: this.activeProfileIndex,
-    };
-    return JSON.stringify(snapshot, null, 2);
-  }
-
-  /**
-   * Import profiles from JSON snapshot
-   * Replaces all existing profiles
-   */
-  async importSnapshot(json: string): Promise<void> {
-    return this.queue.enqueue(async () => {
-      const snapshot: DeviceSnapshot = JSON.parse(json);
-
-      // Validate device compatibility
-      if (snapshot.deviceName !== this.config.name) {
-        console.warn(
-          `Snapshot is for ${snapshot.deviceName}, but connected device is ${this.config.name}`
-        );
-      }
-
-      // Clear existing profiles
-      this.profiles = [];
-
-      // Import profiles
-      snapshot.profiles.forEach(profileData => {
-        const profile = Profile.fromJSON(
-          profileData,
-          (m) => this.translator.sendProfile(m)
-        );
-        profile.notify = this.notify;
-        this.profiles.push(profile);
-      });
-
-      // Activate the profile that was active when exported
-      if (snapshot.activeProfileIndex >= 0 && snapshot.activeProfileIndex < this.profiles.length) {
-        await this.activateProfileInternal(snapshot.activeProfileIndex);
-      }
-
-      this.notify?.();
-    });
+  hasMapping(keyIndex: number): boolean {
+    return this.mappings.has(keyIndex);
   }
 }

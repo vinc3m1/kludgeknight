@@ -1,4 +1,4 @@
-# RK-Web - Royal Kludge Keyboard Configuration
+# KludgeKnight - Royal Kludge Keyboard Configuration
 
 Web-based port of [Rangoli](https://github.com/rnayabed/rangoli) using WebHID API and React.
 
@@ -113,7 +113,7 @@ Configured for **GitHub Pages**:
 
 1. Push to main branch
 2. GitHub Actions builds automatically
-3. Deploys to `https://username.github.io/rk-web`
+3. Deploys to `https://username.github.io/KludgeKnight`
 
 See [design/DESIGN.md#github-pages-deployment](./design/DESIGN.md#github-pages-deployment) for setup.
 

@@ -23,7 +23,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       // Use Vite's import.meta.glob to get all keyboard configs
       const configModules = import.meta.glob('/public/keyboards/*.json');
       const urls = Object.keys(configModules).map(path =>
-        path.replace('/public', '/rk-web')
+        path.replace('/public', '/KludgeKnight')
       );
 
       await manager.loadConfigs(urls);
@@ -32,13 +32,10 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     loadConfigs();
   }, []);
 
-  // Set notify callback on all devices and profiles
+  // Set notify callback on all devices
   useEffect(() => {
     manager.getAllDevices().forEach(device => {
       device.notify = forceUpdate;
-      device.profiles.forEach(profile => {
-        profile.notify = forceUpdate;
-      });
     });
   });
 
@@ -47,7 +44,6 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     return () => {
       manager.getAllDevices().forEach(device => {
         device.notify = undefined;
-        device.profiles.forEach(p => p.notify = undefined);
       });
     };
   }, []);
@@ -56,9 +52,6 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     const device = await manager.requestDevice();
     if (device) {
       device.notify = forceUpdate;
-      device.profiles.forEach(profile => {
-        profile.notify = forceUpdate;
-      });
       setSelectedDevice(device);
     }
   };

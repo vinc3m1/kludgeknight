@@ -33,8 +33,15 @@ export class BufferCodec {
 
     // Fill with default key codes from config
     for (const key of config.keys) {
-      const keyCode = mappings.get(key.bufferIndex) ?? key.keyCode;
-      this.setBufferKey(fullBuffer, key.bufferIndex * this.BYTES_PER_KEY, keyCode);
+      // Get custom mapping or default from config (converting string to enum)
+      const defaultKeyCode = KeyCode[key.keyCode as keyof typeof KeyCode];
+      const keyCode = mappings.get(key.bIndex) ?? defaultKeyCode;
+
+      if (defaultKeyCode === undefined) {
+        console.warn(`Unknown key code: ${key.keyCode} for bIndex ${key.bIndex}`);
+      }
+
+      this.setBufferKey(fullBuffer, key.bIndex * this.BYTES_PER_KEY, keyCode);
     }
 
     // Split into 9 HID buffers with headers

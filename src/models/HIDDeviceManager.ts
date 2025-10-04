@@ -53,9 +53,15 @@ export class HIDDeviceManager {
     }
 
     try {
-      // Request device with RK vendor ID
+      // Request device with RK vendor ID and configuration interface
+      // Usage page 0x0001 (Generic Desktop), usage 0x0080 (System Control)
+      // This matches Rangoli's device filtering
       const devices = await navigator.hid.requestDevice({
-        filters: [{ vendorId: 0x258a }],
+        filters: [{
+          vendorId: 0x258a,
+          usagePage: 0x0001,
+          usage: 0x0080
+        }],
       });
 
       if (devices.length === 0) {
@@ -84,11 +90,18 @@ export class HIDDeviceManager {
       const keyboards: KeyboardDevice[] = [];
 
       for (const hidDevice of hidDevices) {
-        // Only process RK keyboards (vendor ID 0x258a)
+        // Only process RK keyboards (vendor ID 0x258a) with configuration interface
+        // Check for usage page 0x0001 and usage 0x0080 (System Control)
         if (hidDevice.vendorId === 0x258a) {
-          const keyboard = await this.openDevice(hidDevice);
-          if (keyboard) {
-            keyboards.push(keyboard);
+          const hasConfigInterface = hidDevice.collections.some(
+            col => col.usagePage === 0x0001 && col.usage === 0x0080
+          );
+
+          if (hasConfigInterface) {
+            const keyboard = await this.openDevice(hidDevice);
+            if (keyboard) {
+              keyboards.push(keyboard);
+            }
           }
         }
       }
@@ -106,13 +119,17 @@ export class HIDDeviceManager {
   private async openDevice(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
     try {
       // Find config for this device
-      const pid = hidDevice.productId.toString(16).padStart(4, '0');
+      const pid = hidDevice.productId.toString(16);
       const config = this.configs.get(pid);
 
       if (!config) {
         console.warn(`No configuration found for device PID ${pid}`);
         return null;
       }
+
+      // Debug: Log HID collections to understand device structure
+      console.log('HID Device collections:', hidDevice.collections);
+      console.log('Product name:', hidDevice.productName);
 
       // Open device if not already open
       if (!hidDevice.opened) {

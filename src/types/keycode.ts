@@ -45,22 +45,33 @@ export enum KeyCode {
 
   // Special keys
   Key_Return = 0x28,
+  Key_Enter = 0x28, // Alias for Return
   Key_Escape = 0x29,
   Key_Backspace = 0x2a,
   Key_Tab = 0x2b,
   Key_Space = 0x2c,
   Key_Minus = 0x2d,
+  Key_Hyphen = 0x2d, // Alias for Minus (Rangoli naming)
   Key_Equal = 0x2e,
+  Key_Equals = 0x2e, // Alias for Equal (Rangoli naming)
   Key_BracketLeft = 0x2f,
+  Key_Left_Bracket = 0x2f, // Alias for BracketLeft (Rangoli naming)
   Key_BracketRight = 0x30,
+  Key_Right_Bracket = 0x30, // Alias for BracketRight (Rangoli naming)
   Key_Backslash = 0x31,
+  Key_Back_Slash = 0x31, // Alias for Backslash (Rangoli naming)
   Key_Semicolon = 0x33,
+  Key_Semi_Colon = 0x33, // Alias for Semicolon (Rangoli naming)
   Key_Apostrophe = 0x34,
+  Key_Quote = 0x34, // Alias for Apostrophe (Rangoli naming)
   Key_Grave = 0x35,
+  Key_Back_Quote = 0x35, // Alias for Grave (Rangoli naming)
   Key_Comma = 0x36,
   Key_Period = 0x37,
+  Key_Dot = 0x37, // Alias for Period (Rangoli naming)
   Key_Slash = 0x38,
   Key_CapsLock = 0x39,
+  Key_Caps_Lock = 0x39, // Alias for CapsLock (Rangoli naming)
 
   // Function keys
   Key_F1 = 0x3a,
@@ -83,13 +94,19 @@ export enum KeyCode {
   Key_Insert = 0x49,
   Key_Home = 0x4a,
   Key_PageUp = 0x4b,
+  Key_Page_Up = 0x4b, // Alias for PageUp (Rangoli naming)
   Key_Delete = 0x4c,
   Key_End = 0x4d,
   Key_PageDown = 0x4e,
+  Key_Page_Down = 0x4e, // Alias for PageDown (Rangoli naming)
   Key_ArrowRight = 0x4f,
+  Key_Right = 0x4f, // Alias for ArrowRight (Rangoli naming)
   Key_ArrowLeft = 0x50,
+  Key_Left = 0x50, // Alias for ArrowLeft (Rangoli naming)
   Key_ArrowDown = 0x51,
+  Key_Down = 0x51, // Alias for ArrowDown (Rangoli naming)
   Key_ArrowUp = 0x52,
+  Key_Up = 0x52, // Alias for ArrowUp (Rangoli naming)
 
   // Keypad
   Key_NumLock = 0x53,
@@ -112,13 +129,22 @@ export enum KeyCode {
 
   // Modifiers
   Key_ControlLeft = 0xe0,
+  Key_Left_Control = 0xe0, // Alias for ControlLeft (Rangoli naming)
   Key_ShiftLeft = 0xe1,
+  Key_Left_Shift = 0xe1, // Alias for ShiftLeft (Rangoli naming)
   Key_AltLeft = 0xe2,
+  Key_Left_Alt = 0xe2, // Alias for AltLeft (Rangoli naming)
   Key_MetaLeft = 0xe3,
+  Key_Left_Super = 0xe3, // Alias for MetaLeft (Rangoli naming)
   Key_ControlRight = 0xe4,
+  Key_Right_Control = 0xe4, // Alias for ControlRight (Rangoli naming)
   Key_ShiftRight = 0xe5,
+  Key_Right_Shift = 0xe5, // Alias for ShiftRight (Rangoli naming)
   Key_AltRight = 0xe6,
+  Key_Right_Alt = 0xe6, // Alias for AltRight (Rangoli naming)
   Key_MetaRight = 0xe7,
+  Key_Right_Super = 0xe7, // Alias for MetaRight (Rangoli naming)
+  Key_Fn = 0xb0, // Fn key (non-standard, Rangoli-specific)
 
   // Media keys
   Key_MediaPlayPause = 0xe8,

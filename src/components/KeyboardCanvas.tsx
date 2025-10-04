@@ -18,7 +18,6 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   }
 
   const { config } = device;
-  const profile = device.getActiveProfile();
 
   // Calculate canvas dimensions based on keyboard config
   const [topWidth, topHeight] = config.top;
@@ -27,27 +26,40 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   const height = topHeight + bottomHeight;
 
   const renderKey = (key: Key, index: number) => {
-    const hasMapping = profile?.hasMapping(key.bufferIndex);
-    const isSelected = selectedKeyIndex === key.bufferIndex;
+    const hasMapping = device.hasMapping(key.bIndex);
+    const isSelected = selectedKeyIndex === key.bIndex;
+
+    const [topX, topY] = key.top;
+    const [bottomX, bottomY] = key.bottom;
+
+    let fill = 'rgba(243, 244, 246, 0.3)'; // gray-100 with transparency
+    let stroke = '#9ca3af'; // gray-400
+
+    if (isSelected) {
+      fill = 'rgba(59, 130, 246, 0.5)'; // blue-500 with transparency
+      stroke = '#2563eb'; // blue-600
+    } else if (hasMapping) {
+      fill = 'rgba(187, 247, 208, 0.5)'; // green-200 with transparency
+      stroke = '#9ca3af';
+    }
 
     return (
       <rect
         key={index}
-        x={key.topX}
-        y={key.topY}
-        width={key.bottomX - key.topX}
-        height={key.bottomY - key.topY}
-        className={`cursor-pointer stroke-gray-400 transition-colors ${
-          isSelected
-            ? 'fill-blue-500 stroke-blue-600'
-            : hasMapping
-            ? 'fill-green-200 hover:fill-green-300'
-            : 'fill-gray-100 hover:fill-gray-200'
-        }`}
-        onClick={() => onKeyClick?.(key.bufferIndex)}
+        x={topX}
+        y={topY}
+        width={bottomX - topX}
+        height={bottomY - topY}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1"
+        className="cursor-pointer transition-colors hover:opacity-80"
+        onClick={() => onKeyClick?.(key.bIndex)}
       />
     );
   };
+
+  const imageUrl = config.image ? `/KludgeKnight/keyboards/${config.image}` : null;
 
   return (
     <div className="border border-gray-300 rounded p-4 bg-white">
@@ -56,6 +68,16 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
         className="w-full h-auto"
         style={{ maxHeight: '400px' }}
       >
+        {imageUrl && (
+          <image
+            href={imageUrl}
+            x="0"
+            y="0"
+            width={width}
+            height={height}
+            preserveAspectRatio="xMidYMid meet"
+          />
+        )}
         {config.keys.map((key, index) => renderKey(key, index))}
       </svg>
 
