@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
-import { KeyCode, type KeyInfo } from '../types/keycode';
+import { KeyCode } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
-
-// Helper to get friendly key name from KeyInfo
-function getKeyNameFromInfo(keyInfo: KeyInfo | undefined): string {
-  if (!keyInfo) return 'Unknown';
-  return keyInfo.label;
-}
 
 // Helper to get friendly key name
 function getKeyName(keyCode: KeyCode | undefined): string {
@@ -132,7 +126,7 @@ export function KeyRemapper() {
   };
 
   const currentMapping = selectedKeyIndex !== null ? device.getMapping(selectedKeyIndex) : undefined;
-  const defaultKey = selectedKeyIndex !== null ? device.config.keys[selectedKeyIndex]?.keyInfo : undefined;
+  const defaultKeyCode = selectedKeyIndex !== null ? device.config.keys[selectedKeyIndex]?.keyInfo.hid : undefined;
 
   return (
     <div className="space-y-6">
@@ -177,9 +171,9 @@ export function KeyRemapper() {
               <button
                 onClick={handleSetToDefault}
                 className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
-                title={`Reset to default: ${getKeyNameFromInfo(defaultKey)}`}
+                title={`Reset to default: ${getKeyName(defaultKeyCode)}`}
               >
-                Set to Default ({getKeyNameFromInfo(defaultKey)})
+                Set to Default ({getKeyName(defaultKeyCode)})
               </button>
               <button
                 onClick={selectedTargetKey !== null ? handleCancelSelection : handleClose}
