@@ -24,9 +24,7 @@ Open `https://localhost:3000` (HTTPS required for WebHID)
 
 ## Documentation
 
-- **[design/DESIGN.md](./design/DESIGN.md)** - Complete technical design
-- **[design/ARCHITECTURE.md](./design/ARCHITECTURE.md)** - Architecture overview
-- **[design/API_REFERENCE.md](./design/API_REFERENCE.md)** - API with examples
+- **[design/DESIGN.md](./design/DESIGN.md)** - Complete technical design and API reference
 
 ## Usage
 

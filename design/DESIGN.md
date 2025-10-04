@@ -1,170 +1,248 @@
 # RK-Web Design Document
 
-## Overview
+Web-based port of [Rangoli](https://github.com/rnayabed/rangoli) for Royal Kludge keyboard key remapping using WebHID API and React.
 
-RK-Web is a web-based port of [Rangoli](https://github.com/rnayabed/rangoli) for Royal Kludge keyboard **key remapping only**. Uses WebHID API and React.
-
-**Scope**: Key remapping with profiles. Lighting features will be added later.
+**Scope**: Key remapping with profiles. Lighting features deferred to Phase 2.
 
 ## Technology Stack
 
-### Frontend Framework
-- **Vite** - Build tool and dev server (configured for GitHub Pages)
+- **Vite** - Build tool with HTTPS dev server
 - **React 18+** - UI framework
 - **TypeScript** - Type safety
 - **TailwindCSS** - Styling
-
-### Package Manager
-- **Bun** - Fast package manager and runtime
-- All commands use `bun` instead of `npm`
-
-### Hardware Communication
-- **WebHID API** - Direct HID device communication in Chrome/Edge browsers
-
-### State Management
-- **React Context** - Simple state distribution for device models
-- **React hooks** - Built-in reactivity
-
-### Storage
-- **Keyboard hardware** - The only source of truth for active key mappings
-- **localStorage** - Optional: UI theme preferences only
-- **Note**: Profiles are JSON export/import via browser download/upload
-
-### Deployment
+- **Bun** - Package manager
+- **WebHID API** - Direct HID communication (Chrome/Edge only)
 - **GitHub Pages** - Static hosting
-- **GitHub Actions** - CI/CD for automated builds
 
-## Architecture
+## Architecture Principle
 
-### High-Level Architecture
+**The keyboard hardware is the only source of truth.**
 
-```mermaid
-graph TB
-    subgraph UI["UI Layer - React Components"]
-        KC[Keyboard Configurator]
-        PM[Profile Manager]
-    end
-
-    subgraph Context["React Context"]
-        CTX[DeviceContext<br/>Simple wrapper]
-    end
-
-    subgraph Domain["Domain Layer - Pure Data Models"]
-        HDM[HIDDeviceManager]
-        KD[KeyboardDevice]
-        PROF[Profile]
-    end
-
-    subgraph HID["HID Abstraction Layer"]
-        PT[ProtocolTranslator]
-        BC[BufferCodec]
-    end
-
-    subgraph Hardware["Hardware"]
-        KEYBOARD[🎹 RK Keyboard<br/>SOURCE OF TRUTH]
-    end
-
-    UI --> CTX
-    CTX --> Domain
-    Domain --> HID
-    HID --> KEYBOARD
-
-    KD --> PROF
-
-    style KEYBOARD fill:#e51573,color:#fff
-    style Domain fill:#4a9eff,color:#fff
+```
+User Action
+  ↓
+Mutation API (returns Promise)
+  ↓
+Operation Queue (serializes HID writes)
+  ↓
+HID Send → Keyboard Hardware
+  ↓
+Promise resolves (or rejects with error)
+  ↓
+Model calls notify() → React re-renders
 ```
 
-### Reactive Data Flow
+**Why this is simple:**
+- No Zustand/Redux
+- No IndexedDB
+- Keyboard stores active mappings
+- Profiles are JSON snapshots (export/import)
+- All mutations queued to prevent race conditions
 
-```mermaid
-sequenceDiagram
-    participant UI
-    participant CTX as DeviceContext
-    participant KD as KeyboardDevice
-    participant PROF as Profile
-    participant HID as WebHID
+## Operation Queue System
 
-    Note over UI,HID: User remaps a key
-    UI->>PROF: profile.setMapping(keyIndex, keyCode)
-    PROF->>PROF: Update mappings data
-    PROF->>HID: Send buffer
-    PROF->>CTX: notify()
-    CTX->>UI: Re-render
+All hardware mutations are queued and executed serially to prevent race conditions.
 
-    Note over UI,HID: Device disconnects
-    HID-->>KD: Disconnect event
-    KD->>KD: Set connected = false
-    KD->>CTX: notify()
-    CTX->>UI: Re-render (device offline)
+```typescript
+class OperationQueue {
+  private queue: Array<() => Promise<void>> = [];
+  private processing = false;
+
+  async enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const result = await operation();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.processing || this.queue.length === 0) return;
+
+    this.processing = true;
+    while (this.queue.length > 0) {
+      const operation = this.queue.shift()!;
+      await operation();
+    }
+    this.processing = false;
+  }
+}
 ```
 
-## Core Components
+**Usage in models:**
+```typescript
+class Profile {
+  private queue = new OperationQueue();
 
-### 1. HID Device Manager
+  async setMapping(keyIndex: number, keyCode: KeyCode): Promise<void> {
+    return this.queue.enqueue(async () => {
+      const oldValue = this.mappings.get(keyIndex);
+      try {
+        this.mappings.set(keyIndex, keyCode);
+        await this.sendToKeyboard();
+        this.notify();
+      } catch (error) {
+        // Rollback on failure
+        if (oldValue !== undefined) {
+          this.mappings.set(keyIndex, oldValue);
+        } else {
+          this.mappings.delete(keyIndex);
+        }
+        this.notify();
+        throw error;
+      }
+    });
+  }
+}
+```
 
-Singleton responsible for device lifecycle management.
+## Core Models
+
+### HIDDeviceManager
+
+Singleton for device lifecycle management.
 
 ```typescript
 class HIDDeviceManager {
   private static instance: HIDDeviceManager;
   private devices: Map<string, KeyboardDevice> = new Map();
 
-  static getInstance(): HIDDeviceManager { /* ... */ }
+  static getInstance(): HIDDeviceManager;
 
-  async requestDevice(): Promise<KeyboardDevice | null> { /* ... */ }
-  async scanAuthorizedDevices(): Promise<KeyboardDevice[]> { /* ... */ }
+  async requestDevice(): Promise<KeyboardDevice | null>;
+  async scanAuthorizedDevices(): Promise<KeyboardDevice[]>;
 
-  getDevice(id: string): KeyboardDevice | undefined { /* ... */ }
-  getAllDevices(): KeyboardDevice[] { /* ... */ }
+  getDevice(id: string): KeyboardDevice | undefined;
+  getAllDevices(): KeyboardDevice[];
 }
 ```
 
-### 2. Profile Model
+**Implementation notes:**
+- Uses `navigator.hid.requestDevice()` with filter `{ vendorId: 0x258a }`
+- `scanAuthorizedDevices()` uses `navigator.hid.getDevices()`
+- Handles `connect`/`disconnect` events
+- Loads keyboard configs from `/public/keyboards/` JSON
 
-Manages key mappings with individual key updates.
+### KeyboardDevice
 
-```typescript
-class Profile {
-  name: string;
-  mappings: Map<number, KeyCode> = new Map();
-
-  async setMapping(keyIndex: number, keyCode: KeyCode): Promise<void>
-  async clearMapping(keyIndex: number): Promise<void>
-  getMapping(keyIndex: number): KeyCode | undefined
-  hasMapping(keyIndex: number): boolean
-  async clearAll(): Promise<void>
-  toJSON(): object
-}
-```
-
-### 3. Keyboard Device Model
-
-Pure data model representing the keyboard.
+Represents a connected keyboard.
 
 ```typescript
 class KeyboardDevice {
   readonly id: string;
   readonly hidDevice: HIDDevice;
   readonly config: KeyboardConfig;
-  connected: boolean = true;
 
+  connected: boolean = true;
   profiles: Profile[] = [];
   activeProfileIndex: number = -1;
+  notify?: () => void;
 
-  addProfile(name: string, initialMappings?: Map): Profile
-  deleteProfile(index: number): void
-  async activateProfile(index: number): Promise<void>
-  getActiveProfile(): Profile | null
+  // All methods return promises that resolve when queue completes
+  async addProfile(name: string, mappings?: Map<number, KeyCode>): Promise<Profile>;
+  async deleteProfile(index: number): Promise<void>;
+  async activateProfile(index: number): Promise<void>;
 
-  exportSnapshot(name: string): string
-  async importSnapshot(json: string): Promise<void>
+  getActiveProfile(): Profile | null;
+
+  exportSnapshot(name: string): string;
+  async importSnapshot(json: string): Promise<void>;
 }
 ```
 
-### 4. React Context
+**Key behaviors:**
+- `addProfile()` creates new Profile and activates it
+- `activateProfile()` sends all mappings to keyboard via queue
+- `importSnapshot()` replaces all profiles and activates first one
+- All mutations queued to prevent concurrent HID writes
 
-Simple context to distribute devices to components.
+### Profile
+
+Manages key mappings with queued updates.
+
+```typescript
+class Profile {
+  name: string;
+  mappings: Map<number, KeyCode> = new Map();
+  notify?: () => void;
+
+  private queue: OperationQueue = new OperationQueue();
+  private device: KeyboardDevice;
+
+  // All return promises that resolve when HID write completes
+  async setMapping(keyIndex: number, keyCode: KeyCode): Promise<void>;
+  async clearMapping(keyIndex: number): Promise<void>;
+  async clearAll(): Promise<void>;
+
+  // Synchronous getters
+  getMapping(keyIndex: number): KeyCode | undefined;
+  hasMapping(keyIndex: number): boolean;
+
+  toJSON(): object;
+}
+```
+
+**Error handling:**
+- All async methods rollback local state on HID failure
+- Errors propagated to caller for UI handling
+- `notify()` called after both success and rollback
+
+### ProtocolTranslator
+
+Translates profile mappings to 9 HID buffers (65 bytes each).
+
+```typescript
+class ProtocolTranslator {
+  constructor(
+    private device: HIDDevice,
+    private config: KeyboardConfig
+  ) {}
+
+  async sendProfile(mappings: Map<number, KeyCode>): Promise<void> {
+    const buffers = BufferCodec.encode(mappings, this.config);
+
+    for (let i = 0; i < 9; i++) {
+      await this.device.sendReport(0, buffers[i]);
+    }
+  }
+}
+```
+
+### BufferCodec
+
+Encodes/decodes the 9-buffer protocol from Rangoli.
+
+```typescript
+class BufferCodec {
+  static encode(
+    mappings: Map<number, KeyCode>,
+    config: KeyboardConfig
+  ): Uint8Array[] {
+    // Port logic from Rangoli's keyboardconfiguratorcontroller.cpp
+    // Returns 9 buffers of 65 bytes each:
+    // [0]: 0x00  (Report ID)
+    // [1]: 0x0B  (Command: Key mapping)
+    // [2]: 0-8   (Buffer index)
+    // [3-64]: Key mapping data
+  }
+
+  static decode(buffers: Uint8Array[]): Map<number, KeyCode> {
+    // Parse received buffers back to mappings
+  }
+}
+```
+
+## React Integration
+
+### DeviceContext
+
+Simple context wrapper around HIDDeviceManager.
 
 ```typescript
 interface DeviceContextValue {
@@ -174,11 +252,39 @@ interface DeviceContextValue {
   requestDevice: () => Promise<void>;
 }
 
-export function useDevices(): DeviceContextValue
-export function useSelectedDevice(): KeyboardDevice | null
+export function DeviceProvider({ children }: { children: ReactNode }) {
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+  // Set notify callback on all devices
+  useEffect(() => {
+    const manager = HIDDeviceManager.getInstance();
+    manager.getAllDevices().forEach(device => {
+      device.notify = forceUpdate;
+      device.profiles.forEach(profile => {
+        profile.notify = forceUpdate;
+      });
+    });
+  });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      const manager = HIDDeviceManager.getInstance();
+      manager.getAllDevices().forEach(device => {
+        device.notify = undefined;
+        device.profiles.forEach(p => p.notify = undefined);
+      });
+    };
+  }, []);
+
+  // ... context implementation
+}
+
+export function useDevices(): DeviceContextValue;
+export function useSelectedDevice(): KeyboardDevice | null;
 ```
 
-## Data Models
+## Data Types
 
 ```typescript
 interface KeyboardConfig {
@@ -209,127 +315,204 @@ enum KeyCode {
 
 ## Usage Examples
 
-### Remap Individual Key
-
+### Connect Keyboard
 ```tsx
-function KeyRemapper({ keyIndex }: { keyIndex: number }) {
-  const profile = useSelectedDevice()?.getActiveProfile();
+const { requestDevice } = useDevices();
 
-  if (!profile) return <div>Create a profile first</div>;
+<Button onClick={requestDevice}>
+  Connect Keyboard
+</Button>
+```
 
-  return (
-    <div>
-      <KeyCodeSelector
-        value={profile.getMapping(keyIndex)}
-        onChange={(code) => profile.setMapping(keyIndex, code)}
-      />
+### Remap Key with Error Handling
+```tsx
+const profile = useSelectedDevice()?.getActiveProfile();
+const [error, setError] = useState<string | null>(null);
 
-      {profile.hasMapping(keyIndex) && (
-        <Button onClick={() => profile.clearMapping(keyIndex)}>
-          Reset to Default
-        </Button>
-      )}
-    </div>
-  );
-}
+const handleRemap = async (keyIndex: number, keyCode: KeyCode) => {
+  try {
+    await profile.setMapping(keyIndex, keyCode);
+    setError(null);
+  } catch (err) {
+    setError('Failed to remap key. Please try again.');
+  }
+};
+
+<KeyCodeSelector
+  value={profile?.getMapping(keyIndex)}
+  onChange={(code) => handleRemap(keyIndex, code)}
+  error={error}
+/>
+```
+
+### Switch Profiles
+```tsx
+const device = useSelectedDevice();
+const [loading, setLoading] = useState(false);
+
+const switchProfile = async (index: number) => {
+  setLoading(true);
+  try {
+    await device.activateProfile(index);
+  } catch (err) {
+    console.error('Failed to switch profile');
+  } finally {
+    setLoading(false);
+  }
+};
+
+{device?.profiles.map((profile, i) => (
+  <Button
+    key={i}
+    onClick={() => switchProfile(i)}
+    disabled={loading}
+  >
+    {profile.name}
+  </Button>
+))}
+```
+
+### Export/Import Profiles
+```tsx
+// Export to file
+const handleExport = () => {
+  const json = device.exportSnapshot('My Setup');
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'keyboard-config.json';
+  a.click();
+};
+
+// Import from file
+const handleImport = async (file: File) => {
+  try {
+    const json = await file.text();
+    await device.importSnapshot(json);
+  } catch (err) {
+    console.error('Failed to import profile');
+  }
+};
 ```
 
 ## Project Structure
 
 ```
 rk-web/
-├── design/                  # Design documentation
+├── design/
+│   ├── DESIGN.md              # This file
+│   ├── ARCHITECTURE.md        # Delete (merged here)
+│   └── API_REFERENCE.md       # Delete (merged here)
 ├── public/
-│   └── keyboards/          # Keyboard configs from Rangoli
+│   └── keyboards/             # Keyboard configs from Rangoli
 ├── src/
-│   ├── models/             # Domain models
-│   │   ├── HIDDeviceManager.ts
-│   │   ├── KeyboardDevice.ts
-│   │   ├── Profile.ts
-│   │   ├── ProtocolTranslator.ts
-│   │   └── BufferCodec.ts
+│   ├── models/
+│   │   ├── OperationQueue.ts       (~40 lines)
+│   │   ├── HIDDeviceManager.ts     (~150 lines)
+│   │   ├── KeyboardDevice.ts       (~120 lines)
+│   │   ├── Profile.ts              (~100 lines)
+│   │   ├── ProtocolTranslator.ts   (~60 lines)
+│   │   └── BufferCodec.ts          (~120 lines)
 │   ├── context/
-│   │   └── DeviceContext.tsx
+│   │   └── DeviceContext.tsx       (~80 lines)
 │   ├── hooks/
-│   │   └── useDevices.ts
+│   │   └── useDevices.ts           (~20 lines)
 │   ├── components/
-│   │   ├── keyboard/
-│   │   ├── profile/
-│   │   └── keymap/
+│   │   ├── ConnectButton.tsx
+│   │   ├── KeyboardCanvas.tsx
+│   │   ├── ProfileList.tsx
+│   │   ├── KeyRemapper.tsx
+│   │   └── ExportImport.tsx
+│   ├── types/
+│   │   ├── keyboard.ts
+│   │   └── keycode.ts
 │   └── App.tsx
 ├── package.json
-├── bun.lockb
 └── vite.config.ts
 ```
 
-## Bun Commands
+**Total model code: ~590 lines** (including queue)
+
+## Commands
 
 ```bash
-# Install
+# Install dependencies
 bun install
 
-# Dev server (with HTTPS for WebHID)
+# Dev server (HTTPS for WebHID)
 bun run dev
 
-# Build
+# Build for production
 bun run build
 
-# Preview
+# Preview production build
 bun run preview
 ```
 
-## WebHID Integration
-
-**Browser Support**: Chrome 89+, Edge 89+, Opera 75+
-**Requirements**: HTTPS (localhost works for dev)
+## Vite Configuration
 
 ```typescript
-// Request device
-const devices = await navigator.hid.requestDevice({
-  filters: [{ vendorId: 0x258a }]
-});
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// Open and send
-await device.open();
-await device.sendReport(0, buffer);
-```
-
-## GitHub Pages Deployment
-
-### vite.config.ts
-```typescript
 export default defineConfig({
+  plugins: [react()],
   base: '/rk-web/',
   server: {
-    https: true
+    https: true,
+    host: true
   }
 });
 ```
 
-### Package.json
 ```json
+// package.json
 {
   "scripts": {
     "dev": "bunx --bun vite --host",
-    "build": "bunx --bun vite build"
+    "build": "bunx --bun vite build",
+    "preview": "bunx --bun vite preview"
   }
 }
 ```
 
-## Protocol
+## WebHID Protocol Details
 
-Key mapping uses 9 buffers (65 bytes each):
-```typescript
-[0]: 0x00  // Report ID
-[1]: 0x0B  // Command: Key mapping
-[2]: 0-8   // Buffer index
-[3-64]: Key mapping data (from Rangoli)
+### Buffer Format
+```
+Byte[0]:    0x00      Report ID
+Byte[1]:    0x0B      Command (Key mapping)
+Byte[2]:    0-8       Buffer index
+Byte[3-64]: Mapping data (varies by keyboard)
 ```
 
-## Future Enhancements
+### Sending Profile
+```typescript
+// 9 buffers × 65 bytes each
+for (let i = 0; i < 9; i++) {
+  await device.sendReport(0, buffer[i]);
+}
+```
 
-- Phase 2: Lighting support (RGB, modes, brightness)
-- Phase 3: PWA, cloud sync, community profiles
+### Browser Requirements
+- Chrome 89+, Edge 89+, Opera 75+
+- HTTPS required (localhost OK for dev)
+- User permission required
+
+## GitHub Pages Deployment
+
+1. Push to main branch
+2. GitHub Actions builds automatically
+3. Deploys to `https://username.github.io/rk-web`
+
+See `.github/workflows/deploy.yml` for CI/CD configuration.
+
+## Future Phases
+
+- **Phase 2**: Lighting control (RGB, modes, brightness)
+- **Phase 3**: PWA support, cloud sync, community profiles
 
 ## License
 
