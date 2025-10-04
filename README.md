@@ -4,6 +4,8 @@
 
 Remap any key on your Royal Kludge keyboard directly in your browser. No installation required.
 
+🌐 **[Try it now at kludgeknight.com](https://www.kludgeknight.com/)**
+
 > ⚠️ **Disclaimer**: This is unofficial software and is not affiliated with, endorsed by, or connected to Royal Kludge in any way. Use at your own risk.
 
 > **Note**: This software has only been tested on the Royal Kludge F68 keyboard. While the key mappings are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
@@ -25,6 +27,10 @@ This means:
 - The app always starts with the default keyboard layout
 - Any remapping you do will overwrite what's currently on the keyboard
 
+## 📸 Screenshot
+
+![KludgeKnight Screenshot](screenshot.png)
+
 ## 🚀 Getting Started
 
 ### Requirements
@@ -34,7 +40,7 @@ This means:
 
 ### How to Use
 
-1. **Visit the app** at [your-deployment-url]
+1. **Visit the app** at [kludgeknight.com](https://www.kludgeknight.com/)
 2. **Click "Connect Keyboard"** and select your keyboard from the list
 3. **Click any key** on the keyboard diagram
 4. **Select a new key** to remap it to
