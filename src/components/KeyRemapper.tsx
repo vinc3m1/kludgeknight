@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
-import { KeyCode } from '../types/keycode';
+import { KeyCode, type KeyInfo } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
+
+// Helper to get friendly key name from KeyInfo
+function getKeyNameFromInfo(keyInfo: KeyInfo | undefined): string {
+  if (!keyInfo) return 'Unknown';
+  return keyInfo.label;
+}
 
 // Helper to get friendly key name
 function getKeyName(keyCode: KeyCode | undefined): string {
@@ -100,7 +106,7 @@ export function KeyRemapper() {
     }
   };
 
-  const handleClearMapping = async () => {
+  const handleSetToDefault = async () => {
     if (selectedKeyIndex === null) return;
 
     setError(null);
@@ -109,7 +115,7 @@ export function KeyRemapper() {
       setSelectedKeyIndex(null);
       setSelectedTargetKey(null);
     } catch (err) {
-      setError('Failed to clear mapping. Please try again.');
+      setError('Failed to set to default. Please try again.');
       console.error(err);
     }
   };
@@ -126,6 +132,7 @@ export function KeyRemapper() {
   };
 
   const currentMapping = selectedKeyIndex !== null ? device.getMapping(selectedKeyIndex) : undefined;
+  const defaultKey = selectedKeyIndex !== null ? device.config.keys[selectedKeyIndex]?.keyInfo : undefined;
 
   return (
     <div className="space-y-6">
@@ -167,14 +174,13 @@ export function KeyRemapper() {
                   Apply
                 </button>
               )}
-              {currentMapping !== undefined && (
-                <button
-                  onClick={handleClearMapping}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-                >
-                  Clear Mapping
-                </button>
-              )}
+              <button
+                onClick={handleSetToDefault}
+                className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
+                title={`Reset to default: ${getKeyNameFromInfo(defaultKey)}`}
+              >
+                Set to Default ({getKeyNameFromInfo(defaultKey)})
+              </button>
               <button
                 onClick={selectedTargetKey !== null ? handleCancelSelection : handleClose}
                 className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"

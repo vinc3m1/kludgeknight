@@ -6,20 +6,30 @@ Remap any key on your Royal Kludge keyboard directly in your browser. No install
 
 > ⚠️ **Disclaimer**: This is unofficial software and is not affiliated with, endorsed by, or connected to Royal Kludge in any way. Use at your own risk.
 
+> **Note**: This software has only been tested on the Royal Kludge F68 keyboard. While the key mappings are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
+
 ## ✨ Features
 
 - 🌐 **Runs in your browser** - No downloads or installation
 - 🎹 **Visual keyboard layout** - See your keyboard and click to remap
 - 🔄 **Live updates** - Changes apply immediately to your hardware
 - 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
-- 🖼️ **Automatic keyboard detection** - Loads the correct layout for your model
+- 🗺️ **Key mappings from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge app
+
+### ⚠️ Important Limitation
+
+**The app cannot read your existing key mappings from the keyboard.** Due to firmware limitations, we can only write new mappings, not read what's currently set.
+
+This means:
+- If you've already remapped keys using RK software, those mappings won't be visible here
+- The app always starts with the default keyboard layout
+- Any remapping you do will overwrite what's currently on the keyboard
 
 ## 🚀 Getting Started
 
 ### Requirements
 
 - **Browser**: Chrome, Edge, or Opera (WebHID support required)
-- **Connection**: HTTPS (automatic on the hosted version)
 - **Keyboard**: Royal Kludge keyboard with USB cable
 
 ### How to Use
@@ -32,19 +42,8 @@ Remap any key on your Royal Kludge keyboard directly in your browser. No install
 
 ### Resetting Keys
 
-- **Single key**: Click a remapped key and select "Reset to Default"
+- **Single key**: Click any key and select "Set to Default" to reset it to its original function
 - **All keys**: Click "Reset All Keys to Default" button
-
-### ⚠️ Important Limitation
-
-**The app cannot read your existing key mappings from the keyboard.** Due to firmware limitations, we can only write new mappings, not read what's currently set.
-
-This means:
-- If you've already remapped keys using RK software, those mappings won't be visible here
-- The app always starts with the default keyboard layout
-- Any remapping you do will overwrite what's currently on the keyboard
-
-**Recommendation**: Start fresh by clicking "Reset All Keys to Default" before remapping.
 
 ## ❓ FAQ
 
@@ -58,7 +57,7 @@ This means:
 
 ### Which keyboards are supported?
 
-Any Royal Kludge keyboard that works with the official RK software. The app automatically detects your keyboard model and loads the correct layout.
+Any Royal Kludge keyboard that works with the official RK software should be supported, as the keyboard configurations are pulled directly from the official RK app.
 
 ### Is my data safe?
 
