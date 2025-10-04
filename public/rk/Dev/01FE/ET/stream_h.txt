@@ -1,0 +1,15 @@
+sf1,sf2,sf3,sf4,sf5
+esc,~,tab,caps,shift,k45,ctrl,win
+1,Q,A,Z,alt
+f1,2,W,S,X
+f2,3,E,D,C
+F3,4,R,F,V
+F4,5,T,G,B,space
+6,Y,H,N
+f5,7,U,J,M
+f6,8,I,K,<
+f7,9,O,L,>,ralt
+f8,0,P,;,?,fn
+f9,f10,=,-,[,],',app,rctrl
+f11,f12,back,|,enter,rshift,k56,up,down,left
+home,del,pgup,pgdn,right

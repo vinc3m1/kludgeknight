@@ -1,0 +1,10 @@
+u
+7,y,h,j,i,8
+f6,6,t,g,b,n,m,k,o,9,f7
+f5,5,r,f,v,space,<,l,p,0,f8
+f4,4,e,d,c,>,;,[,-,f9
+f3,3,w,s,x,ralt,?,',],=,f10
+f2,2,q,a,z,alt,fn,rctrl,rshift,enter,|,back,f11,f12
+f1,1,esc,~,tab,caps,shift,k45,ctrl,left,up,down,right,pgdn,pgup,del
+sf1,sf2,sf3,sf4,sf5
+

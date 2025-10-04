@@ -1,0 +1,16 @@
+num0:num1:num4:num7:numlock:vol+
+num2:num5:num8:num/:vol-
+num.:num3:num6:num9:num*:mute
+numenter:num+:num-:cal
+ctrl:shift,k45:caps:tab,q:~,1:esc,f1
+win,alt:z:a,s:w:2,3:f2,f3
+x,c:d:e,r:4:f4
+v:f,g:t:5,6:f5,f6
+space:b,n:h:y,u:7:f7
+m:j,k:i:8,9:f8,f9
+ralt:<,>:L:o,p:0:f10
+fn,rctrl:?:;,':[:-,=:f11,f12
+left,down:rshift,up:enter:],|:back:del
+right:pgdn:pgup:home
+
+

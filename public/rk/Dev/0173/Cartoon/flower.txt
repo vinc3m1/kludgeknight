@@ -1,0 +1,13 @@
+;每一行是一个按键单元，文件必须以ansi格式保存，按键名称不区分大小写
+U
+7,8,Y,I,H,J
+F7,6,T,G,B,N,M,K,O,9,F8
+F6,5,R,F,V,space,<,L,P,0,F9
+F5,4,E,D,C,>,;,F10
+F4,3,W,S,X,RAlt,FN,?,',[,-,],=,F11
+F3,2,Q,A,Z,Alt,RCtrl,RShift,enter,|,back,F12
+F2,1,win,left,up,num4,num7,numlock,print,del
+F1,down,right,num1,num5,num8,num/,home
+esc,~,tab,caps,shift,k45,ctrl,ins,pgup,pgdn,num0,num2,num3,num.,numenter,num+,num-,num*,num9,num6
+
+

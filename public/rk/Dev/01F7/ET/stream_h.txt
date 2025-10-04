@@ -1,0 +1,14 @@
+esc,~,tab,caps,shift,k45,ctrl,win
+1,Q,A,Z,alt
+f1,2,W,S,X,k131
+f2,3,E,D,C
+F3,4,R,F,V
+F4,5,T,G,B,space
+f5,6,Y,H,N,k132
+f6,7,U,J,M,k133
+f7,8,I,K,<,ralt
+f8,9,O,L,>,fn
+f9,0,P,;,?,rctrl
+f10,f11,-,=,[,],',k56
+f12,back,|,enter,rshift,up,down,left,k14
+del,pgup,pgdn,right

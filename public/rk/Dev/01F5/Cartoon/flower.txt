@@ -1,0 +1,12 @@
+;»¨¿ª¸»¹ó
+i
+8,u,j,k,o,9
+f7,7,y,h,n,m,<,l,p,0,f9,f8
+f6,6,t,g,b,k132,k133,ralt,>,;,[,-,f10
+f5,5,r,f,v,space,fn,?,',],=,f11
+f4,4,e,d,c,k56,|,k14,f12
+f3,3,w,s,x,k131,app,rctrl,rshift,enter,back,cal
+f2,2,q,a,z,alt,left,del,ins,print
+f1,1,win,down,up,end,home,scroll
+esc,~,tab,caps,shift,ctrl,right,pgdn,pgup,pause
+

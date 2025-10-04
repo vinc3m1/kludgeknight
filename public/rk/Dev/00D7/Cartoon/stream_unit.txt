@@ -1,0 +1,16 @@
+;Ëæ²¨ÖðÁ÷
+k_all,k_copy,k_past,k_cut,k_save
+esc,tab,caps,shift,ctrl,win,k45
+1,Q,A,Z,alt
+2,W,S,X
+3,E,D,C
+4,R,F,V
+5,T,G,B,space,space2
+6,Y,H,N
+7,U,J,M
+8,I,K,<
+9,O,L,>,ralt
+0,P,;,?,fn
+-,=,[,],',app
+back,|,enter,rshift,rctrl,left,up,down
+del,~,pgup,pgdn,right

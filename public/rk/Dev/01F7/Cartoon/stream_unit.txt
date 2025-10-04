@@ -1,0 +1,15 @@
+;Ëæ²¨ÖðÁ÷
+esc,~,tab,caps,shift,k45,ctrl,win
+1,Q,A,Z,alt
+2,W,S,X,k131
+3,E,D,C
+4,R,F,V
+5,T,G,B,space
+6,Y,H,N,k132
+7,U,J,M,k133
+8,I,K,<,ralt
+9,O,L,>,fn
+0,P,;,?,rctrl
+-,=,[,],',k56
+back,|,enter,rshift,up,down,left,k14
+del,pgup,pgdn,right

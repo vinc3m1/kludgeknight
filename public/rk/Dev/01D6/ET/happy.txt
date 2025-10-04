@@ -1,0 +1,4 @@
+ctrl,win:shift,k45,alt:caps,z:tab,a,x:~,1,q,s,c:esc,2,w,d,v:f1,3,e,f,b
+space,ralt,fn:c,v,b,n,m,<,>:f,g,h,j,k,l:t,y,u,i:6,7,8:f6,f7
+right,down:left,up,pgdn:pgup,end,rctrl:pause,home,del,enter,rshift,app,rwin:scroll,ins,|
+

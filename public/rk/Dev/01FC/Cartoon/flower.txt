@@ -1,0 +1,8 @@
+u
+7,y,h,j,i,8
+f6,6,t,g,b,n,m,k,o,9,f8,f7
+f5,5,r,f,v,space,k132,k133,<,l,p,0,f9
+f4,4,e,d,c,>,;,[,-,f10
+f3,3,w,s,x,k131,ralt,?,',],=,f11
+f2,2,q,a,z,alt,fn,rshift,|,k56,k14,f12
+f1,1,esc,~,tab,caps,shift,k45,ctrl,win,left,up,down,enter,back,del,right,home,pgup,pgdn

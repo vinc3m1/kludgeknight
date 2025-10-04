@@ -1,0 +1,5 @@
+sf1,esc,1,2,3,4,5,6,7,8,9,0,-,=,back,del
+sf2,tab,q,w,e,r,t,y,u,i,o,p,[,],pgup
+sf3,caps,a,s,d,f,g,h,j,k,l,;,',|,enter,pgdn
+sf4,shift,k45,z,x,c,v,b,n,m,<,>,?,rshift,up
+sf5,ctrl,win,alt,space,ralt,fn,left,down,right

@@ -1,0 +1,3 @@
+ctrl,win,alt:shift,k45:caps,z:tab,a,x:~,1,q,s:esc,2,w,d,v:f1,3,e,f,b
+k131,space,k132,k133,ralt,fn:c,v,b,n,m,<,>,?:g,h,j,k,l,;:y,u,i,o,p:7,8,9,0:f7,f8
+left,down,right:pgdn,pgup,up:home,enter,rshift:back,|

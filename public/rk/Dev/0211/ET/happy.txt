@@ -1,0 +1,4 @@
+ctrl,win:shift,alt:caps,z:tab,a,x:~,1,q,s,c:esc,f1,2,w,d,v
+space,ralt,fn,rctrl:c,v,b,n,m,<,>,?:f,g,h,j,k,l,;:t,y,u,i,o,p:6,7,8,9,0:f7,f8
+num.,numenter:num0,num3:num+,num6,num2,right:num-,num9,num5,num1,down:end,num*,num8,num4,up,left:pgdn,num/,num7:pgup,numlock,|,enter,rshift,rctrl
+

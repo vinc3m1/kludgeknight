@@ -1,0 +1,6 @@
+;文件必须以ansi格式保存，按键名称不区分大小写
+;本文件定义音频条，每行定义一个音频条，音频条每层之间用:分隔，组成每层的按键用,分隔
+ctrl,win,alt:shift,alt:caps,z:tab,a,x:~,1,q,s,c:esc,2,w,d,v:f1,3,e,f,b
+space,ralt,fn,rctrl,left,down,right:c,v,b,n,m,<,>,?:f,g,h,j,k,l,;:t,y,u,i,o:6,7,8,9:f5,f6,f7
+num0,num.,numenter:num2,num3,num6,num+:num-,num9,num5,num1,right:pause,num*,num8,num4,down:print,num/,num7,pgdn,up,left
+

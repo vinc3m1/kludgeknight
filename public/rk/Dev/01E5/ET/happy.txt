@@ -1,0 +1,3 @@
+sf5,ctrl,win,alt:sf4:sf3,shift:sf2,caps,k45:sf1,tab,a,z:~,q,s,x:esc,1
+space,ralt,fn,rctrl,app:c,v,b,n,m,<,>,?:g,h,j,k,l,;:y,u,i,o,p:7,8,9,0:f6,f7,f8
+right,down,left:pgdn,up:pgup,enter,rshift:del,|:back,],',?

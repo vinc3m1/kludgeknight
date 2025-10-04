@@ -1,0 +1,17 @@
+;Ëæ²¨ÖðÁ÷
+esc,~,tab,caps,shift,ctrl,win,k45
+1,Q,A,Z,alt
+f1,2,W,S,X,k131
+f2,3,E,D,C
+F3,4,R,F,V,space
+F4,5,T,G,B
+6,Y,H,N,k132
+f5,7,U,J,M,k133
+f6,8,I,K,<
+f7,9,O,L,>,ralt
+f8,f9,0,P,;,?,fn
+f10,f11,-,=,[,],',|,k56,app
+f12,k14,cal,back,enter,rshift,rctrl
+print,ins,del,left
+scroll,home,end,up,down
+pause,pgup,pgdn,right

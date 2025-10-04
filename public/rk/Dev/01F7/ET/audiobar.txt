@@ -1,0 +1,11 @@
+ctrl:shift:caps:tab,q:~,1:esc
+win,alt:z:a,s:w:2,3
+k131:x,c:d:e,r:4
+v:f,g:t:5,6
+space,k132:b,n:h:y,u:7
+k133:m:j,k:i:8,9
+ralt:<,>:L:o,p:0
+fn:?:;,':[:-,=
+rctrl,left,down:rshift,up:enter,],|:back,k14
+right:pgdn:pgup:del
+

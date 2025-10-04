@@ -1,0 +1,16 @@
+esc,~,tab,caps,shift,k45,ctrl,win
+1,Q,A,Z,alt
+f1,2,W,S,X
+f2,3,E,D,C
+F3,4,R,F,V
+F4,5,T,G,B,space
+6,Y,H,N
+f5,7,U,J,M
+f6,8,I,K,<
+f7,9,O,L,>,ralt
+f8,0,P,;,?,fn
+f9,-,[,',app,f10,=,],|
+f11,f12,cal,back,enter,rshift,rctrl
+print,ins,del,left
+scroll,home,end,up,down
+pause,pgup,pgdn,right

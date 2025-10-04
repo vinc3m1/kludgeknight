@@ -1,0 +1,12 @@
+ctrl,win:shift,k45:caps:tab,q:~,1:esc
+alt:z,x:a,s:q,w:2,3:f1,f2
+c,v:d,f:e,r:4,5:f3,f4
+k131,space:b:g,h:t,y:6,7:f5,f6
+k132,k133:n,m:j,k:u,i:8,9:f7,f8
+ralt:<,>:l:o,p:0:f9
+fn:?:;,':p,[:-,=:f10,f11
+app,rctrl:rshift,k56:enter,|,]:back,k14:f12,cal
+left:del:ins:print
+down:up:end:home:scroll
+right:pgdn:pgup:pause
+
