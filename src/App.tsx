@@ -43,13 +43,16 @@ function App() {
         ) : (
           <div className="space-y-8">
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 className="text-lg font-semibold">
                   Connected: {device.config.name}
+                  <span className="ml-3 text-sm font-normal text-gray-500">
+                    VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')}  PID: {device.config.pid.toUpperCase()}
+                  </span>
                 </h2>
                 <button
                   onClick={() => device.clearAll()}
-                  className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                  className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
                 >
                   Reset All Keys to Default
                 </button>
