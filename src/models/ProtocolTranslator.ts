@@ -1,5 +1,5 @@
 import { KeyCode } from '../types/keycode';
-import { KeyboardConfig } from '../types/keyboard';
+import type { KeyboardConfig } from '../types/keyboard';
 import { BufferCodec } from './BufferCodec';
 
 /**

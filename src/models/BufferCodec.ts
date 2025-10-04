@@ -1,5 +1,5 @@
 import { KeyCode } from '../types/keycode';
-import { KeyboardConfig } from '../types/keyboard';
+import type { KeyboardConfig } from '../types/keyboard';
 
 /**
  * Encodes/decodes the 9-buffer protocol for RK keyboards

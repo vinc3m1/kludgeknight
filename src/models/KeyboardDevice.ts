@@ -1,5 +1,5 @@
 import { KeyCode } from '../types/keycode';
-import { KeyboardConfig, DeviceSnapshot } from '../types/keyboard';
+import type { KeyboardConfig, DeviceSnapshot } from '../types/keyboard';
 import { Profile } from './Profile';
 import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';

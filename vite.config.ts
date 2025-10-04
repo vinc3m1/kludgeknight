@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   base: '/rk-web/',
   server: {
-    https: true,
-    host: true
+    // HTTPS only needed for network access, localhost works with HTTP for WebHID
+    https: process.env.HTTPS === 'true',
+    host: true,
+    port: 5173
   }
 })

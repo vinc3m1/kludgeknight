@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import { DeviceContext, DeviceContextValue } from '../context/DeviceContext';
-import { KeyboardDevice } from '../models/KeyboardDevice';
+import { DeviceContext } from '../context/DeviceContext';
+import type { DeviceContextValue } from '../context/DeviceContext';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 
 export function useDevices(): DeviceContextValue {
   const context = useContext(DeviceContext);

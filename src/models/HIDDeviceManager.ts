@@ -1,4 +1,4 @@
-import { KeyboardConfig } from '../types/keyboard';
+import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
 
 /**

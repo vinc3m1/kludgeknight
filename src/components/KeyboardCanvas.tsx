@@ -1,5 +1,5 @@
 import { useSelectedDevice } from '../hooks/useDevices';
-import { Key } from '../types/keyboard';
+import type { Key } from '../types/keyboard';
 
 interface KeyboardCanvasProps {
   onKeyClick?: (keyIndex: number) => void;

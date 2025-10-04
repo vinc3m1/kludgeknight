@@ -1,5 +1,5 @@
 import { KeyCode } from '../types/keycode';
-import { ProfileSnapshot } from '../types/keyboard';
+import type { ProfileSnapshot } from '../types/keyboard';
 import { OperationQueue } from './OperationQueue';
 
 /**
