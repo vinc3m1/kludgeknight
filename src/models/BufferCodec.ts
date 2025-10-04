@@ -1,10 +1,26 @@
+/*
+ * Copyright (C) 2024 KludgeKnight Contributors
+ * Copyright (C) 2023 Debayan Sutradhar (rnayabed) (debayansutradhar3@gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 import { KeyCode, vkToHid } from '../types/keycode';
 import type { KeyboardConfig } from '../types/keyboard';
 
 /**
  * Encodes/decodes the 9-buffer protocol for RK keyboards
  *
- * Protocol understanding inspired by Rangoli (https://github.com/rnayabed/rangoli)
+ * Based on Rangoli's keyboardconfiguratorcontroller.cpp
+ * (https://github.com/rnayabed/rangoli)
  *
  * Protocol:
  * - 9 buffers of 65 bytes each

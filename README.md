@@ -89,7 +89,9 @@ GPL v3 - See LICENSE file for details
 
 ## 🙏 Acknowledgments
 
-This project was inspired by [Rangoli](https://github.com/rnayabed/rangoli) by Debayan Sutradhar. The protocol implementation and understanding of RK keyboards came from studying that project.
+This project was inspired by [Rangoli](https://github.com/rnayabed/rangoli) by Debayan Sutradhar. The protocol understanding and WebHID connection parameters came from studying that project.
+
+**Derivative work:** `src/models/BufferCodec.ts` contains code ported from Rangoli's `keyboardconfiguratorcontroller.cpp`. All other code was written independently for this project.
 
 ---
 
