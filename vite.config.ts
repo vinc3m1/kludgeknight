@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/KludgeKnight/',
+  base: '/',
   server: {
     // HTTPS only needed for network access, localhost works with HTTP for WebHID
     https: process.env.HTTPS === 'true',
