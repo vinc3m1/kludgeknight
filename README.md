@@ -280,6 +280,15 @@ Yes! Once you remap your keys, the settings are stored in your keyboard's memory
 
 Yes, as long as you're using a supported browser (Chrome, Edge, or Opera).
 
+### Does this support macros?
+
+No. The macro protocol for RK keyboards has not been reverse engineered, and the official RK macro software is confusing and poorly documented. Even if the protocol could be figured out, macros are best handled at the OS level using dedicated tools that work with any keyboard:
+- **Windows**: [AutoHotkey](https://www.autohotkey.com/)
+- **Linux**: [AutoKey](https://github.com/autokey/autokey)
+- **macOS**: [Karabiner-Elements](https://karabiner-elements.pqrs.org/) or [BetterTouchTool](https://folivora.ai/)
+
+These tools are far more capable than keyboard-level macros and work regardless of which keyboard you're using.
+
 ## 🐛 Troubleshooting
 
 **Keyboard not detected?**
