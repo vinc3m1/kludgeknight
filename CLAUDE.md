@@ -27,7 +27,7 @@ bun run build
 bun run preview
 ```
 
-Note: Development uses Bun as the package manager and runtime. The dev server supports network access by default and can optionally use HTTPS for testing on other devices.
+**IMPORTANT: This project uses Bun, not Node.js.** Always use `bun` commands (e.g., `bun install`, `bun run dev`) instead of `npm` or `node`. The dev server supports network access by default and can optionally use HTTPS for testing on other devices.
 
 ## Architecture
 
