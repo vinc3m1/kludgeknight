@@ -63,7 +63,7 @@ This means:
 
 ### Which keyboards are supported?
 
-Any Royal Kludge keyboard that works with the official RK software should be supported. The keyboard configurations are [pulled directly from the official RK Windows app](https://github.com/vinc3m1/rk-web/tree/main/public/rk/Dev), so if your keyboard works with the official software, it should work here too.
+Any Royal Kludge keyboard that works with the official RK software should be supported, but I only own a F68 so that's what I'm testing with. The keyboard configurations are [pulled directly from the official RK Windows app](https://github.com/vinc3m1/rk-web/tree/main/public/rk/Dev), so if your keyboard works with the official software, it should work.
 
 <details>
 <summary>View full list of supported keyboards</summary>
