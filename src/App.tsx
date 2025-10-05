@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useSelectedDevice } from './hooks/useDevices';
 import { ConnectButton } from './components/ConnectButton';
 import { KeyRemapper } from './components/KeyRemapper';
+import { LightingControls } from './components/LightingControls';
+
+type Tab = 'keys' | 'lighting';
 
 function App() {
   const device = useSelectedDevice();
+  const [activeTab, setActiveTab] = useState<Tab>('keys');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,25 +48,53 @@ function App() {
         ) : (
           <div className="space-y-8">
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h2 className="text-lg font-semibold">
-                  Connected: {device.config.name}
-                  <span className="ml-3 text-sm font-normal text-gray-500">
-                    VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')}  PID: {device.config.pid.toUpperCase()}
-                  </span>
-                </h2>
-                <button
-                  onClick={() => device.clearAll()}
-                  className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
-                >
-                  Reset All Keys to Default
-                </button>
-              </div>
+              <h2 className="text-lg font-semibold">
+                Connected: {device.config.name}
+                <span className="ml-3 text-sm font-normal text-gray-500">
+                  VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')}  PID: {device.config.pid.toUpperCase()}
+                </span>
+              </h2>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <KeyRemapper />
-            </div>
+            {/* Tab switcher - only show if keyboard has lighting */}
+            {device.config.lightEnabled && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="border-b border-gray-200">
+                  <nav className="flex -mb-px">
+                    <button
+                      onClick={() => setActiveTab('keys')}
+                      className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'keys'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Key Mapping
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('lighting')}
+                      className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'lighting'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Lighting
+                    </button>
+                  </nav>
+                </div>
+                <div className="p-6">
+                  {activeTab === 'keys' ? <KeyRemapper /> : <LightingControls />}
+                </div>
+              </div>
+            )}
+
+            {/* No tabs if keyboard doesn't have lighting */}
+            {!device.config.lightEnabled && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <KeyRemapper />
+              </div>
+            )}
           </div>
         )}
       </main>

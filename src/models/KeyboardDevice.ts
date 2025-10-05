@@ -2,6 +2,7 @@ import { KeyCode } from '../types/keycode';
 import type { KeyboardConfig } from '../types/keyboard';
 import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';
+import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 
 /**
  * Represents a connected Royal Kludge keyboard
@@ -14,6 +15,11 @@ export class KeyboardDevice {
 
   connected: boolean = true;
   mappings: Map<number, KeyCode> = new Map();
+
+  // Lighting state
+  lightingSettings: StandardLightingSettings | null = null;
+  perKeyColors: PerKeyColors = {};
+
   notify?: () => void;
 
   private translator: ProtocolTranslator;
@@ -24,6 +30,19 @@ export class KeyboardDevice {
     this.config = config;
     this.id = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}`;
     this.translator = new ProtocolTranslator(hidDevice, config);
+
+    // Initialize lighting with defaults if keyboard has lighting
+    if (config.lightEnabled && config.lightingModes.length > 0) {
+      const firstMode = config.lightingModes[0];
+      this.lightingSettings = {
+        modeIndex: firstMode.index,
+        speed: 3, // Normal
+        brightness: 5, // Max
+        color: { r: 255, g: 255, b: 255 }, // White
+        randomColor: false,
+        sleep: 2, // 10 min default
+      };
+    }
 
     // Listen for disconnect
     hidDevice.addEventListener('disconnect', () => {
@@ -107,5 +126,71 @@ export class KeyboardDevice {
    */
   hasMapping(keyIndex: number): boolean {
     return this.mappings.has(keyIndex);
+  }
+
+  /**
+   * Update lighting settings and sync to hardware
+   */
+  async setLighting(settings: StandardLightingSettings): Promise<void> {
+    if (!this.config.lightEnabled) {
+      throw new Error('Keyboard does not support lighting');
+    }
+
+    return this.queue.enqueue(async () => {
+      const oldSettings = this.lightingSettings;
+      try {
+        this.lightingSettings = settings;
+        await this.translator.sendStandardLighting(settings);
+        this.notify?.();
+      } catch (error) {
+        // Rollback on failure
+        this.lightingSettings = oldSettings;
+        this.notify?.();
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Update per-key colors for custom RGB mode
+   */
+  async setPerKeyColors(colors: PerKeyColors): Promise<void> {
+    if (!this.config.lightEnabled || !this.config.rgb) {
+      throw new Error('Keyboard does not support RGB lighting');
+    }
+
+    return this.queue.enqueue(async () => {
+      const oldColors = { ...this.perKeyColors };
+      try {
+        this.perKeyColors = colors;
+        await this.translator.sendCustomRGB(colors);
+        this.notify?.();
+      } catch (error) {
+        // Rollback on failure
+        this.perKeyColors = oldColors;
+        this.notify?.();
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Set color for a single key in custom mode
+   */
+  async setKeyColor(bIndex: number, r: number, g: number, b: number): Promise<void> {
+    const newColors = {
+      ...this.perKeyColors,
+      [bIndex]: { r, g, b },
+    };
+    await this.setPerKeyColors(newColors);
+  }
+
+  /**
+   * Clear color for a single key (set to black/off)
+   */
+  async clearKeyColor(bIndex: number): Promise<void> {
+    const newColors = { ...this.perKeyColors };
+    delete newColors[bIndex];
+    await this.setPerKeyColors(newColors);
   }
 }

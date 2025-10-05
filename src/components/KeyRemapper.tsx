@@ -133,9 +133,29 @@ export function KeyRemapper() {
     ? device.config.keys.find(k => k.bIndex === selectedKeyIndex)?.keyInfo.label
     : undefined;
 
+  const handleResetAll = async () => {
+    setError(null);
+    try {
+      await device.clearAll();
+      setSelectedKeyIndex(null);
+      setSelectedTargetKey(null);
+    } catch (err) {
+      setError('Failed to reset all keys. Please try again.');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Key Remapper</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Key Remapper</h2>
+        <button
+          onClick={handleResetAll}
+          className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
+        >
+          Reset All Keys to Default
+        </button>
+      </div>
 
       {error && (
         <div className="p-3 bg-red-100 text-red-700 rounded">

@@ -4,8 +4,9 @@
 
 import ini from 'ini';
 import { parseVK } from '../types/keycode';
-import type { Key, KeyboardConfig } from '../types/keyboard';
+import type { Key, KeyboardConfig, LightingMode, LightingModeFlags } from '../types/keyboard';
 import { getDeviceName } from './rkConfig';
+import { parseLedXml } from './ledXmlParser';
 
 /**
  * Parse a single key entry from KB.ini
@@ -28,6 +29,27 @@ function parseKeyEntry(value: string, keyName: string): Key | null {
     rect: [parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3])],
     keyInfo,
     bIndex: parseInt(parts[7]),
+  };
+}
+
+/**
+ * Parse LedOpt entry from KB.ini
+ * Format: animation,speed,brightness,direction,random,colorpicker
+ */
+function parseLedOptEntry(value: string): LightingModeFlags | null {
+  const parts = value.split(',').map(p => p.trim());
+  if (parts.length !== 6) {
+    console.error(`Invalid LedOpt format: expected 6 parts, got ${parts.length}`, value);
+    return null;
+  }
+
+  return {
+    animation: parts[0] === '1',
+    speed: parts[1] === '1',
+    brightness: parts[2] === '1',
+    direction: parseInt(parts[3]),
+    random: parts[4] === '1',
+    colorPicker: parts[5] === '1',
   };
 }
 
@@ -73,16 +95,54 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
 
     // Determine image URL - check for KbImgUse reference
     const kbImgUse = parsed.OPT?.KbImgUse;
+    const useLEDImg = parsed.OPT?.KeyUseLEDImg;
+    const imageName = useLEDImg ? 'kbled.png' : 'keyimg.png';
     let imageUrl: string;
 
     if (kbImgUse) {
       // KbImgUse is a hex reference to another device's image
       const referencePid = kbImgUse.replace('0x', '').toLowerCase();
-      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${referencePid.toUpperCase()}/keyimg.png`;
+      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${referencePid.toUpperCase()}/${imageName}`;
     } else {
       // Use this device's own image
-      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/keyimg.png`;
+      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/${imageName}`;
     }
+
+    // Parse lighting capabilities
+    const rgb = parsed.OPT?.RGBKb === '1';
+    const lightingModes: LightingMode[] = [];
+
+    // Parse LedOpt entries
+    if (parsed.OPT) {
+      const ledOptEntries: Array<{ index: number; flags: LightingModeFlags }> = [];
+
+      for (let i = 1; i <= 21; i++) {
+        const ledOptKey = `LedOpt${i}`;
+        const ledOptValue = parsed.OPT[ledOptKey];
+
+        if (typeof ledOptValue === 'string') {
+          const flags = parseLedOptEntry(ledOptValue);
+          if (flags) {
+            ledOptEntries.push({ index: i, flags });
+          }
+        }
+      }
+
+      // Get mode names from led.xml if we have any modes
+      if (ledOptEntries.length > 0) {
+        const modeNames = await parseLedXml(pid);
+
+        for (const { index, flags } of ledOptEntries) {
+          lightingModes.push({
+            index,
+            name: modeNames.get(index) || `Mode ${index}`,
+            flags,
+          });
+        }
+      }
+    }
+
+    const lightEnabled = lightingModes.length > 0;
 
     // Get device name from Cfg.ini
     const name = await getDeviceName(pid) || `RK ${pid.toUpperCase()}`;
@@ -92,6 +152,9 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
       name,
       keys,
       imageUrl,
+      lightEnabled,
+      rgb,
+      lightingModes,
     };
   } catch (error) {
     console.error(`Failed to parse KB.ini for PID ${pid}:`, error);
