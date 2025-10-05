@@ -8,12 +8,15 @@ Remap any key on your Royal Kludge keyboard directly in your browser. No install
 
 > ⚠️ **Disclaimer**: This is unofficial software and is not affiliated with, endorsed by, or connected to Royal Kludge in any way. Use at your own risk.
 
-> **Note**: This software has only been tested on the Royal Kludge F68 keyboard. While the key mappings are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
+> **Note**: This software has only been tested on the Royal Kludge F68 keyboard. While the key mappings and lighting configurations are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
+>
+> **Lighting Support**: Single-zone (single-color backlit) lighting has been tested on the F68. RGB/multi-zone lighting support is implemented but has not been tested with actual RGB hardware yet.
 
 ## ✨ Features
 
 - 🌐 **Runs in your browser** - No downloads or installation
 - 🎹 **Visual keyboard layout** - See your keyboard and click to remap
+- 💡 **Lighting control** - Adjust brightness, speed, colors, and lighting modes
 - 🔄 **Live updates** - Changes apply immediately to your hardware
 - 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
 - 🗺️ **Key mappings from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge app
@@ -42,14 +45,14 @@ This means:
 
 1. **Visit the app** at [kludgeknight.com](https://www.kludgeknight.com/)
 2. **Click "Connect Keyboard"** and select your keyboard from the list
-3. **Click any key** on the keyboard diagram
-4. **Select a new key** to remap it to
-5. **Done!** The change is saved to your keyboard immediately
+3. **Remap keys**: Click any key on the diagram and select a new function
+4. **Adjust lighting** (if supported): Switch to the "Lighting" tab to control modes, brightness, speed, and colors
+5. **Done!** All changes are saved to your keyboard immediately
 
 ### Resetting Keys
 
 - **Single key**: Click any key and select "Set to Default" to reset it to its original function
-- **All keys**: Click "Reset All Keys to Default" button
+- **All keys**: Click "Reset All Keys to Default" button on the Key Mapping tab
 
 ## ❓ FAQ
 
