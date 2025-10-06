@@ -1,15 +1,7 @@
-import { createContext, ReactNode, useEffect, useReducer, useState } from 'react';
+import { ReactNode, useEffect, useReducer, useState } from 'react';
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
-
-export interface DeviceContextValue {
-  devices: KeyboardDevice[];
-  selectedDevice: KeyboardDevice | null;
-  selectDevice: (device: KeyboardDevice | null) => void;
-  requestDevice: () => Promise<void>;
-}
-
-export const DeviceContext = createContext<DeviceContextValue | null>(null);
+import { DeviceContext, type DeviceContextValue } from './DeviceContext';
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
@@ -22,7 +14,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     manager.getAllDevices().forEach(device => {
       device.notify = forceUpdate;
     });
-  });
+  }, [manager, forceUpdate]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -31,7 +23,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         device.notify = undefined;
       });
     };
-  }, []);
+  }, [manager]);
 
   const requestDevice = async () => {
     const device = await manager.requestDevice();

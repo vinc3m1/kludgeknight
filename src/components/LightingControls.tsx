@@ -7,24 +7,17 @@ const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
 export function LightingControls() {
   const device = useSelectedDevice();
-
-  if (!device || !device.config.lightEnabled || !device.lightingSettings) {
-    return null;
-  }
-
-  const [selectedModeIndex, setSelectedModeIndex] = useState(device.lightingSettings.modeIndex);
-  const [speed, setSpeed] = useState(device.lightingSettings.speed);
-  const [brightness, setBrightness] = useState(device.lightingSettings.brightness);
-  const [color, setColor] = useState(device.lightingSettings.color);
-  const [randomColor, setRandomColor] = useState(device.lightingSettings.randomColor);
-  const [sleep, setSleep] = useState(device.lightingSettings.sleep);
-
-  const currentMode = device.config.lightingModes.find(m => m.index === selectedModeIndex);
-  const flags = currentMode?.flags;
-  const isOffMode = currentMode?.name.toLowerCase().includes('off') || false;
+  const [selectedModeIndex, setSelectedModeIndex] = useState(device?.lightingSettings?.modeIndex ?? 0);
+  const [speed, setSpeed] = useState(device?.lightingSettings?.speed ?? 3);
+  const [brightness, setBrightness] = useState(device?.lightingSettings?.brightness ?? 5);
+  const [color, setColor] = useState(device?.lightingSettings?.color ?? { r: 255, g: 255, b: 255 });
+  const [randomColor, setRandomColor] = useState(device?.lightingSettings?.randomColor ?? false);
+  const [sleep, setSleep] = useState(device?.lightingSettings?.sleep ?? 2);
 
   // Update device when settings change
   useEffect(() => {
+    if (!device || !device.config.lightEnabled || !device.lightingSettings) return;
+
     const timeout = setTimeout(() => {
       device.setLighting({
         modeIndex: selectedModeIndex,
@@ -39,7 +32,15 @@ export function LightingControls() {
     }, 300); // Debounce
 
     return () => clearTimeout(timeout);
-  }, [selectedModeIndex, speed, brightness, color, randomColor, sleep]);
+  }, [device, selectedModeIndex, speed, brightness, color, randomColor, sleep]);
+
+  if (!device || !device.config.lightEnabled || !device.lightingSettings) {
+    return null;
+  }
+
+  const currentMode = device.config.lightingModes.find(m => m.index === selectedModeIndex);
+  const flags = currentMode?.flags;
+  const isOffMode = currentMode?.name.toLowerCase().includes('off') || false;
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const hex = e.target.value;

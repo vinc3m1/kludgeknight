@@ -9,6 +9,20 @@ interface KeyboardCanvasProps {
 
 export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasProps) {
   const device = useSelectedDevice();
+  const [imgWidth, setImgWidth] = useState(0);
+  const [imgHeight, setImgHeight] = useState(0);
+
+  // Load image to get dimensions
+  useEffect(() => {
+    if (!device) return;
+
+    const img = new Image();
+    img.onload = () => {
+      setImgWidth(img.width);
+      setImgHeight(img.height);
+    };
+    img.src = device.config.imageUrl;
+  }, [device]);
 
   if (!device) {
     return (
@@ -19,18 +33,6 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   }
 
   const { config } = device;
-  const [imgWidth, setImgWidth] = useState(0);
-  const [imgHeight, setImgHeight] = useState(0);
-
-  // Load image to get dimensions
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      setImgWidth(img.width);
-      setImgHeight(img.height);
-    };
-    img.src = config.imageUrl;
-  }, [config.imageUrl]);
 
   const renderKey = (key: Key, index: number) => {
     const hasMapping = device.hasMapping(key.bIndex);
