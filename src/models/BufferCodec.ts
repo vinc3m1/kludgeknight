@@ -13,8 +13,8 @@
  * GNU General Public License for more details.
  */
 
-import { KeyCode, vkToHid } from '../types/keycode';
 import type { KeyboardConfig } from '../types/keyboard';
+import type { HIDCode } from '../types/keycode';
 
 /**
  * Encodes/decodes the 9-buffer protocol for RK keyboards
@@ -42,7 +42,7 @@ export class BufferCodec {
    * @returns Array of 9 buffers (65 bytes each)
    */
   static encode(
-    mappings: Map<number, KeyCode>,
+    mappings: Map<number, HIDCode>,
     config: KeyboardConfig
   ): Uint8Array[] {
     // Create full mapping buffer (9 * 65 = 585 bytes)
@@ -135,8 +135,8 @@ export class BufferCodec {
    * @param config - Keyboard configuration
    * @returns Map of key buffer index to HID scan code
    */
-  static decode(buffers: Uint8Array[], config: KeyboardConfig): Map<number, KeyCode> {
-    const mappings = new Map<number, KeyCode>();
+  static decode(buffers: Uint8Array[], config: KeyboardConfig): Map<number, HIDCode> {
+    const mappings = new Map<number, HIDCode>();
 
     // Reconstruct full buffer from 9 HID buffers
     const fullBuffer = new Uint8Array(this.NUM_BUFFERS * this.BUFFER_SIZE);
@@ -170,9 +170,9 @@ export class BufferCodec {
    *
    * @param buffer - Source buffer
    * @param offset - Offset in buffer
-   * @returns Decoded key code
+   * @returns Decoded HID scan code
    */
-  private static getBufferKey(buffer: Uint8Array, offset: number): KeyCode {
+  private static getBufferKey(buffer: Uint8Array, offset: number): HIDCode {
     return (
       (buffer[offset] << 24) |
       (buffer[offset + 1] << 16) |

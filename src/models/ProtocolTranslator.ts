@@ -1,7 +1,7 @@
-import { KeyCode } from '../types/keycode';
 import type { KeyboardConfig } from '../types/keyboard';
 import { BufferCodec } from './BufferCodec';
 import { LightingCodec, type StandardLightingSettings, type PerKeyColors } from './LightingCodec';
+import type { HIDCode } from '../types/keycode';
 
 /**
  * Translates profile mappings to HID buffers and sends to keyboard
@@ -15,8 +15,9 @@ export class ProtocolTranslator {
   /**
    * Send profile mappings to keyboard hardware
    * Encodes mappings into 9 HID buffers and sends sequentially via feature reports
+   * @param mappings - Map of key index to HID scan code
    */
-  async sendProfile(mappings: Map<number, KeyCode>): Promise<void> {
+  async sendProfile(mappings: Map<number, HIDCode>): Promise<void> {
     const buffers = BufferCodec.encode(mappings, this.config);
 
     // Send all 9 buffers sequentially using feature reports
@@ -31,19 +32,14 @@ export class ProtocolTranslator {
   /**
    * Read current profile mappings from keyboard hardware
    * Reads 9 HID buffers and decodes them
+   * @returns Map of key index to HID scan code
    */
-  async readProfile(): Promise<Map<number, KeyCode>> {
-    const buffers: Uint8Array[] = [];
-
-    // Read all 9 buffers sequentially
-    // Note: WebHID doesn't have a direct "read report" for output reports
-    // This is a limitation - we may need to use input reports or feature reports
-    // For now, this is a placeholder that would need the keyboard to support
-    // reading back the configuration via input/feature reports
-
+  async readProfile(): Promise<Map<number, HIDCode>> {
     // TODO: Implement actual reading from keyboard
     // This requires understanding how RK keyboards expose their current config
-    // Likely via feature reports or input reports
+    // Note: WebHID doesn't have a direct "read report" for output reports
+    // This is a limitation - we may need to use input reports or feature reports
+    // For now, this is a placeholder that returns an empty map
 
     return new Map();
   }

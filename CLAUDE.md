@@ -48,7 +48,7 @@ bun run preview
 
 **KeyboardDevice** (src/models/KeyboardDevice.ts)
 - Represents a connected keyboard
-- Maintains current key mappings in memory (mappings: Map<number, KeyCode>)
+- Maintains current key mappings in memory (mappings: Map<number, HIDCode>)
 - Uses OperationQueue to serialize all write operations and prevent concurrent hardware access
 - Implements rollback on failure for all mapping operations
 
@@ -73,8 +73,9 @@ bun run preview
 - Keyboard configurations are in `public/rk/` directory:
   - `Cfg.ini`: Maps PIDs to device names (UTF-16 LE encoded)
   - `Dev/{PID}/KB.ini`: Key positions and mappings for each keyboard model
-- Key mappings use KeyCode type (HID scan codes) defined in src/types/keycode.ts
-- VK codes from official RK software are translated to HID codes via vkToHid map
+- Key mappings use HIDCode type (USB HID scan codes) defined in src/types/keycode.ts
+- VK codes from official RK software are translated to HID codes via vkToHid function
+- Type aliases: VKCode (Windows Virtual Key codes) and HIDCode (USB HID scan codes)
 
 ### WebHID Specifics
 

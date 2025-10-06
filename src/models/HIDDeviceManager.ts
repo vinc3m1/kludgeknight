@@ -1,7 +1,6 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
 import { parseKBIni } from '../utils/kbIniParser';
-import { getSupportedPIDs } from '../utils/rkConfig';
 
 /**
  * Singleton manager for HID device lifecycle

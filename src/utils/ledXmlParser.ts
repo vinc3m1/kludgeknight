@@ -22,7 +22,7 @@ export async function parseLedXml(pid: string): Promise<Map<number, string>> {
     if (response.ok) {
       xmlText = await parseUtf16Xml(await response.arrayBuffer());
     }
-  } catch (error) {
+  } catch {
     // Fallback to global
   }
 
