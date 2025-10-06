@@ -14,16 +14,22 @@ export type VKCode = number;
  */
 export type FirmwareCode = number;
 
-export type KeyCategory =
-  | 'Letters'
-  | 'Numbers'
-  | 'Symbols'
-  | 'Function Keys'
-  | 'Navigation'
-  | 'Modifiers'
-  | 'Numpad'
-  | 'Media'
-  | 'Special';
+/**
+ * Key categories in display order
+ */
+export const KEY_CATEGORIES = [
+  'Letters',
+  'Numbers',
+  'Symbols',
+  'Function Keys',
+  'Navigation',
+  'Modifiers',
+  'Numpad',
+  'Media',
+  'Special',
+] as const;
+
+export type KeyCategory = typeof KEY_CATEGORIES[number];
 
 export interface KeyInfo {
   vk: VKCode;     // Windows Virtual Key code (from KB.ini)
@@ -210,7 +216,7 @@ export function getKeysByCategory(category: KeyCategory): KeyInfo[] {
 }
 
 /**
- * Get all keys grouped by category
+ * Get all keys grouped by category, in display order
  */
 export function getAllKeysByCategory(): Record<KeyCategory, KeyInfo[]> {
   const grouped: Partial<Record<KeyCategory, KeyInfo[]>> = {};
@@ -222,5 +228,13 @@ export function getAllKeysByCategory(): Record<KeyCategory, KeyInfo[]> {
     grouped[key.category]!.push(key);
   }
 
-  return grouped as Record<KeyCategory, KeyInfo[]>;
+  // Return categories in display order
+  const result: Partial<Record<KeyCategory, KeyInfo[]>> = {};
+  for (const category of KEY_CATEGORIES) {
+    if (grouped[category]) {
+      result[category] = grouped[category];
+    }
+  }
+
+  return result as Record<KeyCategory, KeyInfo[]>;
 }
