@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getRKDevices } from '../utils/rkConfig';
 import {
   decodeKBIni,
@@ -8,7 +8,8 @@ import {
 interface KeyboardListItemProps {
   pid: string;
   name: string;
-  expandAll: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 // Try to fetch KB.ini from a PID directory, handling case-sensitivity
@@ -141,14 +142,11 @@ async function getKeyboardImageInfo(pid: string): Promise<KeyboardImageInfo | nu
   }
 }
 
-function KeyboardListItem({ pid, name, expandAll }: KeyboardListItemProps) {
-  const [expanded, setExpanded] = useState(false);
+function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasImage, setHasImage] = useState(false);
   const [imageInfo, setImageInfo] = useState<KeyboardImageInfo | null>(null);
   const [showRgb, setShowRgb] = useState<boolean>(false);
-
-  const isExpanded = expandAll || expanded;
 
   useEffect(() => {
     if (isExpanded && !imageLoaded) {
@@ -188,7 +186,7 @@ function KeyboardListItem({ pid, name, expandAll }: KeyboardListItemProps) {
   return (
     <li className="border-b border-gray-200 last:border-b-0">
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={onToggle}
         className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between"
       >
         <span className="text-sm">
@@ -260,9 +258,11 @@ interface HomePageProps {
 
 export function HomePage({ initialKeyboards }: HomePageProps = {}) {
   const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>(initialKeyboards || []);
-  const [showAllKeyboards, setShowAllKeyboards] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandAll, setExpandAll] = useState(false);
+  const [expandedPids, setExpandedPids] = useState<Set<string>>(new Set());
+  const [showTopShadow, setShowTopShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Only fetch if we don't have initial data (SSR provides it)
@@ -274,11 +274,22 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
     }
   }, [initialKeyboards]);
 
-  // Reset "show all" and "expand all" when search query changes
+  // Reset expanded items when search query changes
   useEffect(() => {
-    setShowAllKeyboards(false);
-    setExpandAll(false);
+    setExpandedPids(new Set());
   }, [searchQuery]);
+
+  const toggleExpanded = (pid: string) => {
+    setExpandedPids(prev => {
+      const next = new Set(prev);
+      if (next.has(pid)) {
+        next.delete(pid);
+      } else {
+        next.add(pid);
+      }
+      return next;
+    });
+  };
 
   // Filter keyboards based on search query (by name only)
   const filteredKeyboards = searchQuery
@@ -287,7 +298,41 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
       )
     : keyboards;
 
-  const displayedKeyboards = showAllKeyboards ? filteredKeyboards : filteredKeyboards.slice(0, 10);
+  // Update shadows when filtered list changes
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const isScrollable = container.scrollHeight > container.clientHeight;
+      setShowTopShadow(false); // Always reset to top
+      setShowBottomShadow(isScrollable);
+    }
+  }, [filteredKeyboards.length]);
+
+  const handleExpandAllToggle = () => {
+    if (expandedPids.size > 0) {
+      // Hide all
+      setExpandedPids(new Set());
+    } else {
+      // Show all - expand all filtered keyboards
+      setExpandedPids(new Set(filteredKeyboards.map(kb => kb.pid)));
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+
+    // Only show shadows if content is scrollable
+    const isScrollable = scrollHeight > clientHeight;
+
+    // Show top shadow if scrolled down from top
+    setShowTopShadow(isScrollable && scrollTop > 0);
+
+    // Show bottom shadow if not at bottom (with 1px tolerance)
+    setShowBottomShadow(isScrollable && scrollTop + clientHeight < scrollHeight - 1);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -416,7 +461,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by model name..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pl-10 border border-blue-200 bg-blue-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white"
                 />
                 <svg
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -427,11 +472,6 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              {searchQuery && (
-                <p className="mt-2 text-sm text-gray-600">
-                  Found {filteredKeyboards.length} keyboard{filteredKeyboards.length !== 1 ? 's' : ''}
-                </p>
-              )}
             </div>
 
             {filteredKeyboards.length > 0 ? (
@@ -439,10 +479,10 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                 {/* Show/Hide All Images button */}
                 <div className="mb-3 flex justify-end">
                   <button
-                    onClick={() => setExpandAll(!expandAll)}
+                    onClick={handleExpandAllToggle}
                     className="text-sm px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1"
                   >
-                    {expandAll ? (
+                    {expandedPids.size > 0 ? (
                       <>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -460,19 +500,41 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   </button>
                 </div>
 
-                <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                  {displayedKeyboards.map(kb => (
-                    <KeyboardListItem key={kb.pid} pid={kb.pid} name={kb.name} expandAll={expandAll} />
-                  ))}
-                </ul>
-                {filteredKeyboards.length > 10 && (
-                  <button
-                    onClick={() => setShowAllKeyboards(!showAllKeyboards)}
-                    className="mt-4 w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                  >
-                    {showAllKeyboards ? 'Show Less' : `Show All ${filteredKeyboards.length} Keyboards`}
-                  </button>
-                )}
+                <div className="relative border border-blue-200 bg-blue-50 rounded-md overflow-hidden" style={{ height: '170px' }}>
+                  {/* Top shadow overlay */}
+                  {showTopShadow && (
+                    <div
+                      className="absolute top-0 left-0 right-0 h-4 pointer-events-none z-10"
+                      style={{
+                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent)'
+                      }}
+                    />
+                  )}
+
+                  {/* Bottom shadow overlay */}
+                  {showBottomShadow && (
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-4 pointer-events-none z-10"
+                      style={{
+                        background: 'linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent)'
+                      }}
+                    />
+                  )}
+
+                  <div className="h-full overflow-y-auto" onScroll={handleScroll} ref={scrollContainerRef}>
+                    <ul className="divide-y divide-gray-200">
+                      {filteredKeyboards.map(kb => (
+                        <KeyboardListItem
+                          key={kb.pid}
+                          pid={kb.pid}
+                          name={kb.name}
+                          isExpanded={expandedPids.has(kb.pid)}
+                          onToggle={() => toggleExpanded(kb.pid)}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </>
             ) : (
               <p className="text-gray-500 text-center py-8">No keyboards found matching "{searchQuery}"</p>

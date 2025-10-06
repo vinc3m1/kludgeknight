@@ -4,21 +4,17 @@ import './index.css'
 import App from './App.tsx'
 import { DeviceProvider } from './context/DeviceContext.tsx'
 
-// Get initial keyboards data from SSR (if available)
-const initialKeyboards = (window as typeof window & {
-  __INITIAL_KEYBOARDS__?: Array<{ pid: string; name: string }>;
-}).__INITIAL_KEYBOARDS__;
-
 // Use hydrateRoot for production (with SSR), createRoot for dev (without SSR)
 const rootElement = document.getElementById('root')!;
 
 if (rootElement.hasChildNodes()) {
   // Has pre-rendered content - hydrate it
+  // No need to pass initialKeyboards since the data is already in the DOM
   hydrateRoot(
     rootElement,
     <StrictMode>
       <DeviceProvider>
-        <App initialKeyboards={initialKeyboards} />
+        <App />
       </DeviceProvider>
     </StrictMode>,
   );
@@ -28,7 +24,7 @@ if (rootElement.hasChildNodes()) {
   createRoot(rootElement).render(
     <StrictMode>
       <DeviceProvider>
-        <App initialKeyboards={initialKeyboards} />
+        <App />
       </DeviceProvider>
     </StrictMode>,
   );

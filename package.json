@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "dev": "bunx --bun vite --host",
-    "build": "bunx --bun vite build",
+    "build": "bunx --bun vite build && bun scripts/inject-ssr.ts",
     "lint": "eslint .",
     "preview": "bunx --bun vite preview"
   },
