@@ -39,6 +39,6 @@ export interface KeyboardConfig {
  */
 export interface Key {
   bIndex: number;
-  keyInfo: KeyInfo; // Reference to VK/HID/label info
+  keyInfo: KeyInfo; // Reference to VK/firmware code/label info
   rect: [number, number, number, number]; // [left, top, right, bottom] in image pixel coordinates
 }

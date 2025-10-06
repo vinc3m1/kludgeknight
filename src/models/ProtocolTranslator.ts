@@ -1,7 +1,7 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { BufferCodec } from './BufferCodec';
 import { LightingCodec, type StandardLightingSettings, type PerKeyColors } from './LightingCodec';
-import type { HIDCode } from '../types/keycode';
+import type { FirmwareCode } from '../types/keycode';
 
 /**
  * Translates profile mappings to HID buffers and sends to keyboard
@@ -15,9 +15,9 @@ export class ProtocolTranslator {
   /**
    * Send profile mappings to keyboard hardware
    * Encodes mappings into 9 HID buffers and sends sequentially via feature reports
-   * @param mappings - Map of key index to HID scan code
+   * @param mappings - Map of key index to RK firmware code
    */
-  async sendProfile(mappings: Map<number, HIDCode>): Promise<void> {
+  async sendProfile(mappings: Map<number, FirmwareCode>): Promise<void> {
     const buffers = BufferCodec.encode(mappings, this.config);
 
     // Send all 9 buffers sequentially using feature reports

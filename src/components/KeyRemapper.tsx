@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
-import { KEY_MAP, getAllKeysByCategory, type HIDCode } from '../types/keycode';
+import { KEY_MAP, getAllKeysByCategory, type FirmwareCode } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
 
 // Helper to get friendly key name
-function getKeyName(hidCode: HIDCode | undefined): string {
-  if (hidCode === undefined) return 'Unknown';
+function getKeyName(fwCode: FirmwareCode | undefined): string {
+  if (fwCode === undefined) return 'Unknown';
 
-  // Try to find the key in KEY_MAP by HID code
-  const keyInfo = Object.values(KEY_MAP).find(k => k.hid === hidCode);
+  // Try to find the key in KEY_MAP by firmware code
+  const keyInfo = Object.values(KEY_MAP).find(k => k.fw === fwCode);
   if (keyInfo) {
     return keyInfo.label;
   }
 
   // Fallback to hex representation
-  return `0x${hidCode.toString(16)}`;
+  return `0x${fwCode.toString(16)}`;
 }
 
 export function KeyRemapper() {
   const device = useSelectedDevice();
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
-  const [selectedTargetKey, setSelectedTargetKey] = useState<HIDCode | null>(null);
+  const [selectedTargetKey, setSelectedTargetKey] = useState<FirmwareCode | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (!device) return null;
@@ -169,12 +169,12 @@ export function KeyRemapper() {
                 <div className="flex flex-wrap gap-2">
                   {keys.map((keyInfo) => (
                     <button
-                      key={keyInfo.hid}
-                      onClick={() => setSelectedTargetKey(keyInfo.hid)}
+                      key={keyInfo.fw}
+                      onClick={() => setSelectedTargetKey(keyInfo.fw)}
                       className={`px-3 py-1 text-sm border rounded transition-colors ${
-                        selectedTargetKey === keyInfo.hid
+                        selectedTargetKey === keyInfo.fw
                           ? 'bg-blue-500 text-white border-blue-600'
-                          : currentMapping === keyInfo.hid
+                          : currentMapping === keyInfo.fw
                           ? 'bg-green-100 border-green-400'
                           : 'bg-white border-gray-300 hover:bg-gray-100'
                       }`}

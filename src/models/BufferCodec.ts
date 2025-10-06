@@ -14,7 +14,7 @@
  */
 
 import type { KeyboardConfig } from '../types/keyboard';
-import type { HIDCode } from '../types/keycode';
+import type { FirmwareCode } from '../types/keycode';
 
 /**
  * Encodes/decodes the 9-buffer protocol for RK keyboards
@@ -37,12 +37,12 @@ export class BufferCodec {
   /**
    * Encode key mappings into 9 HID buffers for sendReport()
    *
-   * @param mappings - Map of key buffer index to HID scan code
+   * @param mappings - Map of key buffer index to RK firmware code
    * @param config - Keyboard configuration with default keys
    * @returns Array of 9 buffers (65 bytes each)
    */
   static encode(
-    mappings: Map<number, HIDCode>,
+    mappings: Map<number, FirmwareCode>,
     config: KeyboardConfig
   ): Uint8Array[] {
     // Create full mapping buffer (9 * 65 = 585 bytes)
@@ -50,12 +50,12 @@ export class BufferCodec {
 
     // Fill with default key codes from config
     for (const key of config.keys) {
-      // Get custom mapping or default HID code from key's VK code
-      const defaultHid = key.keyInfo.hid;
+      // Get custom mapping or default firmware code from key's VK code
+      const defaultFw = key.keyInfo.fw;
       const customKeyCode = mappings.get(key.bIndex);
-      const hidCode = customKeyCode !== undefined ? customKeyCode : defaultHid;
+      const fwCode = customKeyCode !== undefined ? customKeyCode : defaultFw;
 
-      this.setBufferKey(fullBuffer, key.bIndex * this.BYTES_PER_KEY, hidCode);
+      this.setBufferKey(fullBuffer, key.bIndex * this.BYTES_PER_KEY, fwCode);
     }
 
     // Split into 9 HID buffers with headers

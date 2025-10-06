@@ -2,7 +2,7 @@ import type { KeyboardConfig } from '../types/keyboard';
 import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
-import type { HIDCode } from '../types/keycode';
+import type { FirmwareCode } from '../types/keycode';
 
 /**
  * Represents a connected Royal Kludge keyboard
@@ -14,7 +14,7 @@ export class KeyboardDevice {
   readonly config: KeyboardConfig;
 
   connected: boolean = true;
-  mappings: Map<number, HIDCode> = new Map();
+  mappings: Map<number, FirmwareCode> = new Map();
 
   // Lighting state
   lightingSettings: StandardLightingSettings | null = null;
@@ -54,13 +54,13 @@ export class KeyboardDevice {
   /**
    * Set a key mapping and sync to hardware
    * @param keyIndex - The keyboard key index (bIndex)
-   * @param hidCode - The HID scan code to map to
+   * @param fwCode - The RK firmware code to map to
    */
-  async setMapping(keyIndex: number, hidCode: HIDCode): Promise<void> {
+  async setMapping(keyIndex: number, fwCode: FirmwareCode): Promise<void> {
     return this.queue.enqueue(async () => {
       const oldValue = this.mappings.get(keyIndex);
       try {
-        this.mappings.set(keyIndex, hidCode);
+        this.mappings.set(keyIndex, fwCode);
         await this.translator.sendProfile(this.mappings);
         this.notify?.();
       } catch (error) {
@@ -118,9 +118,9 @@ export class KeyboardDevice {
 
   /**
    * Get mapping for a key index
-   * @returns The HID scan code mapped to this key, or undefined if no custom mapping
+   * @returns The RK firmware code mapped to this key, or undefined if no custom mapping
    */
-  getMapping(keyIndex: number): HIDCode | undefined {
+  getMapping(keyIndex: number): FirmwareCode | undefined {
     return this.mappings.get(keyIndex);
   }
 
