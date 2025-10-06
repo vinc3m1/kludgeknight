@@ -30,21 +30,6 @@ export class ProtocolTranslator {
   }
 
   /**
-   * Read current profile mappings from keyboard hardware
-   * Reads 9 HID buffers and decodes them
-   * @returns Map of key index to HID scan code
-   */
-  async readProfile(): Promise<Map<number, HIDCode>> {
-    // TODO: Implement actual reading from keyboard
-    // This requires understanding how RK keyboards expose their current config
-    // Note: WebHID doesn't have a direct "read report" for output reports
-    // This is a limitation - we may need to use input reports or feature reports
-    // For now, this is a placeholder that returns an empty map
-
-    return new Map();
-  }
-
-  /**
    * Send standard lighting mode settings to keyboard
    * Encodes settings into 1 HID buffer and sends via feature report
    */
