@@ -311,7 +311,20 @@ These tools are far more capable than keyboard-level macros and work regardless 
 
 ## 📄 License
 
-GPL v3 - See LICENSE file for details
+```
+KludgeKnight - Browser-based Software for Royal Kludge Keyboards
+Copyright (C) 2025 Vince Mi (vinc3m1)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+```
 
 ## 🙏 Acknowledgments
 

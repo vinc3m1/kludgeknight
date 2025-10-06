@@ -292,6 +292,10 @@ export function HomePage() {
         <p className="text-xl text-gray-600">
           Runs directly in your browser, no software to download and install
         </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Unofficial software, not affiliated with Royal Kludge.<br />
+          Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Rangoli</a>.
+        </p>
       </div>
 
       {/* Getting Started */}
@@ -470,6 +474,27 @@ export function HomePage() {
         ) : (
           <p className="text-gray-500">Loading keyboard list...</p>
         )}
+      </section>
+
+      {/* License */}
+      <section className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">License</h2>
+        <div className="text-sm text-gray-700 space-y-2 font-mono bg-gray-50 p-4 rounded border border-gray-200">
+          <p>KludgeKnight - Browser-based Software for Royal Kludge Keyboards</p>
+          <p>Copyright (C) 2025 Vince Mi (vinc3m1)</p>
+          <p className="pt-2">
+            This program is free software: you can redistribute it and/or modify
+            it under the terms of the GNU General Public License as published by
+            the Free Software Foundation, either version 3 of the License, or
+            (at your option) any later version.
+          </p>
+          <p>
+            This program is distributed in the hope that it will be useful,
+            but WITHOUT ANY WARRANTY; without even the implied warranty of
+            MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+            GNU General Public License for more details.
+          </p>
+        </div>
       </section>
 
     </div>
