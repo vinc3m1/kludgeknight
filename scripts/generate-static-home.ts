@@ -3,28 +3,17 @@
  * Uses the same parsing logic as runtime code
  */
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import React from 'react';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { parseCfgIni } from '../src/utils/rkConfig.js';
+import { getRKDevices } from '../src/utils/rkConfig.js';
 
 // Make React available globally for JSX compiled code
 (globalThis as typeof globalThis & { React: typeof React }).React = React;
 
-// Helper to get keyboards data (shared between HTML generation and data export)
-export function getKeyboardsData(): Array<{ pid: string; name: string }> {
-  const cfgPath = join(process.cwd(), 'public', 'rk', 'Cfg.ini');
-  const buffer = readFileSync(cfgPath);
-  const decoder = new TextDecoder('utf-16le');
-  const text = decoder.decode(buffer);
-  const devices = parseCfgIni(text);
-  return Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
-}
-
-export function generateHomePageHTML(): string {
-  const keyboards = getKeyboardsData();
+export async function generateHomePageHTML(): Promise<string> {
+  const devices = await getRKDevices();
+  const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
 
   // Import and render full App tree (matches browser hydration structure)
   // Note: Using dynamic import to avoid SSR issues with other components

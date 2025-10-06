@@ -31,7 +31,7 @@ export function parseCfgIni(text: string): Map<string, string> {
 }
 
 /**
- * Browser-only: Fetch and parse Cfg.ini
+ * Load and parse Cfg.ini (works in both Node.js and browser)
  * Returns a map of PID -> Device Name
  */
 export async function getRKDevices(): Promise<Map<string, string>> {
@@ -40,8 +40,19 @@ export async function getRKDevices(): Promise<Map<string, string>> {
   }
 
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}rk/Cfg.ini`);
-    const buffer = await response.arrayBuffer();
+    let buffer: ArrayBuffer;
+
+    // Server-side (Node.js/Bun)
+    if (typeof window === 'undefined') {
+      const { readFileSync } = await import('fs');
+      const { join } = await import('path');
+      const cfgPath = join(process.cwd(), 'public', 'rk', 'Cfg.ini');
+      buffer = readFileSync(cfgPath);
+    } else {
+      // Client-side (browser)
+      const response = await fetch(`${import.meta.env.BASE_URL}rk/Cfg.ini`);
+      buffer = await response.arrayBuffer();
+    }
 
     // Decode UTF-16 LE
     const decoder = new TextDecoder('utf-16le');

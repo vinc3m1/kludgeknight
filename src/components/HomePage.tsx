@@ -268,8 +268,8 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
     // Only fetch if we don't have initial data (SSR provides it)
     if (!initialKeyboards) {
       getRKDevices().then(devices => {
-        const kbList = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
-        setKeyboards(kbList);
+        const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
+        setKeyboards(keyboards);
       });
     }
   }, [initialKeyboards]);
