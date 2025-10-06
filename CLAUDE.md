@@ -20,7 +20,7 @@ bun run dev
 # Lint code
 bun run lint
 
-# Build for production (includes SSR post-build step)
+# Build for production
 bun run build
 
 # Preview production build
@@ -31,11 +31,12 @@ bun run preview
 
 ### Build Process
 
-The build process has two steps:
-1. `vite build` - Standard Vite build that bundles the React app
-2. `bun scripts/inject-ssr.ts` - Post-build script that injects server-rendered HTML into index.html
+This project uses **Astro** with React islands for optimal static site generation. The build process:
+1. Astro builds static HTML with pre-rendered content (all 250+ keyboards)
+2. React components are bundled as islands that hydrate client-side
+3. Tailwind CSS v4 is processed via @tailwindcss/vite plugin
 
-**Why separate SSR from Vite config?** Initially SSR was implemented as a Vite plugin, but this caused Vite to track all source files as config dependencies, triggering full server restarts instead of HMR on every file change. Moving SSR to a post-build script fixed this performance issue while maintaining the same SSR output.
+**Why Astro?** The homepage is mostly static content (keyboard list, documentation) with small interactive areas (device connection, key remapping). Astro's island architecture ships minimal JavaScript while maintaining SEO benefits through SSR.
 
 ## Architecture
 
@@ -115,31 +116,27 @@ The build process has two steps:
   - Fn key: 0xb000
   - These preserve Mac/Windows mode switching behavior in firmware
 
-### Server-Side Rendering (SSR)
+### Astro Static Site Generation
 
-The homepage is pre-rendered for SEO purposes:
+The homepage is pre-rendered at build time for SEO:
 
-**SSR Implementation** (scripts/generate-static-home.ts)
-- Renders HomePage component to static HTML using React's `renderToString`
-- Loads keyboard data from public/rk/Cfg.ini during build
-- Generates complete HTML with all 250+ keyboards for search engine indexing
+**Page Component** (src/pages/index.astro)
+- Astro page that loads keyboard data from public/rk/Cfg.ini at build time
+- Passes keyboard list to App component as props
+- Generates complete static HTML with all 250+ keyboards for search engines
 
-**SSR Injection** (scripts/inject-ssr.ts)
-- Post-build script that runs after `vite build`
-- Reads dist/index.html and injects pre-rendered HomePage into `<div id="root">`
-- Replaces empty root div with full keyboard list HTML
+**React Island Hydration** (src/components/App.tsx)
+- App component wraps with DeviceProvider for device state management
+- Loaded as Astro island with `client:load` directive
+- React hydrates on client-side, preserving pre-rendered content
+- HomePage receives `initialKeyboards` prop to avoid client-side re-fetch
 
-**Client Hydration** (src/main.tsx)
-- Uses `hydrateRoot()` when DOM has pre-rendered content (production)
-- Falls back to `createRoot()` for dev mode (no SSR during development)
-- React reuses existing DOM structure for fast initial render
-- No need to pass keyboard data as props since it's already in the DOM
-
-**Important SSR Notes:**
-- SSR plugin must NOT be imported in vite.config.ts during development
-- Importing SSR-related files in config causes Vite to track all source files as config dependencies
-- This breaks HMR performance by triggering full server restarts on every file change
-- Solution: Keep SSR generation separate as a post-build step only
+**Benefits over previous Vite SSR:**
+- No hacky post-build injection scripts needed
+- SSR works in both dev and production (better DX)
+- No hydration mismatch issues or manual hydrateRoot logic
+- Astro handles all SSR/hydration complexity automatically
+- Fast HMR during development (no config file tracking issues)
 
 ### WebHID Specifics
 
@@ -154,4 +151,4 @@ The homepage is pre-rendered for SEO purposes:
 - **Derivative work**: BufferCodec.ts contains code ported from Rangoli project - maintain GPL license and attribution.
 - **Tested hardware**: Only tested on RK F68, though configs exist for 250+ RK keyboard models.
 - **Browser compatibility**: Requires WebHID API - Chrome/Edge/Opera only, no Firefox/Safari support.
-- **SSR and HMR**: Never import SSR-related files in vite.config.ts to maintain fast HMR performance during development.
+- **Astro + React**: Uses Astro for static site generation with React islands for interactive components.

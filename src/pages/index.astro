@@ -1,0 +1,23 @@
+---
+import { getRKDevices } from '../utils/rkConfig';
+import App from '../components/App';
+import '../index.css';
+
+// Load keyboards at build time
+const devices = await getRKDevices();
+const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="KludgeKnight - Browser-based key remapper and lighting controller for Royal Kludge keyboards. No software to download, runs directly in your browser using WebHID." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>KludgeKnight - Royal Kludge Keyboard Configuration</title>
+  </head>
+  <body>
+    <App client:load initialKeyboards={keyboards} />
+  </body>
+</html>

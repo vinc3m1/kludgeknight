@@ -350,6 +350,60 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         </p>
       </div>
 
+      {/* Features / Value Props */}
+      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6 border border-blue-100">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">What You Can Do</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Remap Any Key</h3>
+              <p className="text-sm text-gray-600">Customize your keyboard layout to match your workflow. Change any key to any other key, including modifiers.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Control Lighting</h3>
+              <p className="text-sm text-gray-600">Adjust backlight brightness, speed, and effects. Customize your keyboard&apos;s appearance to match your setup.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">No Installation Required</h3>
+              <p className="text-sm text-gray-600">Works instantly in your browser using WebHID. No drivers, no admin permissions, no bloatware.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Cross-Platform</h3>
+              <p className="text-sm text-gray-600">Works on Windows, Mac, and Linux. Your settings save automatically and stay with your browser.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Getting Started */}
       <section className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Getting Started</h2>

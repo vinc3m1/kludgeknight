@@ -5,12 +5,14 @@
   "type": "module",
   "license": "GPL-3.0",
   "scripts": {
-    "dev": "bunx --bun vite --host",
-    "build": "bunx --bun vite build && bun scripts/inject-ssr.ts",
+    "dev": "astro dev",
+    "build": "astro build",
     "lint": "eslint .",
-    "preview": "bunx --bun vite preview"
+    "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/react": "^4.4.0",
+    "astro": "^5.14.1",
     "ini": "^5.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

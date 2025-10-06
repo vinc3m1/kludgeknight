@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useSelectedDevice, useDevices } from './hooks/useDevices';
-import { ConnectButton } from './components/ConnectButton';
-import { KeyRemapper } from './components/KeyRemapper';
-import { LightingControls } from './components/LightingControls';
-import { HomePage } from './components/HomePage';
+import { useSelectedDevice, useDevices } from '../hooks/useDevices';
+import { ConnectButton } from './ConnectButton';
+import { KeyRemapper } from './KeyRemapper';
+import { LightingControls } from './LightingControls';
+import { HomePage } from './HomePage';
+import { DeviceProvider } from '../context/DeviceContext.tsx';
 
 type Tab = 'keys' | 'lighting';
 
@@ -11,7 +12,7 @@ interface AppProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;
 }
 
-function App({ initialKeyboards }: AppProps = {}) {
+function AppContent({ initialKeyboards }: AppProps = {}) {
   const device = useSelectedDevice();
   const { disconnectDevice } = useDevices();
   const [activeTab, setActiveTab] = useState<Tab>('keys');
@@ -116,4 +117,11 @@ function App({ initialKeyboards }: AppProps = {}) {
   );
 }
 
-export default App;
+// Wrap AppContent with DeviceProvider
+export default function App(props: AppProps) {
+  return (
+    <DeviceProvider>
+      <AppContent {...props} />
+    </DeviceProvider>
+  );
+}
