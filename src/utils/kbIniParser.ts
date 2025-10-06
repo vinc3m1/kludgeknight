@@ -7,6 +7,7 @@ import { parseVK } from '../types/keycode';
 import type { Key, KeyboardConfig, LightingMode, LightingModeFlags } from '../types/keyboard';
 import { getDeviceName } from './rkConfig';
 import { parseLedXml } from './ledXmlParser';
+import { decodeKBIni } from './keyboardImages';
 
 /**
  * Parse a single key entry from KB.ini
@@ -54,17 +55,38 @@ function parseLedOptEntry(value: string): LightingModeFlags | null {
 }
 
 /**
+ * Try to fetch KB.ini handling case-sensitivity of directory names
+ */
+async function fetchKBIni(pid: string): Promise<{ text: string; dirCase: string } | null> {
+  // Try uppercase first (most common)
+  let response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/KB.ini`);
+  if (response.ok) {
+    const buffer = await response.arrayBuffer();
+    return { text: decodeKBIni(buffer), dirCase: pid.toUpperCase() };
+  }
+
+  // Try lowercase
+  response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toLowerCase()}/KB.ini`);
+  if (response.ok) {
+    const buffer = await response.arrayBuffer();
+    return { text: decodeKBIni(buffer), dirCase: pid.toLowerCase() };
+  }
+
+  return null;
+}
+
+/**
  * Parse KB.ini file for a specific keyboard PID
  */
 export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/KB.ini`);
-    if (!response.ok) {
+    const kbIni = await fetchKBIni(pid);
+    if (!kbIni) {
       console.warn(`KB.ini not found for PID ${pid}`);
       return null;
     }
 
-    const text = await response.text();
+    const text = kbIni.text;
     const parsed = ini.parse(text);
 
     if (!parsed.KEY) {
@@ -102,10 +124,12 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
     if (kbImgUse) {
       // KbImgUse is a hex reference to another device's image
       const referencePid = kbImgUse.replace('0x', '').toLowerCase();
-      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${referencePid.toUpperCase()}/${imageName}`;
+      const refKbIni = await fetchKBIni(referencePid);
+      const refDirCase = refKbIni?.dirCase || referencePid.toUpperCase();
+      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${refDirCase}/${imageName}`;
     } else {
       // Use this device's own image
-      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/${imageName}`;
+      imageUrl = `${import.meta.env.BASE_URL}rk/Dev/${kbIni.dirCase}/${imageName}`;
     }
 
     // Parse lighting capabilities
@@ -167,7 +191,14 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
  */
 export async function hasKeyboardImage(pid: string): Promise<boolean> {
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/keyimg.png`, { method: 'HEAD' });
+    // Try uppercase first
+    let response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/keyimg.png`, { method: 'HEAD' });
+    if (response.ok) {
+      return true;
+    }
+
+    // Try lowercase
+    response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toLowerCase()}/keyimg.png`, { method: 'HEAD' });
     return response.ok;
   } catch {
     return false;
