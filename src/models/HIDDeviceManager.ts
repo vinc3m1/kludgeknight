@@ -9,6 +9,7 @@ export class HIDDeviceManager {
   private static instance: HIDDeviceManager;
   private devices: Map<string, KeyboardDevice> = new Map();
   private configs: Map<string, KeyboardConfig> = new Map();
+  private opening: Set<string> = new Set(); // Track devices currently being opened
 
   private constructor() {
     // Private constructor for singleton
@@ -89,6 +90,7 @@ export class HIDDeviceManager {
 
     try {
       const hidDevices = await navigator.hid.getDevices();
+      console.log(`Found ${hidDevices.length} authorized HID devices`);
       const keyboards: KeyboardDevice[] = [];
 
       for (const hidDevice of hidDevices) {
@@ -100,14 +102,22 @@ export class HIDDeviceManager {
           );
 
           if (hasConfigInterface) {
-            const keyboard = await this.openDevice(hidDevice);
-            if (keyboard) {
-              keyboards.push(keyboard);
+            try {
+              console.log(`Attempting to open RK device: ${hidDevice.productName}`);
+              const keyboard = await this.openDevice(hidDevice);
+              if (keyboard) {
+                console.log(`Successfully opened device: ${keyboard.config.name}`);
+                keyboards.push(keyboard);
+              }
+            } catch (error) {
+              // Log but continue with other devices
+              console.warn(`Failed to open device ${hidDevice.productName}:`, error);
             }
           }
         }
       }
 
+      console.log(`Successfully connected to ${keyboards.length} RK keyboards`);
       return keyboards;
     } catch (error) {
       console.error('Failed to scan authorized devices:', error);
@@ -119,13 +129,38 @@ export class HIDDeviceManager {
    * Open a HID device and create KeyboardDevice instance
    */
   private async openDevice(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
+    // Generate device ID early
+    const serial = hidDevice.serialNumber ? `-${hidDevice.serialNumber}` : '';
+    const deviceId = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}${serial}`;
+
     try {
+      // Check if device is already in manager (prevents duplicate opens in React Strict Mode)
+      if (this.devices.has(deviceId)) {
+        console.log(`Device already in manager: ${hidDevice.productName}`);
+        return this.devices.get(deviceId)!;
+      }
+
+      // Check if device is currently being opened
+      if (this.opening.has(deviceId)) {
+        console.log(`Device is already being opened, waiting...`);
+        // Wait for the other open to complete by polling
+        while (this.opening.has(deviceId)) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        // Return the now-opened device
+        return this.devices.get(deviceId) || null;
+      }
+
+      // Mark as opening
+      this.opening.add(deviceId);
+
       // Load config for this device on-demand
       const pid = hidDevice.productId.toString(16).padStart(4, '0');
       const config = await this.getConfig(pid);
 
       if (!config) {
         console.warn(`No configuration found for device PID ${pid}`);
+        this.opening.delete(deviceId);
         return null;
       }
 
@@ -135,16 +170,22 @@ export class HIDDeviceManager {
 
       // Open device if not already open
       if (!hidDevice.opened) {
+        console.log(`Opening device (currently closed): ${hidDevice.productName}`);
         await hidDevice.open();
+        console.log(`Device opened successfully: ${hidDevice.productName}`);
+      } else {
+        console.log(`Device already open: ${hidDevice.productName}`);
       }
 
       // Create KeyboardDevice instance
       const device = new KeyboardDevice(hidDevice, config);
       this.devices.set(device.id, device);
+      this.opening.delete(deviceId); // Remove from opening set
 
       return device;
     } catch (error) {
       console.error('Failed to open device:', error);
+      this.opening.delete(deviceId); // Clean up on error
       throw error;
     }
   }

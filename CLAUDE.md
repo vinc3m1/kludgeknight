@@ -51,6 +51,8 @@ bun run preview
 - Maintains current key mappings in memory (mappings: Map<number, FirmwareCode>)
 - Uses OperationQueue to serialize all write operations and prevent concurrent hardware access
 - Implements rollback on failure for all mapping operations
+- Loads saved mappings from localStorage on construction
+- Listens for HID disconnect events and triggers onDisconnect callback
 
 **BufferCodec** (src/models/BufferCodec.ts)
 - Ported from Rangoli's keyboardconfiguratorcontroller.cpp (GPL-licensed derivative work)
@@ -69,6 +71,8 @@ bun run preview
 - React context providing device state to components
 - Uses forceUpdate mechanism to trigger re-renders when mappings change
 - Each device has a notify callback that forces re-render
+- Scans for previously authorized devices on mount (maintains connection across page refreshes)
+- Handles device disconnects by removing from manager and clearing selection
 
 **profileStorage** (src/utils/profileStorage.ts)
 - Saves/loads key mappings to browser localStorage per device

@@ -19,6 +19,7 @@ Remap any key on your Royal Kludge keyboard directly in your browser. No install
 - 💡 **Lighting control** - Adjust brightness, speed, colors, and lighting modes
 - 🔄 **Live updates** - Changes apply immediately to your hardware
 - 💾 **Auto-save** - Key mappings are saved in your browser and restored when you reconnect
+- 🔌 **Auto-reconnect** - Maintains connection across page refreshes (no need to re-authorize)
 - 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
 - 🗺️ **Key mappings from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge app
 

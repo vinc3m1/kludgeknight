@@ -22,6 +22,7 @@ export class KeyboardDevice {
   perKeyColors: PerKeyColors = {};
 
   notify?: () => void;
+  onDisconnect?: () => void;
 
   private translator: ProtocolTranslator;
   private queue = new OperationQueue();
@@ -53,11 +54,31 @@ export class KeyboardDevice {
       };
     }
 
-    // Listen for disconnect
+    // Listen for disconnect event on navigator.hid (global disconnect events)
+    const disconnectHandler = (event: HIDConnectionEvent) => {
+      if (event.device === hidDevice) {
+        console.log('HID disconnect event fired for', hidDevice.productName);
+        this.handleDisconnect();
+        navigator.hid.removeEventListener('disconnect', disconnectHandler);
+      }
+    };
+    navigator.hid.addEventListener('disconnect', disconnectHandler);
+
+    // Also listen on the device itself (belt and suspenders)
     hidDevice.addEventListener('disconnect', () => {
-      this.connected = false;
-      this.notify?.();
+      console.log('HID device disconnect event fired for', hidDevice.productName);
+      this.handleDisconnect();
     });
+  }
+
+  private handleDisconnect() {
+    if (!this.connected) return; // Already handled
+
+    console.log('Handling disconnect for device:', this.hidDevice.productName);
+    this.connected = false;
+
+    this.onDisconnect?.();
+    this.notify?.();
   }
 
   /**
