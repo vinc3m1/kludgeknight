@@ -6,6 +6,7 @@ export interface DeviceContextValue {
   selectedDevice: KeyboardDevice | null;
   selectDevice: (device: KeyboardDevice | null) => void;
   requestDevice: () => Promise<void>;
+  disconnectDevice: (device: KeyboardDevice) => Promise<void>;
 }
 
 export const DeviceContext = createContext<DeviceContextValue | null>(null);

@@ -75,11 +75,29 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const disconnectDevice = async (device: KeyboardDevice) => {
+    try {
+      await device.hidDevice.close();
+      manager.removeDevice(device.id);
+      setSelectedDevice(current => {
+        if (current?.id === device.id) {
+          const remaining = manager.getAllDevices();
+          return remaining.length > 0 ? remaining[0] : null;
+        }
+        return current;
+      });
+      forceUpdate();
+    } catch (error) {
+      console.error('Failed to disconnect device:', error);
+    }
+  };
+
   const value: DeviceContextValue = {
     devices: manager.getAllDevices(),
     selectedDevice,
     selectDevice: setSelectedDevice,
     requestDevice,
+    disconnectDevice,
   };
 
   return (

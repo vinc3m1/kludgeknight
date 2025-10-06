@@ -89,7 +89,7 @@ export function KeyRemapper() {
         <h2 className="text-xl font-bold">Key Mapping</h2>
         <button
           onClick={handleResetAll}
-          className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
+          className="px-3 py-1.5 text-sm bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 whitespace-nowrap cursor-pointer"
         >
           Reset All Keys to Default
         </button>
@@ -129,20 +129,20 @@ export function KeyRemapper() {
               <button
                 onClick={handleConfirmRemap}
                 disabled={selectedTargetKey === null}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
               >
                 Apply
               </button>
               <button
                 onClick={handleSetToDefault}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-orange-600 text-white rounded hover:bg-orange-700 whitespace-nowrap"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer whitespace-nowrap"
                 title={`Reset to default: ${defaultKeyLabel || 'Unknown'}`}
               >
                 Set to Default
               </button>
               <button
                 onClick={handleClose}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-gray-600 text-white rounded hover:bg-gray-700 whitespace-nowrap"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer whitespace-nowrap"
               >
                 Close
               </button>
@@ -162,7 +162,7 @@ export function KeyRemapper() {
                     <button
                       key={keyInfo.fw}
                       onClick={() => setSelectedTargetKey(keyInfo.fw)}
-                      className={`px-3 py-1 text-sm border rounded transition-colors ${
+                      className={`px-3 py-1 text-sm border rounded transition-colors cursor-pointer ${
                         selectedTargetKey === keyInfo.fw
                           ? 'bg-blue-500 text-white border-blue-600'
                           : currentMapping === keyInfo.fw

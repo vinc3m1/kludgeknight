@@ -187,7 +187,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
     <li className="border-b border-gray-200 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between"
+        className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer"
       >
         <span className="text-sm">
           <span className="font-mono text-gray-500">{pid.toUpperCase()}</span> - {name}
@@ -215,7 +215,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
                   <div className="inline-flex items-center gap-2 bg-white border border-gray-300 rounded-md p-1">
                     <button
                       onClick={() => setShowRgb(false)}
-                      className={`px-3 py-1 text-xs rounded transition-colors ${
+                      className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
                         !showRgb
                           ? 'bg-gray-900 text-white'
                           : 'text-gray-700 hover:bg-gray-100'
@@ -225,7 +225,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
                     </button>
                     <button
                       onClick={() => setShowRgb(true)}
-                      className={`px-3 py-1 text-xs rounded transition-colors ${
+                      className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
                         showRgb
                           ? 'bg-gray-900 text-white'
                           : 'text-gray-700 hover:bg-gray-100'
@@ -480,7 +480,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                 <div className="mb-3 flex justify-end">
                   <button
                     onClick={handleExpandAllToggle}
-                    className="text-sm px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1"
+                    className="text-sm px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     {expandedPids.size > 0 ? (
                       <>
@@ -500,7 +500,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   </button>
                 </div>
 
-                <div className="relative border border-blue-200 bg-blue-50 rounded-md overflow-hidden" style={{ height: '170px' }}>
+                <div className="relative border border-blue-200 bg-blue-50 rounded-md overflow-hidden" style={{ height: '480px' }}>
                   {/* Top shadow overlay */}
                   {showTopShadow && (
                     <div
