@@ -404,6 +404,28 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         </div>
       </section>
 
+      {/* Privacy Notice */}
+      <section className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-md p-6 border border-green-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Runs Completely Locally & Privately</h2>
+        <div className="flex items-start space-x-4">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="text-gray-700 mb-3">
+              KludgeKnight runs entirely in your browser. All key remapping and configuration happens locally on your device. Your keyboard settings are saved only in your browser&apos;s local storage and never leave your computer.
+            </p>
+            <p className="text-xs text-gray-500">
+              We use Google Analytics to understand basic site traffic (page views, visitor counts), but no keyboard configuration data or personal information is collected.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Getting Started */}
       <section className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Getting Started</h2>
@@ -502,7 +524,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         <p className="text-gray-600 mb-2">
           KludgeKnight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
         </p>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 mb-4">
           Configurations imported from official RK Windows software on October 4, 2025.
         </p>
         {keyboards.length > 0 ? (
@@ -515,7 +537,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by model name..."
-                  className="w-full px-4 py-2 pl-10 border border-blue-200 bg-blue-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white"
+                  className="w-full px-4 py-2 pl-10 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent focus:bg-white"
                 />
                 <svg
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -534,7 +556,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                 <div className="mb-3 flex justify-end">
                   <button
                     onClick={handleExpandAllToggle}
-                    className="text-sm px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-sm px-3 py-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     {expandedPids.size > 0 ? (
                       <>
@@ -554,7 +576,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   </button>
                 </div>
 
-                <div className="relative border border-blue-200 bg-blue-50 rounded-md overflow-hidden" style={{ height: '480px' }}>
+                <div className="relative border border-gray-200 bg-gray-50 rounded-md overflow-hidden" style={{ height: '480px' }}>
                   {/* Top shadow overlay */}
                   {showTopShadow && (
                     <div

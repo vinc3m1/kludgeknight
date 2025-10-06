@@ -16,6 +16,16 @@ const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, nam
     <meta name="description" content="KludgeKnight - Browser-based key remapper and lighting controller for Royal Kludge keyboards. No software to download, runs directly in your browser using WebHID." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>KludgeKnight - Royal Kludge Keyboard Configuration</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+
+      gtag('config', 'G-YBJQ3DKPZR');
+    </script>
   </head>
   <body>
     <App client:load initialKeyboards={keyboards} />
