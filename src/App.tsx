@@ -7,7 +7,11 @@ import { HomePage } from './components/HomePage';
 
 type Tab = 'keys' | 'lighting';
 
-function App() {
+interface AppProps {
+  initialKeyboards?: Array<{ pid: string; name: string }>;
+}
+
+function App({ initialKeyboards }: AppProps = {}) {
   const device = useSelectedDevice();
   const [activeTab, setActiveTab] = useState<Tab>('keys');
 
@@ -37,7 +41,7 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!device ? (
-          <HomePage />
+          <HomePage initialKeyboards={initialKeyboards} />
         ) : (
           <div className="space-y-8">
             <div className="bg-white rounded-lg shadow p-6">

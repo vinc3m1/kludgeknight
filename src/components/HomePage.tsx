@@ -254,18 +254,25 @@ function KeyboardListItem({ pid, name, expandAll }: KeyboardListItemProps) {
   );
 }
 
-export function HomePage() {
-  const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>([]);
+interface HomePageProps {
+  initialKeyboards?: Array<{ pid: string; name: string }>;
+}
+
+export function HomePage({ initialKeyboards }: HomePageProps = {}) {
+  const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>(initialKeyboards || []);
   const [showAllKeyboards, setShowAllKeyboards] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandAll, setExpandAll] = useState(false);
 
   useEffect(() => {
-    getRKDevices().then(devices => {
-      const kbList = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
-      setKeyboards(kbList);
-    });
-  }, []);
+    // Only fetch if we don't have initial data (SSR provides it)
+    if (!initialKeyboards) {
+      getRKDevices().then(devices => {
+        const kbList = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
+        setKeyboards(kbList);
+      });
+    }
+  }, [initialKeyboards]);
 
   // Reset "show all" and "expand all" when search query changes
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useEffect, useReducer, useState } from 'react';
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
-import { DeviceContext, type DeviceContextValue } from './DeviceContext';
+import { DeviceContext, type DeviceContextValue } from './DeviceContext.ts';
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);

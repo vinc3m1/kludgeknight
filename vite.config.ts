@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { ssrHomePlugin } from './vite-plugin-ssr-home'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), ssrHomePlugin()],
   base: '/',
   server: {
     // HTTPS only needed for network access, localhost works with HTTP for WebHID
