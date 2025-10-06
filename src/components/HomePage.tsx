@@ -284,6 +284,16 @@ export function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {/* Intro */}
+      <div className="text-center py-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-3">
+          Key remapper and lighting controller for Royal Kludge keyboards
+        </h2>
+        <p className="text-xl text-gray-600">
+          Runs directly in your browser, no software to download and install
+        </p>
+      </div>
+
       {/* Getting Started */}
       <section className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Getting Started</h2>
