@@ -86,7 +86,7 @@ export function KeyRemapper() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Key Remapper</h2>
+        <h2 className="text-xl font-bold">Key Mapping</h2>
         <button
           onClick={handleResetAll}
           className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
@@ -129,18 +129,9 @@ export function KeyRemapper() {
               <button
                 onClick={handleConfirmRemap}
                 disabled={selectedTargetKey === null}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-2"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                {selectedTargetKey !== null ? (
-                  <>
-                    Apply:
-                    <span className="px-2 py-0.5 bg-white text-green-900 border border-green-200 rounded font-mono">
-                      {getKeyName(selectedTargetKey)}
-                    </span>
-                  </>
-                ) : (
-                  'Apply'
-                )}
+                Apply
               </button>
               <button
                 onClick={handleSetToDefault}

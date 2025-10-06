@@ -18,17 +18,25 @@ Remap any key on your Royal Kludge keyboard directly in your browser. No install
 - 🎹 **Visual keyboard layout** - See your keyboard and click to remap
 - 💡 **Lighting control** - Adjust brightness, speed, colors, and lighting modes
 - 🔄 **Live updates** - Changes apply immediately to your hardware
+- 💾 **Auto-save** - Key mappings are saved in your browser and restored when you reconnect
 - 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
 - 🗺️ **Key mappings from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge app
 
-### ⚠️ Important Limitation
+### ⚠️ Important Limitations
 
 **The app cannot read your existing key mappings from the keyboard.** Due to firmware limitations, we can only write new mappings, not read what's currently set.
 
 This means:
 - If you've already remapped keys using RK software, those mappings won't be visible here
-- The app always starts with the default keyboard layout
+- The app always starts with the default keyboard layout (unless you've previously used this app on this browser)
 - Any remapping you do will overwrite what's currently on the keyboard
+
+**Your remappings are saved in your browser's localStorage** and will be restored when you reconnect your keyboard. However:
+- Clearing your browser data will erase these saved mappings
+- The mappings are browser-specific (won't sync across different browsers or devices)
+- The mappings in the keyboard's hardware memory are permanent until overwritten
+
+**Every change writes the entire keymap** to the keyboard hardware. Even when you change a single key, the complete key mapping for your entire keyboard is sent. This is how the RK firmware works - it doesn't support updating individual keys.
 
 ## 📸 Screenshot
 

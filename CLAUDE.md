@@ -48,7 +48,7 @@ bun run preview
 
 **KeyboardDevice** (src/models/KeyboardDevice.ts)
 - Represents a connected keyboard
-- Maintains current key mappings in memory (mappings: Map<number, HIDCode>)
+- Maintains current key mappings in memory (mappings: Map<number, FirmwareCode>)
 - Uses OperationQueue to serialize all write operations and prevent concurrent hardware access
 - Implements rollback on failure for all mapping operations
 
@@ -57,10 +57,12 @@ bun run preview
 - Encodes/decodes the 9-buffer protocol used by RK keyboards
 - Each key is 4 bytes (little-endian) in a 585-byte space across 9 buffers
 - First buffer has special header bytes (0x01, 0xf8) at positions 3-4
+- **Always writes ALL key mappings** - even a single key change sends all 9 buffers with full keymap
 
 **ProtocolTranslator** (src/models/ProtocolTranslator.ts)
 - Sends encoded buffers to keyboard via WebHID sendFeatureReport()
 - Report ID is 0x0a (extracted from buffer[0])
+- Sends all 9 key mapping buffers sequentially on every write operation
 - Reading profiles from keyboard is not implemented (and likely impossible due to firmware)
 
 **DeviceContext** (src/context/DeviceContext.tsx)
@@ -68,14 +70,26 @@ bun run preview
 - Uses forceUpdate mechanism to trigger re-renders when mappings change
 - Each device has a notify callback that forces re-render
 
+**profileStorage** (src/utils/profileStorage.ts)
+- Saves/loads key mappings to browser localStorage per device
+- Device ID includes serial number when available for device-specific profiles
+- Mappings auto-save after each change and auto-load on device connect
+- Storage key format: `kludgeknight_profile_{deviceId}`
+
 ### Data Flow
 
 - Keyboard configurations are in `public/rk/` directory:
   - `Cfg.ini`: Maps PIDs to device names (UTF-16 LE encoded)
-  - `Dev/{PID}/KB.ini`: Key positions and mappings for each keyboard model
-- Key mappings use HIDCode type (USB HID scan codes) defined in src/types/keycode.ts
-- VK codes from official RK software are translated to HID codes via vkToHid function
-- Type aliases: VKCode (Windows Virtual Key codes) and HIDCode (USB HID scan codes)
+  - `Dev/{PID}/KB.ini`: Key positions and mappings for each keyboard model (uses VK codes)
+- Key mappings use FirmwareCode type (RK-specific firmware codes) defined in src/types/keycode.ts
+- VK codes from INI files are translated to firmware codes via vkToFirmwareCode function
+- Type aliases: VKCode (Windows Virtual Key codes) and FirmwareCode (RK firmware codes)
+- **Firmware code encoding** (discovered via USB capture analysis):
+  - Regular keys: USB HID code << 8 (e.g., A key: 0x04 → 0x0400)
+  - Left modifiers: Bit flags (Ctrl: 0x010000, Shift: 0x020000, Alt: 0x040000, Win: 0x080000)
+  - Right modifiers: Higher flags (Ctrl: 0x100000, Shift: 0x200000, Alt: 0x400000, Win: 0x800000)
+  - Fn key: 0xb000
+  - These preserve Mac/Windows mode switching behavior in firmware
 
 ### WebHID Specifics
 
