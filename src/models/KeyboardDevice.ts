@@ -3,6 +3,7 @@ import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 import type { FirmwareCode } from '../types/keycode';
+import { loadProfile, saveProfile } from '../utils/profileStorage';
 
 /**
  * Represents a connected Royal Kludge keyboard
@@ -28,8 +29,16 @@ export class KeyboardDevice {
   constructor(hidDevice: HIDDevice, config: KeyboardConfig) {
     this.hidDevice = hidDevice;
     this.config = config;
-    this.id = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}`;
+    // Include serial number if available for device-specific profiles
+    const serial = hidDevice.serialNumber ? `-${hidDevice.serialNumber}` : '';
+    this.id = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}${serial}`;
     this.translator = new ProtocolTranslator(hidDevice, config);
+
+    // Load saved mappings from localStorage (if any)
+    const savedMappings = loadProfile(this.id);
+    if (savedMappings) {
+      this.mappings = savedMappings;
+    }
 
     // Initialize lighting with defaults if keyboard has lighting
     if (config.lightEnabled && config.lightingModes.length > 0) {
@@ -62,6 +71,7 @@ export class KeyboardDevice {
       try {
         this.mappings.set(keyIndex, fwCode);
         await this.translator.sendProfile(this.mappings);
+        saveProfile(this.id, this.mappings);
         this.notify?.();
       } catch (error) {
         // Rollback on failure
@@ -87,6 +97,7 @@ export class KeyboardDevice {
       try {
         this.mappings.delete(keyIndex);
         await this.translator.sendProfile(this.mappings);
+        saveProfile(this.id, this.mappings);
         this.notify?.();
       } catch (error) {
         // Rollback on failure
@@ -106,6 +117,7 @@ export class KeyboardDevice {
       try {
         this.mappings.clear();
         await this.translator.sendProfile(this.mappings);
+        saveProfile(this.id, this.mappings);
         this.notify?.();
       } catch (error) {
         // Rollback on failure
