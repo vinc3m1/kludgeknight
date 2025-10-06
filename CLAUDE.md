@@ -20,7 +20,7 @@ bun run dev
 # Lint code
 bun run lint
 
-# Build for production
+# Build for production (includes SSR post-build step)
 bun run build
 
 # Preview production build
@@ -28,6 +28,14 @@ bun run preview
 ```
 
 **IMPORTANT: This project uses Bun, not Node.js.** Always use `bun` commands (e.g., `bun install`, `bun run dev`) instead of `npm` or `node`. The dev server supports network access by default and can optionally use HTTPS for testing on other devices.
+
+### Build Process
+
+The build process has two steps:
+1. `vite build` - Standard Vite build that bundles the React app
+2. `bun scripts/inject-ssr.ts` - Post-build script that injects server-rendered HTML into index.html
+
+**Why separate SSR from Vite config?** Initially SSR was implemented as a Vite plugin, but this caused Vite to track all source files as config dependencies, triggering full server restarts instead of HMR on every file change. Moving SSR to a post-build script fixed this performance issue while maintaining the same SSR output.
 
 ## Architecture
 
@@ -80,6 +88,18 @@ bun run preview
 - Mappings auto-save after each change and auto-load on device connect
 - Storage key format: `kludgeknight_profile_{deviceId}`
 
+**HomePage** (src/components/HomePage.tsx)
+- Landing page that displays all supported keyboards in a searchable list
+- Uses lifted state pattern with Set-based tracking for expanded keyboard items
+- Fixed-height scrollable container (170px) with dynamic scroll shadows
+- Shadows only appear when content is scrollable and based on scroll position
+- Each keyboard item can expand to show images (keyimg.png, kbled.png if available)
+- Lazily loads keyboard images when user expands an item (not when keyboard connects)
+  - Parses KB.ini only to extract image configuration: `useRgbDefault`, `kbImgUse` (image reference)
+  - Some keyboards reference another keyboard's images via `kbImgUse` field
+  - This is separate from the full KB.ini parsing for key mapping (only happens when device connects)
+- Handles case-insensitive directory lookups for keyboard PIDs
+
 ### Data Flow
 
 - Keyboard configurations are in `public/rk/` directory:
@@ -95,6 +115,32 @@ bun run preview
   - Fn key: 0xb000
   - These preserve Mac/Windows mode switching behavior in firmware
 
+### Server-Side Rendering (SSR)
+
+The homepage is pre-rendered for SEO purposes:
+
+**SSR Implementation** (scripts/generate-static-home.ts)
+- Renders HomePage component to static HTML using React's `renderToString`
+- Loads keyboard data from public/rk/Cfg.ini during build
+- Generates complete HTML with all 250+ keyboards for search engine indexing
+
+**SSR Injection** (scripts/inject-ssr.ts)
+- Post-build script that runs after `vite build`
+- Reads dist/index.html and injects pre-rendered HomePage into `<div id="root">`
+- Replaces empty root div with full keyboard list HTML
+
+**Client Hydration** (src/main.tsx)
+- Uses `hydrateRoot()` when DOM has pre-rendered content (production)
+- Falls back to `createRoot()` for dev mode (no SSR during development)
+- React reuses existing DOM structure for fast initial render
+- No need to pass keyboard data as props since it's already in the DOM
+
+**Important SSR Notes:**
+- SSR plugin must NOT be imported in vite.config.ts during development
+- Importing SSR-related files in config causes Vite to track all source files as config dependencies
+- This breaks HMR performance by triggering full server restarts on every file change
+- Solution: Keep SSR generation separate as a post-build step only
+
 ### WebHID Specifics
 
 - Only works in Chrome, Edge, Opera (WebHID support required)
@@ -108,3 +154,4 @@ bun run preview
 - **Derivative work**: BufferCodec.ts contains code ported from Rangoli project - maintain GPL license and attribution.
 - **Tested hardware**: Only tested on RK F68, though configs exist for 250+ RK keyboard models.
 - **Browser compatibility**: Requires WebHID API - Chrome/Edge/Opera only, no Firefox/Safari support.
+- **SSR and HMR**: Never import SSR-related files in vite.config.ts to maintain fast HMR performance during development.
