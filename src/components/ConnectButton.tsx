@@ -22,7 +22,7 @@ export function ConnectButton() {
               const device = devices.find(d => d.id === e.target.value);
               selectDevice(device || null);
             }}
-            className="px-4 py-2 border border-gray-300 rounded bg-white"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Select device...</option>
             {devices.map((device) => (
@@ -35,7 +35,7 @@ export function ConnectButton() {
       </div>
 
       {!isWebHIDSupported && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400">
           WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.
         </p>
       )}

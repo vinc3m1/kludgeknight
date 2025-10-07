@@ -86,17 +86,17 @@ export function KeyRemapper() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Key Mapping</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Key Mapping</h2>
         <button
           onClick={handleResetAll}
-          className="px-3 py-1.5 text-sm bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 whitespace-nowrap cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded hover:bg-red-100 dark:hover:bg-red-900/50 whitespace-nowrap cursor-pointer"
         >
           Reset All Keys to Default
         </button>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-100 text-red-700 rounded">
+        <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
           {error}
         </div>
       )}
@@ -107,18 +107,18 @@ export function KeyRemapper() {
       />
 
       {selectedKeyIndex !== null && (
-        <div className="border border-gray-300 rounded p-4 space-y-4">
+        <div className="border border-gray-300 dark:border-gray-600 rounded p-4 space-y-4 bg-white dark:bg-gray-800">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold">Selected Key:</h3>
-                <span className="px-2 py-1 text-sm bg-blue-50 border border-blue-300 text-blue-900 rounded font-mono">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100">Selected Key:</h3>
+                <span className="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 rounded font-mono">
                   {defaultKeyLabel || 'Unknown'}
                 </span>
                 {currentMapping !== undefined && (
                   <>
-                    <span className="text-sm text-gray-600">→</span>
-                    <span className="px-2 py-1 text-sm bg-blue-50 border border-blue-300 text-blue-900 rounded font-mono">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">→</span>
+                    <span className="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 rounded font-mono">
                       {getKeyName(currentMapping)}
                     </span>
                   </>
@@ -149,14 +149,14 @@ export function KeyRemapper() {
             </div>
           </div>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Button Index: {selectedKeyIndex}
           </p>
 
           <div className="space-y-3">
             {Object.entries(keyCategories).map(([category, keys]) => (
               <div key={category}>
-                <h4 className="text-sm font-semibold mb-2">{category}</h4>
+                <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">{category}</h4>
                 <div className="flex flex-wrap gap-2">
                   {keys.map((keyInfo) => (
                     <button
@@ -166,8 +166,8 @@ export function KeyRemapper() {
                         selectedTargetKey === keyInfo.fw
                           ? 'bg-blue-500 text-white border-blue-600'
                           : currentMapping === keyInfo.fw
-                          ? 'bg-green-100 border-green-400'
-                          : 'bg-white border-gray-300 hover:bg-gray-100'
+                          ? 'bg-green-100 dark:bg-green-900/30 border-green-400 dark:border-green-700 text-gray-900 dark:text-gray-100'
+                          : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100'
                       }`}
                     >
                       {keyInfo.label}

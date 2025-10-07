@@ -68,10 +68,10 @@ export function LightingControls() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Lighting Mode</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Lighting Mode</h3>
 
         {/* Info about current keyboard type */}
-        <div className="text-xs text-gray-500 mb-6">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
           <p>
             Keyboard type: {device.config.rgb ? 'RGB' : 'Single-color backlit'}
           </p>
@@ -82,22 +82,22 @@ export function LightingControls() {
 
         {/* Mode selector */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Mode
           </label>
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white flex items-center justify-between"
+              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex items-center justify-between"
             >
               <span>{currentMode?.name || 'Select Mode'}</span>
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
               </svg>
             </button>
 
             {dropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
                 {device.config.lightingModes.map((mode: LightingMode) => (
                   <button
                     key={mode.index}
@@ -105,8 +105,8 @@ export function LightingControls() {
                       setSelectedModeIndex(mode.index);
                       setDropdownOpen(false);
                     }}
-                    className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 ${
-                      mode.index === selectedModeIndex ? 'bg-blue-50 text-blue-600' : ''
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-600 ${
+                      mode.index === selectedModeIndex ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'
                     }`}
                   >
                     {mode.name}
@@ -120,7 +120,7 @@ export function LightingControls() {
         {/* Speed slider */}
         {flags?.speed && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Speed: {SPEED_LABELS[speed - 1]}
             </label>
             <input
@@ -132,7 +132,7 @@ export function LightingControls() {
               onChange={(e) => setSpeed(parseInt(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>Very Slow</span>
               <span>Very Fast</span>
             </div>
@@ -142,7 +142,7 @@ export function LightingControls() {
         {/* Brightness slider */}
         {flags?.brightness && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Brightness: {brightness === 0 ? 'Off' : brightness}
             </label>
             <input
@@ -154,7 +154,7 @@ export function LightingControls() {
               onChange={(e) => setBrightness(parseInt(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>Off</span>
               <span>Bright</span>
             </div>
@@ -164,7 +164,7 @@ export function LightingControls() {
         {/* Color picker */}
         {flags?.colorPicker && !randomColor && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Color
             </label>
             <div className="flex items-center gap-3">
@@ -172,9 +172,9 @@ export function LightingControls() {
                 type="color"
                 value={colorHex}
                 onChange={handleColorChange}
-                className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
               />
-              <span className="text-sm text-gray-600">{colorHex.toUpperCase()}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{colorHex.toUpperCase()}</span>
             </div>
           </div>
         )}
@@ -187,9 +187,9 @@ export function LightingControls() {
                 type="checkbox"
                 checked={randomColor}
                 onChange={(e) => setRandomColor(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-gray-700">Random Colors</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Random Colors</span>
             </label>
           </div>
         )}
@@ -197,7 +197,7 @@ export function LightingControls() {
         {/* Sleep timer - don't show for OFF mode */}
         {!isOffMode && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Sleep Timer: {SLEEP_LABELS[sleep - 1]}
             </label>
             <input
@@ -209,7 +209,7 @@ export function LightingControls() {
               onChange={(e) => setSleep(parseInt(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>5 min</span>
               <span>Off</span>
             </div>

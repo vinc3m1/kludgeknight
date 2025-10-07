@@ -184,15 +184,15 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
   const hasBothImages = imageInfo?.hasRgb && imageInfo?.hasNonRgb;
 
   return (
-    <li className="border-b border-gray-200 last:border-b-0">
+    <li className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer"
+        className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between cursor-pointer text-gray-900 dark:text-gray-100"
       >
         <span className="text-sm">
-          <span className="font-mono text-gray-500">{pid.toUpperCase()}</span> - {name}
+          <span className="font-mono text-gray-500 dark:text-gray-400">{pid.toUpperCase()}</span> - {name}
         </span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
+        <span className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
           {isExpanded ? 'Hide Image' : 'Show Image'}
           <svg
             className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -205,20 +205,20 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
         </span>
       </button>
       {isExpanded && (
-        <div className="px-4 py-3 bg-gray-50">
+        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
           {!imageLoaded ? (
-            <div className="text-sm text-gray-500">Loading image...</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Loading image...</div>
           ) : hasImage && currentImageUrl ? (
             <>
               {hasBothImages && (
                 <div className="mb-3 flex justify-end">
-                  <div className="inline-flex items-center gap-2 bg-white border border-gray-300 rounded-md p-1">
+                  <div className="inline-flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1">
                     <button
                       onClick={() => setShowRgb(false)}
                       className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
                         !showRgb
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                       }`}
                     >
                       Standard
@@ -227,8 +227,8 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
                       onClick={() => setShowRgb(true)}
                       className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
                         showRgb
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                       }`}
                     >
                       RGB
@@ -244,7 +244,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
               />
             </>
           ) : (
-            <div className="text-sm text-gray-500">No image available</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">No image available</div>
           )}
         </div>
       )}
@@ -338,88 +338,88 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Intro */}
       <div className="text-center py-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
           Key remapper and lighting controller for Royal Kludge keyboards
         </h2>
-        <p className="text-xl text-gray-600">
+        <p className="text-xl text-gray-600 dark:text-gray-400">
           Runs directly in your browser, no software to download and install
         </p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           Unofficial software, not affiliated with Royal Kludge.<br />
-          Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Rangoli</a>.
+          Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Rangoli</a>.
         </p>
       </div>
 
       {/* Features / Value Props */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6 border border-blue-100">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">What You Can Do</h2>
+      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg shadow-md p-6 border border-blue-100 dark:border-blue-900">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">What You Can Do</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Remap Any Key</h3>
-              <p className="text-sm text-gray-600">Customize your keyboard layout to match your workflow. Change any key to any other key, including modifiers.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Remap Any Key</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Customize your keyboard layout to match your workflow. Change any key to any other key, including modifiers.</p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-purple-500 dark:bg-purple-600 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Control Lighting</h3>
-              <p className="text-sm text-gray-600">Adjust backlight brightness, speed, and effects. Customize your keyboard&apos;s appearance to match your setup.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Control Lighting</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Adjust backlight brightness, speed, and effects. Customize your keyboard&apos;s appearance to match your setup.</p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-green-500 dark:bg-green-600 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">No Installation Required</h3>
-              <p className="text-sm text-gray-600">Works instantly in your browser using WebHID. No drivers, no admin permissions, no bloatware.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">No Installation Required</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Works instantly in your browser using WebHID. No drivers, no admin permissions, no bloatware.</p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-orange-500 dark:bg-orange-600 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Cross-Platform</h3>
-              <p className="text-sm text-gray-600">Works on Windows, Mac, and Linux. Your settings save automatically and stay with your browser.</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Cross-Platform</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Works on Windows, Mac, and Linux. Your settings save automatically and stay with your browser.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Privacy Notice */}
-      <section className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-md p-6 border border-green-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Runs Completely Locally & Privately</h2>
+      <section className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg shadow-md p-6 border border-green-200 dark:border-green-900">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Runs Completely Locally & Privately</h2>
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-green-500 dark:bg-green-600 rounded-lg flex items-center justify-center">
               <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-gray-700 mb-3">
+            <p className="text-gray-700 dark:text-gray-300 mb-3">
               KludgeKnight runs entirely in your browser. All key remapping and configuration happens locally on your device. Your keyboard settings are saved only in your browser&apos;s local storage and never leave your computer.
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               We use Google Analytics to understand basic site traffic (page views, visitor counts), but no keyboard configuration data or personal information is collected.
             </p>
           </div>
@@ -427,104 +427,104 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
       </section>
 
       {/* Getting Started */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Getting Started</h2>
-        <ol className="space-y-3 text-gray-700">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Getting Started</h2>
+        <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li className="flex items-start">
-            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-sm font-bold mr-3">1</span>
+            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">1</span>
             <span>Connect your Royal Kludge keyboard to your computer via USB (Bluetooth mode is not supported)</span>
           </li>
           <li className="flex items-start">
-            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-sm font-bold mr-3">2</span>
+            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">2</span>
             <span>Click the "Connect Keyboard" button in the top right corner</span>
           </li>
           <li className="flex items-start">
-            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-sm font-bold mr-3">3</span>
+            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">3</span>
             <span>In the Chrome popup dialog, select your Royal Kludge keyboard from the list and click "Connect"</span>
           </li>
         </ol>
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-800">
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
             <strong>Note:</strong> This app requires a Chromium-based browser (Chrome, Edge, or Opera) with WebHID support. Firefox and Safari are not supported.
           </p>
         </div>
       </section>
 
       {/* Feature Stability */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Feature Stability</h2>
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Feature Stability</h2>
         <div className="space-y-3">
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">STABLE</span>
+              <span className="inline-block px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 text-xs font-semibold rounded">STABLE</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Key Mapping</p>
-              <p className="text-sm text-gray-600">Extensively tested on RK F68, should be stable on all devices</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Key Mapping</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Extensively tested on RK F68, should be stable on all devices</p>
             </div>
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">BETA</span>
+              <span className="inline-block px-2 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 text-xs font-semibold rounded">BETA</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Lighting Controls</p>
-              <p className="text-sm text-gray-600">Lightly tested on RK F68, should work on most devices</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Lighting Controls</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Lightly tested on RK F68, should work on most devices</p>
             </div>
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">ALPHA</span>
+              <span className="inline-block px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 text-xs font-semibold rounded">ALPHA</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">RGB Features</p>
-              <p className="text-sm text-gray-600">Untested - may not work at all</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">RGB Features</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Untested - may not work at all</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Important Limitations */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Important Limitations</h2>
-        <ul className="space-y-3 text-gray-700">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Important Limitations</h2>
+        <ul className="space-y-3 text-gray-700 dark:text-gray-300">
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold">Cannot Read Settings from Keyboard</p>
-              <p className="text-sm text-gray-600">RK firmware does not allow reading of settings. The app can only write new mappings.</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Cannot Read Settings from Keyboard</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">RK firmware does not allow reading of settings. The app can only write new mappings.</p>
             </div>
           </li>
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold">All Keys Written at Once</p>
-              <p className="text-sm text-gray-600">When you change a single key mapping, all key mappings are written to the keyboard.</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">All Keys Written at Once</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">When you change a single key mapping, all key mappings are written to the keyboard.</p>
             </div>
           </li>
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold">Browser LocalStorage Only</p>
-              <p className="text-sm text-gray-600">Mappings cannot be stored on the keyboard itself. Your custom mappings are saved in browser localStorage, so they will only persist on the same browser on the same computer. Clearing browser history will delete saved mappings.</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Browser LocalStorage Only</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Mappings cannot be stored on the keyboard itself. Your custom mappings are saved in browser localStorage, so they will only persist on the same browser on the same computer. Clearing browser history will delete saved mappings.</p>
             </div>
           </li>
         </ul>
       </section>
 
       {/* Supported Keyboards */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Supported Keyboards</h2>
-        <p className="text-gray-600 mb-2">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Supported Keyboards</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">
           KludgeKnight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
         </p>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
           Configurations imported from official RK Windows software on October 4, 2025.
         </p>
         {keyboards.length > 0 ? (
@@ -537,10 +537,10 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by model name..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent focus:bg-white"
+                  className="w-full px-4 py-2 pl-10 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent focus:bg-white dark:focus:bg-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -556,7 +556,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                 <div className="mb-3 flex justify-end">
                   <button
                     onClick={handleExpandAllToggle}
-                    className="text-sm px-3 py-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-sm px-3 py-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     {expandedPids.size > 0 ? (
                       <>
@@ -576,7 +576,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   </button>
                 </div>
 
-                <div className="relative border border-gray-200 bg-gray-50 rounded-md overflow-hidden" style={{ height: '480px' }}>
+                <div className="relative border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-md overflow-hidden" style={{ height: '480px' }}>
                   {/* Top shadow overlay */}
                   {showTopShadow && (
                     <div
@@ -598,7 +598,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   )}
 
                   <div className="h-full overflow-y-auto" onScroll={handleScroll} ref={scrollContainerRef}>
-                    <ul className="divide-y divide-gray-200">
+                    <ul className="divide-y divide-gray-200 dark:divide-gray-600">
                       {filteredKeyboards.map(kb => (
                         <KeyboardListItem
                           key={kb.pid}
@@ -613,18 +613,18 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                 </div>
               </>
             ) : (
-              <p className="text-gray-500 text-center py-8">No keyboards found matching "{searchQuery}"</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No keyboards found matching "{searchQuery}"</p>
             )}
           </>
         ) : (
-          <p className="text-gray-500">Loading keyboard list...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading keyboard list...</p>
         )}
       </section>
 
       {/* License */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">License</h2>
-        <div className="text-sm text-gray-700 space-y-2 font-mono bg-gray-50 p-4 rounded border border-gray-200">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">License</h2>
+        <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 font-mono bg-gray-50 dark:bg-gray-700 p-4 rounded border border-gray-200 dark:border-gray-600">
           <p>KludgeKnight - Browser-based Software for Royal Kludge Keyboards</p>
           <p>Copyright (C) 2025 Vince Mi (vinc3m1)</p>
           <p className="pt-2">

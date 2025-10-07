@@ -17,6 +17,20 @@ const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, nam
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>KludgeKnight - Royal Kludge Keyboard Configuration</title>
 
+    <!-- Theme initialization (prevent FOUC) -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'system';
+        const effective = theme === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : theme;
+        document.documentElement.setAttribute('data-theme', effective);
+        if (effective === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
     <script>
