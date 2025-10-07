@@ -2,7 +2,7 @@ import { useDevices } from '../hooks/useDevices';
 
 export function ConnectButton() {
   const { requestDevice, devices, selectedDevice, selectDevice } = useDevices();
-  const isWebHIDSupported = 'hid' in navigator;
+  const isWebHIDSupported = typeof navigator !== 'undefined' && 'hid' in navigator;
 
   return (
     <div className="flex flex-col gap-2">
