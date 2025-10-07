@@ -20,7 +20,7 @@ const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, nam
     <!-- Theme initialization (prevent FOUC) -->
     <script is:inline>
       (function() {
-        const theme = localStorage.getItem('theme') || 'system';
+        const theme = localStorage.getItem('theme') || 'light';
         const effective = theme === 'system'
           ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
           : theme;

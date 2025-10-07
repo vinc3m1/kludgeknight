@@ -1,8 +1,15 @@
+import { useState, useEffect } from 'react';
 import { useDevices } from '../hooks/useDevices';
 
 export function ConnectButton() {
   const { requestDevice, devices, selectedDevice, selectDevice } = useDevices();
-  const isWebHIDSupported = typeof navigator !== 'undefined' && 'hid' in navigator;
+  const [isWebHIDSupported, setIsWebHIDSupported] = useState(true); // Assume supported during SSR
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setIsWebHIDSupported(typeof navigator !== 'undefined' && 'hid' in navigator);
+  }, []);
 
   return (
     <div className="flex flex-col gap-2">
@@ -34,7 +41,7 @@ export function ConnectButton() {
         )}
       </div>
 
-      {!isWebHIDSupported && (
+      {mounted && !isWebHIDSupported && (
         <p className="text-sm text-red-600 dark:text-red-400">
           WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.
         </p>

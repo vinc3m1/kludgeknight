@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 type Theme = 'light' | 'dark' | 'system';
 
 function getThemePreference(): Theme {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return 'light';
   const stored = localStorage.getItem('theme') as Theme;
-  return stored || 'system';
+  return stored || 'light';
 }
 
 function getEffectiveTheme(theme: Theme): 'light' | 'dark' {
@@ -18,6 +18,10 @@ function getEffectiveTheme(theme: Theme): 'light' | 'dark' {
 
 function applyTheme(theme: Theme) {
   if (typeof window === 'undefined') return;
+
+  // Add transitioning class to enable smooth animations
+  document.documentElement.classList.add('theme-transitioning');
+
   const effective = getEffectiveTheme(theme);
   document.documentElement.setAttribute('data-theme', effective);
 
@@ -27,10 +31,15 @@ function applyTheme(theme: Theme) {
   } else {
     document.documentElement.classList.remove('dark');
   }
+
+  // Remove transitioning class after animation completes
+  setTimeout(() => {
+    document.documentElement.classList.remove('theme-transitioning');
+  }, 300);
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
