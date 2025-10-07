@@ -3,7 +3,7 @@ import { ProtocolTranslator } from './ProtocolTranslator';
 import { OperationQueue } from './OperationQueue';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 import type { FirmwareCode } from '../types/keycode';
-import { loadProfile, saveProfile } from '../utils/profileStorage';
+import { loadFullProfile, saveProfile } from '../utils/profileStorage';
 
 /**
  * Represents a connected Royal Kludge keyboard
@@ -35,23 +35,29 @@ export class KeyboardDevice {
     this.id = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}${serial}`;
     this.translator = new ProtocolTranslator(hidDevice, config);
 
-    // Load saved mappings from localStorage (if any)
-    const savedMappings = loadProfile(this.id);
-    if (savedMappings) {
-      this.mappings = savedMappings;
+    // Load saved profile from localStorage (if any)
+    const profile = loadFullProfile(this.id);
+    if (profile.mappings) {
+      this.mappings = profile.mappings;
     }
 
-    // Initialize lighting with defaults if keyboard has lighting
+    // Initialize lighting - use saved settings or defaults
     if (config.lightEnabled && config.lightingModes.length > 0) {
-      const firstMode = config.lightingModes[0];
-      this.lightingSettings = {
-        modeIndex: firstMode.index,
-        speed: 3, // Normal
-        brightness: 5, // Max
-        color: { r: 255, g: 255, b: 255 }, // White
-        randomColor: false,
-        sleep: 2, // 10 min default
-      };
+      if (profile.lightingSettings) {
+        // Use saved lighting settings
+        this.lightingSettings = profile.lightingSettings;
+      } else {
+        // Use defaults
+        const firstMode = config.lightingModes[0];
+        this.lightingSettings = {
+          modeIndex: firstMode.index,
+          speed: 3, // Normal
+          brightness: 5, // Max
+          color: { r: 255, g: 255, b: 255 }, // White
+          randomColor: false,
+          sleep: 2, // 10 min default
+        };
+      }
     }
 
     // Listen for disconnect event on navigator.hid (global disconnect events)
@@ -177,6 +183,8 @@ export class KeyboardDevice {
       try {
         this.lightingSettings = settings;
         await this.translator.sendStandardLighting(settings);
+        // Save lighting to localStorage (preserves key mappings)
+        saveProfile(this.id, undefined, settings);
         this.notify?.();
       } catch (error) {
         // Rollback on failure
