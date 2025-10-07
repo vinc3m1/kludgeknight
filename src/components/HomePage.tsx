@@ -4,6 +4,7 @@ import {
   decodeKBIni,
   parseKBIniForImages
 } from '../utils/keyboardImages';
+import { ConnectButton } from './ConnectButton';
 
 interface KeyboardListItemProps {
   pid: string;
@@ -457,6 +458,11 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         </p>
       </div>
 
+      {/* CTA - Connect Keyboard */}
+      <div className="flex justify-center">
+        <ConnectButton />
+      </div>
+
       {/* Features / Value Props */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg shadow-md p-6 border border-blue-100 dark:border-blue-900">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">What You Can Do</h2>
@@ -543,7 +549,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">2</span>
-            <span>Click the "Connect Keyboard" button in the top right corner</span>
+            <span>Click the "Connect Keyboard" button above</span>
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">3</span>

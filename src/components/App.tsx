@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useSelectedDevice, useDevices } from '../hooks/useDevices';
-import { ConnectButton } from './ConnectButton';
 import { KeyRemapper } from './KeyRemapper';
 import { LightingControls } from './LightingControls';
 import { HomePage } from './HomePage';
@@ -38,7 +37,6 @@ function AppContent({ initialKeyboards }: AppProps = {}) {
                 </svg>
                 View Source on GitHub
               </a>
-              <ConnectButton />
             </div>
           </div>
         </div>
