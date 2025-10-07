@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDevices } from '../hooks/useDevices';
+import { Spinner } from './Spinner';
 
 export function ConnectButton() {
-  const { requestDevice, devices, selectedDevice, selectDevice } = useDevices();
+  const { requestDevice, devices, selectedDevice, selectDevice, isConnecting, isScanning } = useDevices();
   const [isWebHIDSupported, setIsWebHIDSupported] = useState(true); // Assume supported during SSR
   const [mounted, setMounted] = useState(false);
 
@@ -16,11 +17,19 @@ export function ConnectButton() {
       <div className="flex items-center gap-4">
         <button
           onClick={requestDevice}
-          disabled={!isWebHIDSupported}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          disabled={!isWebHIDSupported || isConnecting}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
         >
-          Connect Keyboard
+          {isConnecting && <Spinner size="sm" className="text-white" />}
+          {isConnecting ? 'Connecting...' : 'Connect Keyboard'}
         </button>
+
+        {isScanning && (
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Spinner size="sm" />
+            <span>Scanning for devices...</span>
+          </div>
+        )}
 
         {devices.length > 0 && (
           <select

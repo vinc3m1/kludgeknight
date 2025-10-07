@@ -9,7 +9,7 @@ export class HIDDeviceManager {
   private static instance: HIDDeviceManager;
   private devices: Map<string, KeyboardDevice> = new Map();
   private configs: Map<string, KeyboardConfig> = new Map();
-  private opening: Set<string> = new Set(); // Track devices currently being opened
+  private opening: Map<string, Promise<KeyboardDevice | null>> = new Map(); // Track devices currently being opened
 
   private constructor() {
     // Private constructor for singleton
@@ -133,34 +133,42 @@ export class HIDDeviceManager {
     const serial = hidDevice.serialNumber ? `-${hidDevice.serialNumber}` : '';
     const deviceId = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}${serial}`;
 
+    // Check if device is already in manager (prevents duplicate opens in React Strict Mode)
+    if (this.devices.has(deviceId)) {
+      console.log(`Device already in manager: ${hidDevice.productName}`);
+      return this.devices.get(deviceId)!;
+    }
+
+    // Check if device is currently being opened - await the existing promise
+    if (this.opening.has(deviceId)) {
+      console.log(`Device is already being opened, awaiting existing promise...`);
+      return await this.opening.get(deviceId)!;
+    }
+
+    // Create the opening promise
+    const openingPromise = this.performOpen(hidDevice);
+    this.opening.set(deviceId, openingPromise);
+
     try {
-      // Check if device is already in manager (prevents duplicate opens in React Strict Mode)
-      if (this.devices.has(deviceId)) {
-        console.log(`Device already in manager: ${hidDevice.productName}`);
-        return this.devices.get(deviceId)!;
-      }
+      const device = await openingPromise;
+      return device;
+    } finally {
+      // Always clean up the opening promise when done (success or failure)
+      this.opening.delete(deviceId);
+    }
+  }
 
-      // Check if device is currently being opened
-      if (this.opening.has(deviceId)) {
-        console.log(`Device is already being opened, waiting...`);
-        // Wait for the other open to complete by polling
-        while (this.opening.has(deviceId)) {
-          await new Promise(resolve => setTimeout(resolve, 50));
-        }
-        // Return the now-opened device
-        return this.devices.get(deviceId) || null;
-      }
-
-      // Mark as opening
-      this.opening.add(deviceId);
-
+  /**
+   * Internal method to perform the actual device opening
+   */
+  private async performOpen(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
+    try {
       // Load config for this device on-demand
       const pid = hidDevice.productId.toString(16).padStart(4, '0');
       const config = await this.getConfig(pid);
 
       if (!config) {
         console.warn(`No configuration found for device PID ${pid}`);
-        this.opening.delete(deviceId);
         return null;
       }
 
@@ -180,12 +188,10 @@ export class HIDDeviceManager {
       // Create KeyboardDevice instance
       const device = new KeyboardDevice(hidDevice, config);
       this.devices.set(device.id, device);
-      this.opening.delete(deviceId); // Remove from opening set
 
       return device;
     } catch (error) {
       console.error('Failed to open device:', error);
-      this.opening.delete(deviceId); // Clean up on error
       throw error;
     }
   }
@@ -206,8 +212,14 @@ export class HIDDeviceManager {
 
   /**
    * Remove device from manager (e.g., on disconnect)
+   * Ensures proper cleanup of event listeners
    */
   removeDevice(id: string): void {
-    this.devices.delete(id);
+    const device = this.devices.get(id);
+    if (device) {
+      // Clean up event listeners before removing
+      device.cleanup();
+      this.devices.delete(id);
+    }
   }
 }

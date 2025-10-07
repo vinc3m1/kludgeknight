@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
+import { useToast } from '../hooks/useToast';
 import { KEY_MAP, getAllKeysByCategory, type FirmwareCode } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
+import { Spinner } from './Spinner';
 
 // Helper to get friendly key name
 function getKeyName(fwCode: FirmwareCode | undefined): string {
@@ -19,6 +21,7 @@ function getKeyName(fwCode: FirmwareCode | undefined): string {
 
 export function KeyRemapper() {
   const device = useSelectedDevice();
+  const toast = useToast();
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
   const [selectedTargetKey, setSelectedTargetKey] = useState<FirmwareCode | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +37,11 @@ export function KeyRemapper() {
     try {
       await device.setMapping(selectedKeyIndex, selectedTargetKey);
       setSelectedTargetKey(null);
+      toast.showSuccess('Key mapping updated successfully');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to remap key: ${errorMessage}`);
+      const errorMessage = 'Failed to update key mapping. Please try again.';
+      setError(errorMessage);
+      toast.showError(errorMessage);
       console.error('Remap error:', err);
     }
   };
@@ -48,8 +53,11 @@ export function KeyRemapper() {
     try {
       await device.clearMapping(selectedKeyIndex);
       setSelectedTargetKey(null);
+      toast.showSuccess('Key reset to default');
     } catch (err) {
-      setError('Failed to set to default. Please try again.');
+      const errorMessage = 'Failed to reset key to default. Please try again.';
+      setError(errorMessage);
+      toast.showError(errorMessage);
       console.error(err);
     }
   };
@@ -77,19 +85,33 @@ export function KeyRemapper() {
       await device.clearAll();
       setSelectedKeyIndex(null);
       setSelectedTargetKey(null);
+      toast.showSuccess('All keys reset to default');
     } catch (err) {
-      setError('Failed to reset all keys. Please try again.');
+      const errorMessage = 'Failed to reset all keys. Please try again.';
+      setError(errorMessage);
+      toast.showError(errorMessage);
       console.error(err);
     }
   };
 
+  const isLoading = device.isMappingLoading;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Key Mapping</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Key Mapping</h2>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Spinner size="sm" />
+              <span>Syncing...</span>
+            </div>
+          )}
+        </div>
         <button
           onClick={handleResetAll}
-          className="px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded hover:bg-red-100 dark:hover:bg-red-900/50 whitespace-nowrap cursor-pointer"
+          disabled={isLoading}
+          className="px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded hover:bg-red-100 dark:hover:bg-red-900/50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Reset All Keys to Default
         </button>
@@ -128,21 +150,24 @@ export function KeyRemapper() {
             <div className="flex gap-2">
               <button
                 onClick={handleConfirmRemap}
-                disabled={selectedTargetKey === null}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+                disabled={selectedTargetKey === null || isLoading}
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap flex items-center gap-2"
               >
+                {isLoading && <Spinner size="sm" className="text-white" />}
                 Apply
               </button>
               <button
                 onClick={handleSetToDefault}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer whitespace-nowrap"
+                disabled={isLoading}
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 title={`Reset to default: ${defaultKeyLabel || 'Unknown'}`}
               >
                 Set to Default
               </button>
               <button
                 onClick={handleClose}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer whitespace-nowrap"
+                disabled={isLoading}
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Close
               </button>

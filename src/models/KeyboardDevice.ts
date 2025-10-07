@@ -21,11 +21,17 @@ export class KeyboardDevice {
   lightingSettings: StandardLightingSettings | null = null;
   perKeyColors: PerKeyColors = {};
 
+  // Loading states
+  isMappingLoading: boolean = false;
+  isLightingLoading: boolean = false;
+
   notify?: () => void;
   onDisconnect?: () => void;
 
   private translator: ProtocolTranslator;
   private queue = new OperationQueue();
+  private navigatorDisconnectHandler?: (event: HIDConnectionEvent) => void;
+  private deviceDisconnectHandler?: () => void;
 
   constructor(hidDevice: HIDDevice, config: KeyboardConfig) {
     this.hidDevice = hidDevice;
@@ -61,20 +67,22 @@ export class KeyboardDevice {
     }
 
     // Listen for disconnect event on navigator.hid (global disconnect events)
-    const disconnectHandler = (event: HIDConnectionEvent) => {
+    // Store handler reference for cleanup
+    this.navigatorDisconnectHandler = (event: HIDConnectionEvent) => {
       if (event.device === hidDevice) {
         console.log('HID disconnect event fired for', hidDevice.productName);
         this.handleDisconnect();
-        navigator.hid.removeEventListener('disconnect', disconnectHandler);
       }
     };
-    navigator.hid.addEventListener('disconnect', disconnectHandler);
+    navigator.hid.addEventListener('disconnect', this.navigatorDisconnectHandler);
 
     // Also listen on the device itself (belt and suspenders)
-    hidDevice.addEventListener('disconnect', () => {
+    // Store handler reference for cleanup
+    this.deviceDisconnectHandler = () => {
       console.log('HID device disconnect event fired for', hidDevice.productName);
       this.handleDisconnect();
-    });
+    };
+    hidDevice.addEventListener('disconnect', this.deviceDisconnectHandler);
   }
 
   private handleDisconnect() {
@@ -83,8 +91,29 @@ export class KeyboardDevice {
     console.log('Handling disconnect for device:', this.hidDevice.productName);
     this.connected = false;
 
+    // Clean up event listeners
+    this.cleanup();
+
     this.onDisconnect?.();
     this.notify?.();
+  }
+
+  /**
+   * Clean up event listeners and resources
+   * Should be called when device is disconnected or removed
+   */
+  cleanup(): void {
+    // Remove navigator.hid disconnect listener
+    if (this.navigatorDisconnectHandler) {
+      navigator.hid.removeEventListener('disconnect', this.navigatorDisconnectHandler);
+      this.navigatorDisconnectHandler = undefined;
+    }
+
+    // Remove device disconnect listener
+    if (this.deviceDisconnectHandler) {
+      this.hidDevice.removeEventListener('disconnect', this.deviceDisconnectHandler);
+      this.deviceDisconnectHandler = undefined;
+    }
   }
 
   /**
@@ -95,11 +124,12 @@ export class KeyboardDevice {
   async setMapping(keyIndex: number, fwCode: FirmwareCode): Promise<void> {
     return this.queue.enqueue(async () => {
       const oldValue = this.mappings.get(keyIndex);
+      this.isMappingLoading = true;
+      this.notify?.();
       try {
         this.mappings.set(keyIndex, fwCode);
         await this.translator.sendProfile(this.mappings);
         saveProfile(this.id, this.mappings);
-        this.notify?.();
       } catch (error) {
         // Rollback on failure
         if (oldValue !== undefined) {
@@ -107,8 +137,10 @@ export class KeyboardDevice {
         } else {
           this.mappings.delete(keyIndex);
         }
-        this.notify?.();
         throw error;
+      } finally {
+        this.isMappingLoading = false;
+        this.notify?.();
       }
     });
   }
@@ -121,16 +153,19 @@ export class KeyboardDevice {
       const oldValue = this.mappings.get(keyIndex);
       if (oldValue === undefined) return;
 
+      this.isMappingLoading = true;
+      this.notify?.();
       try {
         this.mappings.delete(keyIndex);
         await this.translator.sendProfile(this.mappings);
         saveProfile(this.id, this.mappings);
-        this.notify?.();
       } catch (error) {
         // Rollback on failure
         this.mappings.set(keyIndex, oldValue);
-        this.notify?.();
         throw error;
+      } finally {
+        this.isMappingLoading = false;
+        this.notify?.();
       }
     });
   }
@@ -141,16 +176,19 @@ export class KeyboardDevice {
   async clearAll(): Promise<void> {
     return this.queue.enqueue(async () => {
       const oldMappings = new Map(this.mappings);
+      this.isMappingLoading = true;
+      this.notify?.();
       try {
         this.mappings.clear();
         await this.translator.sendProfile(this.mappings);
         saveProfile(this.id, this.mappings);
-        this.notify?.();
       } catch (error) {
         // Rollback on failure
         this.mappings = oldMappings;
-        this.notify?.();
         throw error;
+      } finally {
+        this.isMappingLoading = false;
+        this.notify?.();
       }
     });
   }
@@ -180,17 +218,20 @@ export class KeyboardDevice {
 
     return this.queue.enqueue(async () => {
       const oldSettings = this.lightingSettings;
+      this.isLightingLoading = true;
+      this.notify?.();
       try {
         this.lightingSettings = settings;
         await this.translator.sendStandardLighting(settings);
         // Save lighting to localStorage (preserves key mappings)
         saveProfile(this.id, undefined, settings);
-        this.notify?.();
       } catch (error) {
         // Rollback on failure
         this.lightingSettings = oldSettings;
-        this.notify?.();
         throw error;
+      } finally {
+        this.isLightingLoading = false;
+        this.notify?.();
       }
     });
   }
@@ -205,15 +246,18 @@ export class KeyboardDevice {
 
     return this.queue.enqueue(async () => {
       const oldColors = { ...this.perKeyColors };
+      this.isLightingLoading = true;
+      this.notify?.();
       try {
         this.perKeyColors = colors;
         await this.translator.sendCustomRGB(colors);
-        this.notify?.();
       } catch (error) {
         // Rollback on failure
         this.perKeyColors = oldColors;
-        this.notify?.();
         throw error;
+      } finally {
+        this.isLightingLoading = false;
+        this.notify?.();
       }
     });
   }

@@ -2,10 +2,17 @@ import { useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
+/**
+ * Type guard: Check if value is a valid Theme
+ */
+function isTheme(value: unknown): value is Theme {
+  return value === 'light' || value === 'dark' || value === 'system';
+}
+
 function getThemePreference(): Theme {
   if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem('theme') as Theme;
-  return stored || 'light';
+  const stored = localStorage.getItem('theme');
+  return stored && isTheme(stored) ? stored : 'light';
 }
 
 function getEffectiveTheme(theme: Theme): 'light' | 'dark' {

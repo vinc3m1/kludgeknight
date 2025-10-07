@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import { getRKDevices } from '../utils/rkConfig';
 import {
   decodeKBIni,
@@ -142,49 +142,54 @@ async function getKeyboardImageInfo(pid: string): Promise<KeyboardImageInfo | nu
   }
 }
 
-function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemProps) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [hasImage, setHasImage] = useState(false);
-  const [imageInfo, setImageInfo] = useState<KeyboardImageInfo | null>(null);
-  const [showRgb, setShowRgb] = useState<boolean>(false);
+const KeyboardListItem = forwardRef<HTMLLIElement, KeyboardListItemProps>(
+  ({ pid, name, isExpanded, onToggle }, ref) => {
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [hasImage, setHasImage] = useState(false);
+    const [imageInfo, setImageInfo] = useState<KeyboardImageInfo | null>(null);
+    const [showRgb, setShowRgb] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (isExpanded && !imageLoaded) {
-      getKeyboardImageInfo(pid).then(info => {
-        if (!info || (!info.hasRgb && !info.hasNonRgb)) {
-          setHasImage(false);
-          setImageLoaded(true);
-          return;
-        }
+    useEffect(() => {
+      if (isExpanded && !imageLoaded) {
+        getKeyboardImageInfo(pid).then(info => {
+          if (!info || (!info.hasRgb && !info.hasNonRgb)) {
+            setHasImage(false);
+            setImageLoaded(true);
+            return;
+          }
 
-        setImageInfo(info);
-        setShowRgb(info.useRgbDefault);
+          setImageInfo(info);
+          setShowRgb(info.useRgbDefault);
 
-        // Check if default image actually loads
-        const img = new Image();
-        img.onload = () => {
-          setHasImage(true);
-          setImageLoaded(true);
-        };
-        img.onerror = () => {
-          setHasImage(false);
-          setImageLoaded(true);
-        };
-        img.src = info.defaultUrl;
-      });
-    }
-  }, [isExpanded, imageLoaded, pid]);
+          // Check if default image actually loads
+          const img = new Image();
+          img.onload = () => {
+            setHasImage(true);
+            setImageLoaded(true);
+          };
+          img.onerror = () => {
+            setHasImage(false);
+            setImageLoaded(true);
+          };
+          img.src = info.defaultUrl;
+        });
+      }
+    }, [isExpanded, imageLoaded, pid]);
 
-  const currentImageUrl = imageInfo
-    ? (showRgb && imageInfo.hasRgb
-        ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
-        : `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`)
-    : null;
+    const currentImageUrl = imageInfo
+      ? (showRgb && imageInfo.hasRgb
+          ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
+          : `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`)
+      : null;
 
-  const hasBothImages = imageInfo?.hasRgb && imageInfo?.hasNonRgb;
+    const hasBothImages = imageInfo?.hasRgb && imageInfo?.hasNonRgb;
 
-  return (
-    <li className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+    return (
+      <li
+        ref={ref}
+        data-pid={pid}
+        className="border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+      >
       <button
         onClick={onToggle}
         className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between cursor-pointer text-gray-900 dark:text-gray-100"
@@ -250,7 +255,9 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle }: KeyboardListItemP
       )}
     </li>
   );
-}
+});
+
+KeyboardListItem.displayName = 'KeyboardListItem';
 
 interface HomePageProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;
@@ -263,6 +270,9 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const itemHeightsRef = useRef<Map<string, number>>(new Map());
+  const itemRefsMap = useRef<Map<string, HTMLLIElement>>(new Map());
 
   useEffect(() => {
     // Only fetch if we don't have initial data (SSR provides it)
@@ -274,9 +284,15 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
     }
   }, [initialKeyboards]);
 
-  // Reset expanded items when search query changes
+  // Reset expanded items and scroll when search query changes
   useEffect(() => {
     setExpandedPids(new Set());
+    setScrollTop(0);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+    // Clear cached heights when search changes
+    itemHeightsRef.current.clear();
   }, [searchQuery]);
 
   const toggleExpanded = (pid: string) => {
@@ -297,6 +313,94 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         kb.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : keyboards;
+
+  // Virtual scrolling configuration
+  const CONTAINER_HEIGHT = 480;
+  const ESTIMATED_ITEM_HEIGHT = 41; // Collapsed item height
+  const OVERSCAN = 3; // Render extra items above/below viewport
+
+  // Calculate virtual scrolling parameters
+  const { visibleRange, totalHeight, offsetY } = useMemo(() => {
+    const heights = itemHeightsRef.current;
+
+    if (filteredKeyboards.length === 0) {
+      return {
+        visibleRange: { start: 0, end: 0 },
+        totalHeight: 0,
+        offsetY: 0
+      };
+    }
+
+    let currentOffset = 0;
+    let startIndex = 0;
+    let endIndex = filteredKeyboards.length - 1;
+    let foundStart = false;
+
+    // Find the start and end indices based on scroll position
+    for (let i = 0; i < filteredKeyboards.length; i++) {
+      const itemHeight = heights.get(filteredKeyboards[i].pid) || ESTIMATED_ITEM_HEIGHT;
+
+      if (!foundStart && currentOffset + itemHeight > scrollTop) {
+        startIndex = Math.max(0, i - OVERSCAN);
+        foundStart = true;
+      }
+
+      if (foundStart && currentOffset > scrollTop + CONTAINER_HEIGHT) {
+        endIndex = Math.min(filteredKeyboards.length - 1, i + OVERSCAN);
+        break;
+      }
+
+      currentOffset += itemHeight;
+    }
+
+    // Calculate total height and offset for the virtual list
+    let total = 0;
+    let offset = 0;
+    for (let i = 0; i < filteredKeyboards.length; i++) {
+      const itemHeight = heights.get(filteredKeyboards[i].pid) || ESTIMATED_ITEM_HEIGHT;
+      if (i < startIndex) {
+        offset += itemHeight;
+      }
+      total += itemHeight;
+    }
+
+    return {
+      visibleRange: { start: startIndex, end: endIndex },
+      totalHeight: total,
+      offsetY: offset
+    };
+  }, [filteredKeyboards, scrollTop]);
+
+  const visibleKeyboards = filteredKeyboards.slice(visibleRange.start, visibleRange.end + 1);
+
+  // Measure item heights when they render or expand/collapse
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      let heightsChanged = false;
+      for (const entry of entries) {
+        const pid = entry.target.getAttribute('data-pid');
+        if (pid) {
+          const newHeight = entry.contentRect.height;
+          const oldHeight = itemHeightsRef.current.get(pid);
+          if (oldHeight !== newHeight) {
+            itemHeightsRef.current.set(pid, newHeight);
+            heightsChanged = true;
+          }
+        }
+      }
+      // Force re-render if heights changed
+      if (heightsChanged) {
+        setScrollTop(prev => prev); // Trigger recalculation
+      }
+    });
+
+    // Observe all rendered items
+    itemRefsMap.current.forEach(element => {
+      observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [visibleKeyboards, expandedPids]);
 
   // Update shadows when filtered list changes
   useEffect(() => {
@@ -320,18 +424,21 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const scrollTop = target.scrollTop;
+    const currentScrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
+
+    // Update scroll position for virtual scrolling
+    setScrollTop(currentScrollTop);
 
     // Only show shadows if content is scrollable
     const isScrollable = scrollHeight > clientHeight;
 
     // Show top shadow if scrolled down from top
-    setShowTopShadow(isScrollable && scrollTop > 0);
+    setShowTopShadow(isScrollable && currentScrollTop > 0);
 
     // Show bottom shadow if not at bottom (with 1px tolerance)
-    setShowBottomShadow(isScrollable && scrollTop + clientHeight < scrollHeight - 1);
+    setShowBottomShadow(isScrollable && currentScrollTop + clientHeight < scrollHeight - 1);
   };
 
   return (
@@ -598,17 +705,32 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   )}
 
                   <div className="h-full overflow-y-auto" onScroll={handleScroll} ref={scrollContainerRef}>
-                    <ul className="divide-y divide-gray-200 dark:divide-gray-600">
-                      {filteredKeyboards.map(kb => (
-                        <KeyboardListItem
-                          key={kb.pid}
-                          pid={kb.pid}
-                          name={kb.name}
-                          isExpanded={expandedPids.has(kb.pid)}
-                          onToggle={() => toggleExpanded(kb.pid)}
-                        />
-                      ))}
-                    </ul>
+                    <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
+                      <ul
+                        className="divide-y divide-gray-200 dark:divide-gray-600"
+                        style={{
+                          transform: `translateY(${offsetY}px)`,
+                          willChange: 'transform'
+                        }}
+                      >
+                        {visibleKeyboards.map(kb => (
+                          <KeyboardListItem
+                            key={kb.pid}
+                            pid={kb.pid}
+                            name={kb.name}
+                            isExpanded={expandedPids.has(kb.pid)}
+                            onToggle={() => toggleExpanded(kb.pid)}
+                            ref={(el) => {
+                              if (el) {
+                                itemRefsMap.current.set(kb.pid, el);
+                              } else {
+                                itemRefsMap.current.delete(kb.pid);
+                              }
+                            }}
+                          />
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </>

@@ -238,7 +238,12 @@ export function getAllKeysByCategory(): Record<KeyCategory, KeyInfo[]> {
     if (!grouped[key.category]) {
       grouped[key.category] = [];
     }
-    grouped[key.category]!.push(key);
+    // Safe to use non-null assertion here because we just initialized it above
+    // But let's make it safer by checking first
+    const categoryArray = grouped[key.category];
+    if (categoryArray) {
+      categoryArray.push(key);
+    }
   }
 
   // Return categories in display order

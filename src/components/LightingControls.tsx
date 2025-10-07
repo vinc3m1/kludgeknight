@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
+import { useToast } from '../hooks/useToast';
 import type { LightingMode } from '../types/keyboard';
+import { Spinner } from './Spinner';
 
 const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
 export function LightingControls() {
   const device = useSelectedDevice();
+  const toast = useToast();
   const [selectedModeIndex, setSelectedModeIndex] = useState(device?.lightingSettings?.modeIndex ?? 0);
   const [speed, setSpeed] = useState(device?.lightingSettings?.speed ?? 3);
   const [brightness, setBrightness] = useState(device?.lightingSettings?.brightness ?? 5);
@@ -41,11 +44,12 @@ export function LightingControls() {
         sleep,
       }).catch(error => {
         console.error('Failed to update lighting:', error);
+        toast.showError('Failed to update lighting settings. Please try again.');
       });
     }, 300); // Debounce
 
     return () => clearTimeout(timeout);
-  }, [device, selectedModeIndex, speed, brightness, color, randomColor, sleep]);
+  }, [device, selectedModeIndex, speed, brightness, color, randomColor, sleep, toast]);
 
   if (!device || !device.config.lightEnabled || !device.lightingSettings) {
     return null;
@@ -64,11 +68,20 @@ export function LightingControls() {
   };
 
   const colorHex = `#${color.r.toString(16).padStart(2, '0')}${color.g.toString(16).padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
+  const isLoading = device.isLightingLoading;
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Lighting Mode</h3>
+        <div className="flex items-center gap-3 mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Lighting Mode</h3>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Spinner size="sm" />
+              <span>Syncing...</span>
+            </div>
+          )}
+        </div>
 
         {/* Info about current keyboard type */}
         <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
@@ -88,7 +101,8 @@ export function LightingControls() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex items-center justify-between"
+              disabled={isLoading}
+              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>{currentMode?.name || 'Select Mode'}</span>
               <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +144,8 @@ export function LightingControls() {
               step="1"
               value={speed}
               onChange={(e) => setSpeed(parseInt(e.target.value))}
-              className="w-full"
+              disabled={isLoading}
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>Very Slow</span>
@@ -152,7 +167,8 @@ export function LightingControls() {
               step="1"
               value={brightness}
               onChange={(e) => setBrightness(parseInt(e.target.value))}
-              className="w-full"
+              disabled={isLoading}
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>Off</span>
@@ -172,7 +188,8 @@ export function LightingControls() {
                 type="color"
                 value={colorHex}
                 onChange={handleColorChange}
-                className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+                disabled={isLoading}
+                className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">{colorHex.toUpperCase()}</span>
             </div>
@@ -187,7 +204,8 @@ export function LightingControls() {
                 type="checkbox"
                 checked={randomColor}
                 onChange={(e) => setRandomColor(e.target.checked)}
-                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                disabled={isLoading}
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Random Colors</span>
             </label>
@@ -207,7 +225,8 @@ export function LightingControls() {
               step="1"
               value={sleep}
               onChange={(e) => setSleep(parseInt(e.target.value))}
-              className="w-full"
+              disabled={isLoading}
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
               <span>5 min</span>

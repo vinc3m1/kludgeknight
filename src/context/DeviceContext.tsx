@@ -1,11 +1,26 @@
-import { ReactNode, useCallback, useEffect, useReducer, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
-import { DeviceContext, type DeviceContextValue } from './DeviceContext.ts';
+import { ToastContext } from './ToastContext';
+
+export interface DeviceContextValue {
+  devices: KeyboardDevice[];
+  selectedDevice: KeyboardDevice | null;
+  selectDevice: (device: KeyboardDevice | null) => void;
+  requestDevice: () => Promise<void>;
+  disconnectDevice: (device: KeyboardDevice) => Promise<void>;
+  isConnecting: boolean;
+  isScanning: boolean;
+}
+
+export const DeviceContext = createContext<DeviceContextValue | null>(null);
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
+  const toast = useContext(ToastContext);
 
   const manager = HIDDeviceManager.getInstance();
 
@@ -32,6 +47,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    setIsScanning(true);
     manager.scanAuthorizedDevices().then(devices => {
       if (!mounted) return;
 
@@ -42,14 +58,19 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         });
         setSelectedDevice(devices[0]);
       }
+      setIsScanning(false);
     }).catch(error => {
       console.error('Failed to scan for authorized devices:', error);
+      if (mounted) {
+        setIsScanning(false);
+        toast?.showError('Failed to reconnect to previously authorized keyboards. Please try connecting again.');
+      }
     });
 
     return () => {
       mounted = false;
     };
-  }, [manager, forceUpdate, setupDeviceCallbacks]); // Only run once on mount
+  }, [manager, forceUpdate, setupDeviceCallbacks, toast]); // Only run once on mount
 
   // Set notify callback on all devices
   useEffect(() => {
@@ -63,20 +84,49 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     return () => {
       manager.getAllDevices().forEach(device => {
         device.notify = undefined;
+        device.onDisconnect = undefined;
+        // Clean up event listeners when component unmounts
+        device.cleanup();
       });
     };
   }, [manager]);
 
   const requestDevice = async () => {
-    const device = await manager.requestDevice();
-    if (device) {
-      setupDeviceCallbacks(device);
-      setSelectedDevice(device);
+    setIsConnecting(true);
+    try {
+      const device = await manager.requestDevice();
+      if (device) {
+        setupDeviceCallbacks(device);
+        setSelectedDevice(device);
+        toast?.showSuccess(`Connected to ${device.config.name}`);
+      }
+    } catch (error) {
+      console.error('Failed to connect device:', error);
+
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to connect to keyboard. Please try again.';
+
+      if (error instanceof Error) {
+        if (error.message.includes('WebHID API not available')) {
+          errorMessage = 'WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.';
+        } else if (error.message.includes('No device selected')) {
+          // User cancelled the picker, don't show error
+          return;
+        } else if (error.message.includes('not found') || error.message.includes('configuration')) {
+          errorMessage = 'This keyboard model is not supported. Check the device list for compatible models.';
+        }
+      }
+
+      toast?.showError(errorMessage);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   const disconnectDevice = async (device: KeyboardDevice) => {
     try {
+      // Clean up event listeners before closing
+      device.cleanup();
       await device.hidDevice.close();
       manager.removeDevice(device.id);
       setSelectedDevice(current => {
@@ -87,8 +137,10 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         return current;
       });
       forceUpdate();
+      toast?.showInfo(`Disconnected from ${device.config.name}`);
     } catch (error) {
       console.error('Failed to disconnect device:', error);
+      toast?.showError('Failed to disconnect from keyboard. The device may already be disconnected.');
     }
   };
 
@@ -98,6 +150,8 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     selectDevice: setSelectedDevice,
     requestDevice,
     disconnectDevice,
+    isConnecting,
+    isScanning,
   };
 
   return (

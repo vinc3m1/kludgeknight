@@ -5,7 +5,8 @@ import { KeyRemapper } from './KeyRemapper';
 import { LightingControls } from './LightingControls';
 import { HomePage } from './HomePage';
 import { ThemeToggle } from './ThemeToggle';
-import { DeviceProvider } from '../context/DeviceContext.tsx';
+import { DeviceProvider } from '../context/DeviceContext';
+import { ToastProvider } from '../context/ToastContext';
 
 type Tab = 'keys' | 'lighting';
 
@@ -119,11 +120,14 @@ function AppContent({ initialKeyboards }: AppProps = {}) {
   );
 }
 
-// Wrap AppContent with DeviceProvider
+// Wrap AppContent with ToastProvider and DeviceProvider
+// ToastProvider must be outside DeviceProvider since DeviceProvider uses toast context
 export default function App(props: AppProps) {
   return (
-    <DeviceProvider>
-      <AppContent {...props} />
-    </DeviceProvider>
+    <ToastProvider>
+      <DeviceProvider>
+        <AppContent {...props} />
+      </DeviceProvider>
+    </ToastProvider>
   );
 }
