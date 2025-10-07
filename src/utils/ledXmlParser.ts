@@ -6,8 +6,10 @@
 /**
  * Parse led.xml to get mode names
  * Tries device-specific path first, falls back to global
+ * @param pid - Product ID
+ * @param isRgb - Whether the keyboard is RGB (true) or single-color backlit (false)
  */
-export async function parseLedXml(pid: string): Promise<Map<number, string>> {
+export async function parseLedXml(pid: string, isRgb: boolean = false): Promise<Map<number, string>> {
   const modeNames = new Map<number, string>();
 
   // Try device-specific path first
@@ -47,9 +49,13 @@ export async function parseLedXml(pid: string): Promise<Map<number, string>> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xmlText, 'text/xml');
 
-  // Extract tc_led1, tc_led2, etc.
-  for (let i = 1; i <= 21; i++) {
-    const element = doc.querySelector(`tc_led${i}`);
+  // Extract mode names based on keyboard type
+  // RGB keyboards use tc_led_mode1-21, backlit keyboards use tc_led1-20
+  const tagPrefix = isRgb ? 'tc_led_mode' : 'tc_led';
+  const maxModes = isRgb ? 21 : 20;
+
+  for (let i = 1; i <= maxModes; i++) {
+    const element = doc.querySelector(`${tagPrefix}${i}`);
     if (element && element.textContent) {
       modeNames.set(i, element.textContent);
     }

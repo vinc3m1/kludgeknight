@@ -154,7 +154,7 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
 
       // Get mode names from led.xml if we have any modes
       if (ledOptEntries.length > 0) {
-        const modeNames = await parseLedXml(pid);
+        const modeNames = await parseLedXml(pid, rgb);
 
         for (const { index, flags } of ledOptEntries) {
           lightingModes.push({

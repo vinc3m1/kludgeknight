@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
 import type { LightingMode } from '../types/keyboard';
 
@@ -13,6 +13,19 @@ export function LightingControls() {
   const [color, setColor] = useState(device?.lightingSettings?.color ?? { r: 255, g: 255, b: 255 });
   const [randomColor, setRandomColor] = useState(device?.lightingSettings?.randomColor ?? false);
   const [sleep, setSleep] = useState(device?.lightingSettings?.sleep ?? 2);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Update device when settings change
   useEffect(() => {
@@ -72,17 +85,36 @@ export function LightingControls() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Mode
           </label>
-          <select
-            value={selectedModeIndex}
-            onChange={(e) => setSelectedModeIndex(parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {device.config.lightingModes.map((mode: LightingMode) => (
-              <option key={mode.index} value={mode.index}>
-                {mode.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white flex items-center justify-between"
+            >
+              <span>{currentMode?.name || 'Select Mode'}</span>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+              </svg>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                {device.config.lightingModes.map((mode: LightingMode) => (
+                  <button
+                    key={mode.index}
+                    onClick={() => {
+                      setSelectedModeIndex(mode.index);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 ${
+                      mode.index === selectedModeIndex ? 'bg-blue-50 text-blue-600' : ''
+                    }`}
+                  >
+                    {mode.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Speed slider */}
