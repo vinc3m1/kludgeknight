@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
+import { z } from 'zod';
 
-type Theme = 'light' | 'dark' | 'system';
-
-/**
- * Type guard: Check if value is a valid Theme
- */
-function isTheme(value: unknown): value is Theme {
-  return value === 'light' || value === 'dark' || value === 'system';
-}
+// Zod schema for theme validation
+const ThemeSchema = z.enum(['light', 'dark', 'system']);
+type Theme = z.infer<typeof ThemeSchema>;
 
 function getThemePreference(): Theme {
   if (typeof window === 'undefined') return 'light';
   const stored = localStorage.getItem('theme');
-  return stored && isTheme(stored) ? stored : 'light';
+  const result = ThemeSchema.safeParse(stored);
+  return result.success ? result.data : 'light';
 }
 
 function getEffectiveTheme(theme: Theme): 'light' | 'dark' {

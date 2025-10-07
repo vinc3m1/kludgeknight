@@ -70,7 +70,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [manager, forceUpdate, setupDeviceCallbacks, toast]); // Only run once on mount
+  }, []); // Empty dependency array - only run once on mount
 
   // Set notify callback on all devices
   useEffect(() => {
@@ -127,15 +127,23 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     try {
       // Clean up event listeners before closing
       device.cleanup();
+
+      // Close the HID device
       await device.hidDevice.close();
+
+      // Remove from manager
       manager.removeDevice(device.id);
+
+      // Update selected device - set to null if it was the disconnected device
       setSelectedDevice(current => {
         if (current?.id === device.id) {
-          const remaining = manager.getAllDevices();
-          return remaining.length > 0 ? remaining[0] : null;
+          // Don't auto-select another device - let user choose
+          return null;
         }
         return current;
       });
+
+      // Force update to refresh device list
       forceUpdate();
       toast?.showInfo(`Disconnected from ${device.config.name}`);
     } catch (error) {

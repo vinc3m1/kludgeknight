@@ -26,9 +26,9 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   }, [toast.id, toast.duration, onDismiss]);
 
   const typeStyles = {
-    success: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200',
-    error: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200',
-    info: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
+    success: 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700 text-green-800 dark:text-green-100',
+    error: 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700 text-red-800 dark:text-red-100',
+    info: 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-100',
   };
 
   const iconStyles = {
@@ -56,7 +56,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   };
 
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-lg border shadow-lg ${typeStyles[toast.type]} animate-slide-in`}>
+    <div className={`flex items-start gap-3 p-4 rounded-lg border shadow-lg backdrop-blur-sm ${typeStyles[toast.type]} animate-slide-in`}>
       <div className={iconStyles[toast.type]}>
         {icons[toast.type]}
       </div>
@@ -80,9 +80,11 @@ export function ToastContainer({ toasts, onDismiss }: { toasts: ToastMessage[]; 
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-3 max-w-md">
+    <div className="fixed top-4 right-4 z-[100] space-y-3 max-w-md pointer-events-none">
       {toasts.map((toast) => (
-        <Toast key={toast.id} toast={toast} onDismiss={onDismiss} />
+        <div key={toast.id} className="pointer-events-auto">
+          <Toast toast={toast} onDismiss={onDismiss} />
+        </div>
       ))}
     </div>
   );
