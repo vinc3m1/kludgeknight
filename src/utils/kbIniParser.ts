@@ -4,7 +4,7 @@
 
 import ini from 'ini';
 import { parseVK } from '../types/keycode';
-import type { Key, KeyboardConfig, LightingMode, LightingModeFlags } from '../types/keyboard';
+import { LightingType, type Key, type KeyboardConfig, type LightingMode, type LightingModeFlags } from '../types/keyboard';
 import { getDeviceName } from './rkConfig';
 import { parseLedXml } from './ledXmlParser';
 import { decodeKBIni } from './keyboardImages';
@@ -134,6 +134,7 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
 
     // Parse lighting capabilities
     const rgb = parsed.OPT?.RGBKb === '1';
+    const hasEft = parsed.OPT?.MaxEftKeyIndex !== undefined;
     const lightingModes: LightingMode[] = [];
 
     // Parse LedOpt entries
@@ -154,7 +155,17 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
 
       // Get mode names from led.xml if we have any modes
       if (ledOptEntries.length > 0) {
-        const modeNames = await parseLedXml(pid, rgb);
+        // Determine lighting type for parsing XML
+        let xmlLightingType: LightingType;
+        if (hasEft) {
+          xmlLightingType = LightingType.EFT;
+        } else if (rgb) {
+          xmlLightingType = LightingType.RGB;
+        } else {
+          xmlLightingType = LightingType.Backlit;
+        }
+
+        const modeNames = await parseLedXml(pid, xmlLightingType);
 
         for (const { index, flags } of ledOptEntries) {
           lightingModes.push({
@@ -168,6 +179,18 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
 
     const lightEnabled = lightingModes.length > 0;
 
+    // Determine lighting type
+    let lightingType: LightingType;
+    if (hasEft) {
+      lightingType = LightingType.EFT;  // EFT takes priority (per-key reactive RGB)
+    } else if (rgb) {
+      lightingType = LightingType.RGB;  // Full keyboard RGB
+    } else if (lightEnabled) {
+      lightingType = LightingType.Backlit;  // Single-color backlight
+    } else {
+      lightingType = LightingType.None;  // No lighting
+    }
+
     // Get device name from Cfg.ini
     const name = await getDeviceName(pid) || `RK ${pid.toUpperCase()}`;
 
@@ -178,6 +201,7 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
       imageUrl,
       lightEnabled,
       rgb,
+      lightingType,
       lightingModes,
     };
   } catch (error) {

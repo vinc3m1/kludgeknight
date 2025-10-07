@@ -1,6 +1,16 @@
 import type { KeyInfo } from './keycode';
 
 /**
+ * Type of keyboard lighting system
+ */
+export enum LightingType {
+  None = 'none',           // No lighting
+  Backlit = 'backlit',     // Single-color backlight (tc_led1-20)
+  RGB = 'rgb',             // Full RGB lighting (tc_led_mode1-21)
+  EFT = 'eft',             // Per-key reactive RGB effects (tc_eft1-19)
+}
+
+/**
  * Lighting mode capability flags from LedOpt in KB.ini
  */
 export interface LightingModeFlags {
@@ -30,7 +40,8 @@ export interface KeyboardConfig {
   keys: Key[];
   imageUrl: string; // Full URL to keyboard image
   lightEnabled: boolean; // Has lighting support
-  rgb: boolean; // true = RGB, false = single-color backlit
+  rgb: boolean; // true = RGB, false = single-color backlit (kept for backward compat)
+  lightingType: LightingType; // Type of lighting system
   lightingModes: LightingMode[]; // Available lighting modes
 }
 

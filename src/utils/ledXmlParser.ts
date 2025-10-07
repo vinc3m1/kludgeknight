@@ -3,13 +3,15 @@
  * Files are UTF-16 LE encoded
  */
 
+import { LightingType } from '../types/keyboard';
+
 /**
  * Parse led.xml to get mode names
  * Tries device-specific path first, falls back to global
  * @param pid - Product ID
- * @param isRgb - Whether the keyboard is RGB (true) or single-color backlit (false)
+ * @param lightingType - Type of lighting system
  */
-export async function parseLedXml(pid: string, isRgb: boolean = false): Promise<Map<number, string>> {
+export async function parseLedXml(pid: string, lightingType: LightingType): Promise<Map<number, string>> {
   const modeNames = new Map<number, string>();
 
   // Try device-specific path first
@@ -50,9 +52,29 @@ export async function parseLedXml(pid: string, isRgb: boolean = false): Promise<
   const doc = parser.parseFromString(xmlText, 'text/xml');
 
   // Extract mode names based on keyboard type
-  // RGB keyboards use tc_led_mode1-21, backlit keyboards use tc_led1-20
-  const tagPrefix = isRgb ? 'tc_led_mode' : 'tc_led';
-  const maxModes = isRgb ? 21 : 20;
+  let tagPrefix: string;
+  let maxModes: number;
+
+  switch (lightingType) {
+    case LightingType.EFT:
+      // Per-key reactive RGB effects (tc_eft1-19)
+      tagPrefix = 'tc_eft';
+      maxModes = 19;
+      break;
+    case LightingType.RGB:
+      // Full keyboard RGB (tc_led_mode1-21)
+      tagPrefix = 'tc_led_mode';
+      maxModes = 21;
+      break;
+    case LightingType.Backlit:
+      // Single-color backlight (tc_led1-20)
+      tagPrefix = 'tc_led';
+      maxModes = 20;
+      break;
+    default:
+      // No lighting
+      return modeNames;
+  }
 
   for (let i = 1; i <= maxModes; i++) {
     const element = doc.querySelector(`${tagPrefix}${i}`);
