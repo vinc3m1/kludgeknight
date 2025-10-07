@@ -106,6 +106,7 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0x14: { vk: 0x14, fw: 0x3900, category: 'Special', label: 'Caps Lock' },
   0x1B: { vk: 0x1b, fw: 0x2900, category: 'Special', label: 'Esc' },
   0x20: { vk: 0x20, fw: 0x2c00, category: 'Special', label: 'Space' },
+  0xE0: { vk: 0xe0, fw: 0x2c00, category: 'Special', label: 'Space (Right)' },
 
   // Navigation
   0x21: { vk: 0x21, fw: 0x4b00, category: 'Navigation', label: 'Page Up' },
@@ -169,6 +170,13 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xFA: { vk: 0xfa, fw: 0xb000, category: 'Modifiers', label: 'Fn' },
   0xFD: { vk: 0xfd, fw: 0x5800, category: 'Numpad', label: 'Num Enter' },
 
+  // RK Macro keys (from USB capture of SPLIT70 reset)
+  0xD9: { vk: 0xd9, fw: 0x010400, category: 'Special', label: 'M1 (Ctrl+A)' },
+  0xB9: { vk: 0xb9, fw: 0x010600, category: 'Special', label: 'M2 (Ctrl+C)' },
+  0xD8: { vk: 0xd8, fw: 0x003200, category: 'Special', label: 'M3 (Sleep?)' },
+  0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'M4 (Ctrl+X)' },
+  0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'M5' },  // Unknown
+
   // Media keys (VK: 0xAD-0xB3, FW: HID << 8)
   0xAD: { vk: 0xad, fw: 0xed00, category: 'Media', label: 'Mute' },
   0xAE: { vk: 0xae, fw: 0xef00, category: 'Media', label: 'Volume Down' },
@@ -177,6 +185,11 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xB1: { vk: 0xb1, fw: 0xeb00, category: 'Media', label: 'Previous Track' },
   0xB2: { vk: 0xb2, fw: 0xe900, category: 'Media', label: 'Stop' },
   0xB3: { vk: 0xb3, fw: 0xe800, category: 'Media', label: 'Play/Pause' },
+
+  // Programmable functions (stub VK codes - not real Windows VKs, only for remapping)
+  // Use 0x1xxx range to avoid conflicts with real VK codes (which max at 0xFF)
+  0x1001: { vk: 0x1001, fw: 0x0100006f, category: 'Media', label: 'Brightness Up' },
+  0x1002: { vk: 0x1002, fw: 0x01000070, category: 'Media', label: 'Brightness Down' },
 };
 
 /**
