@@ -74,7 +74,9 @@ export class KeyboardDevice {
         this.handleDisconnect();
       }
     };
-    navigator.hid.addEventListener('disconnect', this.navigatorDisconnectHandler);
+    if (navigator.hid) {
+      navigator.hid.addEventListener('disconnect', this.navigatorDisconnectHandler);
+    }
 
     // Also listen on the device itself (belt and suspenders)
     // Store handler reference for cleanup
@@ -104,7 +106,7 @@ export class KeyboardDevice {
    */
   cleanup(): void {
     // Remove navigator.hid disconnect listener
-    if (this.navigatorDisconnectHandler) {
+    if (this.navigatorDisconnectHandler && navigator.hid) {
       navigator.hid.removeEventListener('disconnect', this.navigatorDisconnectHandler);
       this.navigatorDisconnectHandler = undefined;
     }

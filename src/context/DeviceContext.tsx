@@ -47,6 +47,12 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Skip scanning if WebHID is not supported
+    if (!navigator.hid) {
+      setIsScanning(false);
+      return;
+    }
+
     setIsScanning(true);
     manager.scanAuthorizedDevices().then(devices => {
       if (!mounted) return;
@@ -128,8 +134,8 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       // Clean up event listeners before closing
       device.cleanup();
 
-      // Close the HID device
-      await device.hidDevice.close();
+      // Forget the HID device (revokes permission, prevents auto-reconnect)
+      await device.hidDevice.forget();
 
       // Remove from manager
       manager.removeDevice(device.id);
