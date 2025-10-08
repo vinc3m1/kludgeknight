@@ -166,7 +166,7 @@ interface HomePageProps {
 
 export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}) {
   const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>(initialKeyboards || []);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filterQuery, setFilterQuery] = useState('');
   const [expandedPids, setExpandedPids] = useState<Set<string>>(new Set());
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(true);
@@ -182,13 +182,13 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
     }
   }, [initialKeyboards]);
 
-  // Reset expanded items and scroll when search query changes
+  // Reset expanded items and scroll when filter query changes
   useEffect(() => {
     setExpandedPids(new Set());
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-  }, [searchQuery]);
+  }, [filterQuery]);
 
   const toggleExpanded = (pid: string) => {
     setExpandedPids(prev => {
@@ -202,10 +202,11 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
     });
   };
 
-  // Filter keyboards based on search query (by name only)
-  const filteredKeyboards = searchQuery
+  // Filter keyboards based on filter query (by name or PID, case-insensitive)
+  const filteredKeyboards = filterQuery
     ? keyboards.filter(kb =>
-        kb.name.toLowerCase().includes(searchQuery.toLowerCase())
+        kb.name.toLowerCase().includes(filterQuery.toLowerCase()) ||
+        kb.pid.toLowerCase().includes(filterQuery.toLowerCase())
       )
     : keyboards;
 
@@ -348,7 +349,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">1</span>
-            <span>Connect your Royal Kludge keyboard to your computer via USB (Bluetooth mode is not supported)</span>
+            <span>Connect your Royal Kludge keyboard <strong>via USB cable</strong> (Bluetooth and wireless USB receivers are not supported)</span>
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">2</span>
@@ -445,15 +446,15 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         </p>
         {keyboards.length > 0 ? (
           <>
-            {/* Search input */}
+            {/* Filter input */}
             <div className="mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by model name..."
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  placeholder="Filter by model name or PID..."
                   className="pl-10 w-full"
                 />
               </div>
@@ -524,7 +525,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
                 </div>
               </>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No keyboards found matching "{searchQuery}"</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No keyboards found matching "{filterQuery}"</p>
             )}
           </>
         ) : (
