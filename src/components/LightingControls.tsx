@@ -60,6 +60,20 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
   const selectedModeRef = useRef<HTMLButtonElement>(null);
   const modeListRef = useRef<HTMLDivElement>(null);
 
+  // Sync local state to device.lightingSettings whenever it changes
+  useEffect(() => {
+    if (device?.lightingSettings) {
+      device.lightingSettings = {
+        modeIndex: selectedModeIndex,
+        speed: speed[0],
+        brightness: brightness[0],
+        color,
+        randomColor,
+        sleep: sleep[0],
+      };
+    }
+  }, [device, selectedModeIndex, speed, brightness, color, randomColor, sleep]);
+
   // Scroll to selected mode when tab becomes visible (only within the list container)
   useEffect(() => {
     if (isVisible && selectedModeRef.current && modeListRef.current) {
