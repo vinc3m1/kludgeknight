@@ -30,7 +30,7 @@ export function ConnectButton() {
         </Button>
 
         {isScanning && (
-          <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-2 text-base text-muted-foreground">
             <Spinner size="md" />
             <span>Scanning for devices...</span>
           </div>
@@ -59,9 +59,9 @@ export function ConnectButton() {
       </div>
 
       {mounted && !isWebHIDSupported && (
-        <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-          <TriangleAlert className="text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-amber-700 dark:text-amber-300 text-center">
+        <Alert className="bg-destructive/10 border-destructive/30">
+          <TriangleAlert className="text-destructive" />
+          <AlertDescription className="text-destructive text-center">
             WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.
           </AlertDescription>
         </Alert>

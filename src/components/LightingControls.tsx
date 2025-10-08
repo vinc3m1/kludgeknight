@@ -74,9 +74,9 @@ export function LightingControls() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Lighting Mode</h3>
+          <h3 className="text-lg font-semibold text-foreground">Lighting Mode</h3>
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner size="sm" />
               <span>Syncing...</span>
             </div>
@@ -84,7 +84,7 @@ export function LightingControls() {
         </div>
 
         {/* Info about current keyboard type */}
-        <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+        <div className="text-xs text-muted-foreground mb-6">
           <p>
             Keyboard type: {device.config.rgb ? 'RGB' : 'Single-color backlit'}
           </p>
@@ -95,23 +95,23 @@ export function LightingControls() {
 
         {/* Mode selector */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-card-foreground mb-2">
             Mode
           </label>
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               disabled={isLoading}
-              className="w-full px-3 py-1.5 text-sm text-left border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-1.5 text-sm text-left border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>{currentMode?.name || 'Select Mode'}</span>
-              <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
               </svg>
             </button>
 
             {dropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
                 {device.config.lightingModes.map((mode: LightingMode) => (
                   <button
                     key={mode.index}
@@ -119,8 +119,8 @@ export function LightingControls() {
                       setSelectedModeIndex(mode.index);
                       setDropdownOpen(false);
                     }}
-                    className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-600 ${
-                      mode.index === selectedModeIndex ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-accent ${
+                      mode.index === selectedModeIndex ? 'bg-accent text-accent-foreground' : 'text-popover-foreground'
                     }`}
                   >
                     {mode.name}
@@ -134,7 +134,7 @@ export function LightingControls() {
         {/* Speed slider */}
         {flags?.speed && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-card-foreground mb-2">
               Speed: {SPEED_LABELS[speed - 1]}
             </label>
             <input
@@ -147,7 +147,7 @@ export function LightingControls() {
               disabled={isLoading}
               className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Very Slow</span>
               <span>Very Fast</span>
             </div>
@@ -157,7 +157,7 @@ export function LightingControls() {
         {/* Brightness slider */}
         {flags?.brightness && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-card-foreground mb-2">
               Brightness: {brightness === 0 ? 'Off' : brightness}
             </label>
             <input
@@ -170,7 +170,7 @@ export function LightingControls() {
               disabled={isLoading}
               className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Off</span>
               <span>Bright</span>
             </div>
@@ -180,7 +180,7 @@ export function LightingControls() {
         {/* Color picker */}
         {flags?.colorPicker && !randomColor && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-card-foreground mb-2">
               Color
             </label>
             <div className="flex items-center gap-3">
@@ -189,9 +189,9 @@ export function LightingControls() {
                 value={colorHex}
                 onChange={handleColorChange}
                 disabled={isLoading}
-                className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-20 rounded border border-border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-gray-600 dark:text-gray-400">{colorHex.toUpperCase()}</span>
+              <span className="text-sm text-muted-foreground">{colorHex.toUpperCase()}</span>
             </div>
           </div>
         )}
@@ -205,9 +205,9 @@ export function LightingControls() {
                 checked={randomColor}
                 onChange={(e) => setRandomColor(e.target.checked)}
                 disabled={isLoading}
-                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded border-border text-primary focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Random Colors</span>
+              <span className="text-sm font-medium text-card-foreground">Random Colors</span>
             </label>
           </div>
         )}
@@ -215,7 +215,7 @@ export function LightingControls() {
         {/* Sleep timer - don't show for OFF mode */}
         {!isOffMode && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-card-foreground mb-2">
               Sleep Timer: {SLEEP_LABELS[sleep - 1]}
             </label>
             <input
@@ -228,7 +228,7 @@ export function LightingControls() {
               disabled={isLoading}
               className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>5 min</span>
               <span>Off</span>
             </div>

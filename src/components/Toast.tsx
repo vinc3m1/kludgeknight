@@ -26,15 +26,15 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   }, [toast.id, toast.duration, onDismiss]);
 
   const typeStyles = {
-    success: 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700 text-green-800 dark:text-green-100',
-    error: 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700 text-red-800 dark:text-red-100',
-    info: 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-100',
+    success: 'bg-primary/10 border-primary/30 text-primary',
+    error: 'bg-destructive/10 border-destructive/30 text-destructive',
+    info: 'bg-accent border-border text-accent-foreground',
   };
 
   const iconStyles = {
-    success: 'text-green-500 dark:text-green-400',
-    error: 'text-red-500 dark:text-red-400',
-    info: 'text-blue-500 dark:text-blue-400',
+    success: 'text-primary',
+    error: 'text-destructive',
+    info: 'text-accent-foreground',
   };
 
   const icons = {

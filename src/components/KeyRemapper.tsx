@@ -100,9 +100,9 @@ export function KeyRemapper() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Key Mapping</h2>
+          <h2 className="text-xl font-bold text-foreground">Key Mapping</h2>
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner size="sm" />
               <span>Syncing...</span>
             </div>
@@ -111,14 +111,14 @@ export function KeyRemapper() {
         <button
           onClick={handleResetAll}
           disabled={isLoading}
-          className="px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded hover:bg-red-100 dark:hover:bg-red-900/50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 text-sm bg-destructive/10 text-destructive border border-destructive/30 rounded hover:bg-destructive/20 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Reset All Keys to Default
         </button>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
+        <div className="p-3 bg-destructive/10 text-destructive rounded border border-destructive/30">
           {error}
         </div>
       )}
@@ -129,18 +129,18 @@ export function KeyRemapper() {
       />
 
       {selectedKeyIndex !== null && (
-        <div className="border border-gray-300 dark:border-gray-600 rounded p-4 space-y-4 bg-white dark:bg-gray-800">
+        <div className="border border-border rounded p-4 space-y-4 bg-card">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-gray-900 dark:text-gray-100">Selected Key:</h3>
-                <span className="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 rounded font-mono">
+                <h3 className="font-bold text-card-foreground">Selected Key:</h3>
+                <span className="px-2 py-1 text-sm bg-accent border border-border text-accent-foreground rounded font-mono">
                   {defaultKeyLabel || 'Unknown'}
                 </span>
                 {currentMapping !== undefined && (
                   <>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">→</span>
-                    <span className="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 rounded font-mono">
+                    <span className="text-sm text-muted-foreground">→</span>
+                    <span className="px-2 py-1 text-sm bg-accent border border-border text-accent-foreground rounded font-mono">
                       {getKeyName(currentMapping)}
                     </span>
                   </>
@@ -151,15 +151,15 @@ export function KeyRemapper() {
               <button
                 onClick={handleConfirmRemap}
                 disabled={selectedTargetKey === null || isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap flex items-center gap-2"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap flex items-center gap-2"
               >
-                {isLoading && <Spinner size="sm" className="text-white" />}
+                {isLoading && <Spinner size="sm" className="text-primary-foreground" />}
                 Apply
               </button>
               <button
                 onClick={handleSetToDefault}
                 disabled={isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 title={`Reset to default: ${defaultKeyLabel || 'Unknown'}`}
               >
                 Set to Default
@@ -167,21 +167,21 @@ export function KeyRemapper() {
               <button
                 onClick={handleClose}
                 disabled={isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 min-h-[2.5rem] text-sm bg-muted text-muted-foreground rounded hover:bg-muted/80 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Close
               </button>
             </div>
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Button Index: {selectedKeyIndex}
           </p>
 
           <div className="space-y-3">
             {Object.entries(keyCategories).map(([category, keys]) => (
               <div key={category}>
-                <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">{category}</h4>
+                <h4 className="text-sm font-semibold mb-2 text-card-foreground">{category}</h4>
                 <div className="flex flex-wrap gap-2">
                   {keys.map((keyInfo) => (
                     <button
@@ -189,10 +189,10 @@ export function KeyRemapper() {
                       onClick={() => setSelectedTargetKey(keyInfo.fw)}
                       className={`px-3 py-1 text-sm border rounded transition-colors cursor-pointer ${
                         selectedTargetKey === keyInfo.fw
-                          ? 'bg-blue-500 text-white border-blue-600'
+                          ? 'bg-primary text-primary-foreground border-primary'
                           : currentMapping === keyInfo.fw
-                          ? 'bg-green-100 dark:bg-green-900/30 border-green-400 dark:border-green-700 text-gray-900 dark:text-gray-100'
-                          : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100'
+                          ? 'bg-primary/20 border-primary text-primary'
+                          : 'bg-background border-border hover:bg-accent text-foreground'
                       }`}
                     >
                       {keyInfo.label}
