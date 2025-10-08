@@ -8,6 +8,34 @@ import '../index.css';
 const devices = await getRKDevices();
 const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
 const imageManifest = await buildImageManifest();
+
+// SEO and metadata
+const siteName = 'KludgeKnight';
+const title = 'KludgeKnight - Royal Kludge Keyboard Remapper & Lighting Controller';
+const description = 'Free browser-based key remapper and lighting controller for Royal Kludge keyboards. Works on Mac, Linux, and Windows - no installation required. Alternative to official RK software.';
+const pageUrl = Astro.url.href;
+const keywords = 'Royal Kludge, RK keyboard, key remapper, keyboard software, RGB lighting, WebHID, browser keyboard configuration, Mac, Linux, macOS, no install';
+
+// JSON-LD structured data
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: siteName,
+  description,
+  url: pageUrl,
+  applicationCategory: 'UtilityApplication',
+  operatingSystem: 'macOS, Windows, Linux',
+  browserRequirements: 'Chrome, Edge, or Opera (WebHID support required)',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD'
+  },
+  author: {
+    '@type': 'Person',
+    name: 'Vince Mi'
+  }
+};
 ---
 
 <!DOCTYPE html>
@@ -15,9 +43,28 @@ const imageManifest = await buildImageManifest();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="KludgeKnight - Browser-based key remapper and lighting controller for Royal Kludge keyboards. No software to download, runs directly in your browser using WebHID." />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <link rel="canonical" href={pageUrl} />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={siteName} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>KludgeKnight - Royal Kludge Keyboard Configuration</title>
 
     <!-- Theme initialization (prevent FOUC) -->
     <script is:inline>
@@ -35,13 +82,15 @@ const imageManifest = await buildImageManifest();
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
-    <script>
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
-
       gtag('config', 'G-YBJQ3DKPZR');
     </script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
     <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} />

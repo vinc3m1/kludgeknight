@@ -60,11 +60,16 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
       img.src = currentImageUrl;
     }, [isExpanded, currentImageUrl]);
 
+    const expandedPanelId = `kb-${pidUpper}-panel`;
+    const altText = `${name} keyboard layout${showRgb ? ' with RGB lighting' : ''}`;
+
     return (
       <li className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
       <button
         onClick={onToggle}
         className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between cursor-pointer text-gray-900 dark:text-gray-100"
+        aria-expanded={isExpanded}
+        aria-controls={expandedPanelId}
       >
         <span className="text-sm">
           <span className="font-mono text-gray-500 dark:text-gray-400">{pid.toUpperCase()}</span> - {name}
@@ -82,7 +87,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
         </span>
       </button>
       {isExpanded && (
-        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
+        <div id={expandedPanelId} className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
           {hasImage && currentImageUrl ? (
             <>
               {hasBothImages && (
@@ -110,6 +115,8 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
                   viewBox={`0 0 ${imgDimensions.width} ${imgDimensions.height}`}
                   className="w-full h-auto"
                   style={{ maxHeight: '400px' }}
+                  role="img"
+                  aria-label={altText}
                 >
                   {/* Render single large background rect for majority */}
                   <rect
@@ -144,9 +151,13 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
               ) : (
                 <img
                   src={currentImageUrl}
-                  alt={name}
+                  alt={altText}
                   className="max-w-full h-auto"
                   key={currentImageUrl}
+                  loading="lazy"
+                  decoding="async"
+                  width={imgDimensions?.width}
+                  height={imgDimensions?.height}
                 />
               )}
             </>
@@ -248,19 +259,19 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Intro */}
-      <div className="text-center py-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-          Key remapper and lighting controller for Royal Kludge keyboards
-        </h2>
+      {/* Hero Section */}
+      <header className="text-center py-8">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+          Configure Your Royal Kludge Keyboard on Any OS
+        </h1>
         <p className="text-xl text-gray-600 dark:text-gray-400">
-          Runs directly in your browser, no software to download and install
+          Remap keys and control lighting on Mac, Linux, or Windows - all in your browser
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           Unofficial software, not affiliated with Royal Kludge.<br />
           Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Rangoli</a>.
         </p>
-      </div>
+      </header>
 
       {/* CTA - Connect Keyboard */}
       <div className="flex justify-center">
@@ -303,7 +314,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">No Installation Required</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Works instantly in your browser using WebHID. No drivers, no admin permissions, no bloatware.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Works instantly in Chrome, Edge, or Opera. No drivers, no admin permissions, no bloatware.</p>
             </div>
           </div>
 
@@ -323,7 +334,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
 
       {/* Privacy Notice */}
       <section className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg shadow-md p-6 border border-green-200 dark:border-green-900">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Runs Completely Locally & Privately</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Private & Secure</h2>
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
             <div className="w-12 h-12 bg-green-500 dark:bg-green-600 rounded-lg flex items-center justify-center">
@@ -334,7 +345,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
           <div className="flex-1">
             <p className="text-gray-700 dark:text-gray-300 mb-3">
-              KludgeKnight runs entirely in your browser. All key remapping and configuration happens locally on your device. Your keyboard settings are saved only in your browser&apos;s local storage and never leave your computer.
+              Everything runs locally in your browser. All key remapping and configuration happens on your device. Your keyboard settings are saved only in your browser&apos;s storage and never leave your computer.
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               We use Google Analytics to understand basic site traffic (page views, visitor counts), but no keyboard configuration data or personal information is collected.
@@ -357,12 +368,12 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 dark:bg-blue-600 text-white rounded-full text-sm font-bold mr-3">3</span>
-            <span>In the Chrome popup dialog, select your Royal Kludge keyboard from the list and click "Connect"</span>
+            <span>In the browser popup dialog, select your Royal Kludge keyboard from the list and click <strong>Connect</strong></span>
           </li>
         </ol>
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>Note:</strong> This app requires a Chromium-based browser (Chrome, Edge, or Opera) with WebHID support. Firefox and Safari are not supported.
+            <strong>Requires:</strong> Chrome, Edge, or Opera browser with WebHID support. Firefox and Safari are not supported.
           </p>
         </div>
       </section>
@@ -377,25 +388,25 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">Key Mapping</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Extensively tested on RK F68, should be stable on all devices</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Tested on RK F68 and S70 Split. Stable for keyboards up to 70 keys with 2 spacebars. Keyboards with other unique modifier keys may be untested.</p>
             </div>
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <Badge className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-transparent">BETA</Badge>
+              <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-transparent">STABLE</Badge>
             </div>
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Lighting Controls</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Lightly tested on RK F68, should work on most devices</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Lighting & RGB Controls</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Keyboard-wide lighting and RGB controls tested on RK F68 and S70 Split with extensive RGB functionality. Should work on most devices.</p>
             </div>
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <Badge className="bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-transparent">ALPHA</Badge>
+              <Badge className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-transparent">FUTURE</Badge>
             </div>
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">RGB Features</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Untested - may not work at all</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Per-Key RGB</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Individual key RGB customization is not yet implemented. Pull requests welcome!</p>
             </div>
           </div>
         </div>
@@ -410,8 +421,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Cannot Read Settings from Keyboard</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">RK firmware does not allow reading of settings. The app can only write new mappings.</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Cannot Read Existing Settings</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">RK keyboards don&apos;t allow reading current mappings from the firmware. The app starts with the default layout each time you connect, then automatically restores any customizations you&apos;ve saved in your browser.</p>
             </div>
           </li>
           <li className="flex items-start">
@@ -419,17 +430,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">All Keys Written at Once</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">When you change a single key mapping, all key mappings are written to the keyboard.</p>
-            </div>
-          </li>
-          <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Browser LocalStorage Only</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Mappings cannot be stored on the keyboard itself. Your custom mappings are saved in browser localStorage, so they will only persist on the same browser on the same computer. Clearing browser history will delete saved mappings.</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">Settings Stored in Your Browser</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Your custom mappings are saved in your browser&apos;s storage, not on the keyboard itself. This means they&apos;ll work on the same browser and computer. Switching browsers or computers requires reconfiguring, and clearing browser data will remove saved mappings.</p>
             </div>
           </li>
         </ul>
