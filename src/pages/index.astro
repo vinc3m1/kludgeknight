@@ -66,6 +66,9 @@ const structuredData = {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    <!-- Self-hosted Inter font for default theme (Tangerine) -->
+    <link rel="stylesheet" href="/fonts/inter/inter.css" />
+
     <!-- Preconnect to Google Fonts for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,9 +97,10 @@ const structuredData = {
               const root = document.documentElement;
 
               // Preload the theme font for faster loading (display=swap shows fallback while loading)
+              // Skip Inter since it's self-hosted
               if (styles['font-sans'] && !styles['font-sans'].includes('system-ui')) {
                 const fontName = styles['font-sans'].split(',')[0].trim().replace(/['"]/g, '');
-                const systemFonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana'];
+                const systemFonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana', 'Inter'];
                 if (!systemFonts.includes(fontName)) {
                   const preloadLink = document.createElement('link');
                   preloadLink.rel = 'preload';

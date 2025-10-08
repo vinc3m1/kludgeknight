@@ -8,11 +8,12 @@ export function loadGoogleFont(fontFamily: string) {
   const genericFonts = ['sans-serif', 'serif', 'monospace', 'cursive', 'fantasy', 'system-ui'];
   if (genericFonts.includes(fontName.toLowerCase())) return;
 
-  // Skip common system fonts (NOT Google Fonts)
+  // Skip common system fonts and self-hosted fonts
   const systemFonts = [
     'arial', 'helvetica', 'times new roman', 'courier new', 'georgia', 'verdana',
     'comic sans ms', 'trebuchet ms', 'impact', 'courier', 'helvetica neue',
-    'segoe ui', '-apple-system', 'blinkmacsystemfont'
+    'segoe ui', '-apple-system', 'blinkmacsystemfont',
+    'inter' // Self-hosted for default theme
   ];
   if (systemFonts.includes(fontName.toLowerCase())) return;
 
