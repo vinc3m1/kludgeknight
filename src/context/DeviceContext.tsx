@@ -70,7 +70,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [manager, setupDeviceCallbacks, toast]); // manager and setupDeviceCallbacks are stable (singleton/memoized)
 
   // Set notify callback on all devices
   useEffect(() => {

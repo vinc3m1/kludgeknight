@@ -5,6 +5,10 @@ import {
   parseKBIniForImages
 } from '../utils/keyboardImages';
 import { ConnectButton } from './ConnectButton';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Search } from 'lucide-react';
 
 interface KeyboardListItemProps {
   pid: string;
@@ -218,27 +222,21 @@ const KeyboardListItem = forwardRef<HTMLLIElement, KeyboardListItemProps>(
             <>
               {hasBothImages && (
                 <div className="mb-3 flex justify-end">
-                  <div className="inline-flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1">
-                    <button
+                  <div className="inline-flex items-center gap-1 bg-background border rounded-md p-1">
+                    <Button
                       onClick={() => setShowRgb(false)}
-                      className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
-                        !showRgb
-                          ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                      }`}
+                      variant={!showRgb ? "default" : "ghost"}
+                      size="sm"
                     >
                       Standard
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setShowRgb(true)}
-                      className={`px-3 py-1 text-xs rounded transition-colors cursor-pointer ${
-                        showRgb
-                          ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                      }`}
+                      variant={showRgb ? "default" : "ghost"}
+                      size="sm"
                     >
                       RGB
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -569,7 +567,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         <div className="space-y-3">
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 text-xs font-semibold rounded">STABLE</span>
+              <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-transparent">STABLE</Badge>
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">Key Mapping</p>
@@ -578,7 +576,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 text-xs font-semibold rounded">BETA</span>
+              <Badge className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-transparent">BETA</Badge>
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">Lighting Controls</p>
@@ -587,7 +585,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <span className="inline-block px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 text-xs font-semibold rounded">ALPHA</span>
+              <Badge className="bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-transparent">ALPHA</Badge>
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-gray-100">RGB Features</p>
@@ -645,21 +643,14 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
             {/* Search input */}
             <div className="mb-4">
               <div className="relative">
-                <input
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by model name..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent focus:bg-white dark:focus:bg-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="pl-10 w-full"
                 />
-                <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
               </div>
             </div>
 
@@ -667,9 +658,10 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
               <>
                 {/* Show/Hide All Images button */}
                 <div className="mb-3 flex justify-end">
-                  <button
+                  <Button
                     onClick={handleExpandAllToggle}
-                    className="text-sm px-3 py-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                    variant="ghost"
+                    size="sm"
                   >
                     {expandedPids.size > 0 ? (
                       <>
@@ -686,7 +678,7 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                         Show All Images
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="relative border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-md overflow-hidden" style={{ height: '480px' }}>

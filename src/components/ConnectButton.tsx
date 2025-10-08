@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDevices } from '../hooks/useDevices';
 import { Spinner } from './Spinner';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TriangleAlert } from 'lucide-react';
 
 export function ConnectButton() {
   const { requestDevice, devices, selectedDevice, selectDevice, isConnecting, isScanning } = useDevices();
@@ -15,14 +19,15 @@ export function ConnectButton() {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md">
       <div className="flex flex-col items-center gap-4 w-full">
-        <button
+        <Button
           onClick={requestDevice}
           disabled={!isWebHIDSupported || isConnecting}
-          className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-3 shadow-lg hover:shadow-xl"
+          size="lg"
+          className="px-8 py-6 text-lg shadow-lg hover:shadow-xl"
         >
           {isConnecting && <Spinner size="md" className="text-white" />}
           {isConnecting ? 'Connecting...' : 'Connect Keyboard'}
-        </button>
+        </Button>
 
         {isScanning && (
           <div className="flex items-center gap-2 text-base text-gray-600 dark:text-gray-400">
@@ -32,30 +37,34 @@ export function ConnectButton() {
         )}
 
         {devices.length > 0 && (
-          <select
+          <Select
             value={selectedDevice?.id || ''}
-            onChange={(e) => {
-              const device = devices.find(d => d.id === e.target.value);
+            onValueChange={(value) => {
+              const device = devices.find(d => d.id === value);
               selectDevice(device || null);
             }}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base"
           >
-            <option value="">Select device...</option>
-            {devices.map((device) => (
-              <option key={device.id} value={device.id}>
-                {device.config.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full text-base">
+              <SelectValue placeholder="Select device..." />
+            </SelectTrigger>
+            <SelectContent>
+              {devices.map((device) => (
+                <SelectItem key={device.id} value={device.id}>
+                  {device.config.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       </div>
 
       {mounted && !isWebHIDSupported && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-          <p className="text-base text-center text-amber-700 dark:text-amber-300">
+        <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+          <TriangleAlert className="text-amber-600 dark:text-amber-400" />
+          <AlertDescription className="text-amber-700 dark:text-amber-300 text-center">
             WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

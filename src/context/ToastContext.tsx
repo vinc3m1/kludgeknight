@@ -1,39 +1,49 @@
-import { createContext, ReactNode, useCallback, useState } from 'react';
-import { ToastContainer, type ToastMessage, type ToastType } from '../components/Toast';
+import { createContext, ReactNode, useCallback } from 'react';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
+
+type ToastType = 'success' | 'error' | 'info';
 
 interface ToastContextValue {
   showToast: (message: string, type?: ToastType, duration?: number) => void;
   showSuccess: (message: string, duration?: number) => void;
   showError: (message: string, duration?: number) => void;
   showInfo: (message: string, duration?: number) => void;
-  dismissToast: (id: string) => void;
+  dismissToast: (id: string | number) => void;
 }
 
 export const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-
   const showToast = useCallback((message: string, type: ToastType = 'info', duration = 5000) => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    const toast: ToastMessage = { id, message, type, duration };
-    setToasts((prev) => [...prev, toast]);
+    switch (type) {
+      case 'success':
+        toast.success(message, { duration });
+        break;
+      case 'error':
+        toast.error(message, { duration });
+        break;
+      case 'info':
+      default:
+        toast.info(message, { duration });
+        break;
+    }
   }, []);
 
   const showSuccess = useCallback((message: string, duration?: number) => {
-    showToast(message, 'success', duration);
-  }, [showToast]);
+    toast.success(message, { duration });
+  }, []);
 
   const showError = useCallback((message: string, duration?: number) => {
-    showToast(message, 'error', duration);
-  }, [showToast]);
+    toast.error(message, { duration });
+  }, []);
 
   const showInfo = useCallback((message: string, duration?: number) => {
-    showToast(message, 'info', duration);
-  }, [showToast]);
+    toast.info(message, { duration });
+  }, []);
 
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  const dismissToast = useCallback((id: string | number) => {
+    toast.dismiss(id);
   }, []);
 
   const value: ToastContextValue = {
@@ -47,7 +57,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <Toaster />
     </ToastContext.Provider>
   );
 }

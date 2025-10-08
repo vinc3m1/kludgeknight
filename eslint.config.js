@@ -19,5 +19,20 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'react-refresh/only-export-components': [
+        'warn',
+        {
+          allowExportNames: [
+            // CVA variant exports from shadcn components
+            'buttonVariants',
+            'badgeVariants',
+            // Context exports (backup if createContext detection fails)
+            'DeviceContext',
+            'ToastContext'
+          ]
+        }
+      ]
+    }
   },
 ])
