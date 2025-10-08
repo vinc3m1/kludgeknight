@@ -162,9 +162,6 @@ export async function buildImageManifest(): Promise<ImageManifest> {
   // Get all subdirectories in Dev/
   const entries = fs.readdirSync(devDir, { withFileTypes: true });
 
-  const startTime = performance.now();
-  let analyzedCount = 0;
-
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
 
@@ -208,9 +205,6 @@ export async function buildImageManifest(): Promise<ImageManifest> {
 
             if (fs.existsSync(imagePath)) {
               luminance = await analyzeKeyboardLuminance(imagePath, keys) || undefined;
-              if (luminance) {
-                analyzedCount++;
-              }
             }
           }
         }
@@ -231,51 +225,6 @@ export async function buildImageManifest(): Promise<ImageManifest> {
       };
     }
   }
-
-  const elapsed = performance.now() - startTime;
-
-  // Calculate optimization stats
-  let totalKeys = 0;
-  let totalExceptions = 0;
-  const distributionBuckets = {
-    '0': 0,
-    '1-5': 0,
-    '6-10': 0,
-    '11-20': 0,
-    '21-30': 0,
-    '31-40': 0,
-    '41-50': 0,
-    '50+': 0
-  };
-
-  for (const entry of Object.values(manifest)) {
-    if (entry.luminance) {
-      // Estimate total keys from bounds calculation (rough estimate based on typical keyboard)
-      const approxKeys = entry.luminance.exceptionKeys.length > 0
-        ? entry.luminance.exceptionKeys.length / 0.1 // Assume exceptions are ~10%
-        : 68; // Typical 68-key keyboard
-      totalKeys += approxKeys;
-      totalExceptions += entry.luminance.exceptionKeys.length;
-
-      // Track distribution
-      const count = entry.luminance.exceptionKeys.length;
-      if (count === 0) distributionBuckets['0']++;
-      else if (count <= 5) distributionBuckets['1-5']++;
-      else if (count <= 10) distributionBuckets['6-10']++;
-      else if (count <= 20) distributionBuckets['11-20']++;
-      else if (count <= 30) distributionBuckets['21-30']++;
-      else if (count <= 40) distributionBuckets['31-40']++;
-      else if (count <= 50) distributionBuckets['41-50']++;
-      else distributionBuckets['50+']++;
-    }
-  }
-
-  const avgExceptions = analyzedCount > 0 ? (totalExceptions / analyzedCount).toFixed(1) : 0;
-  const reduction = totalKeys > 0 ? (((totalKeys - totalExceptions - analyzedCount) / totalKeys) * 100).toFixed(1) : 0;
-
-  console.log(`Built image manifest with luminance data for ${analyzedCount} keyboards in ${(elapsed / 1000).toFixed(2)}s`);
-  console.log(`Optimization: ${totalExceptions} exception keys vs ~${totalKeys.toFixed(0)} total keys (~${reduction}% reduction, avg ${avgExceptions} exceptions/keyboard)`);
-  console.log(`Distribution: 0=${distributionBuckets['0']}, 1-5=${distributionBuckets['1-5']}, 6-10=${distributionBuckets['6-10']}, 11-20=${distributionBuckets['11-20']}, 21-30=${distributionBuckets['21-30']}, 31-40=${distributionBuckets['31-40']}, 41-50=${distributionBuckets['41-50']}, 50+=${distributionBuckets['50+']}`);
 
   return manifest;
 }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { ImageManifest } from '../utils/buildImageManifest';
 
 // Helper to get friendly key name
 function getKeyName(fwCode: FirmwareCode | undefined): string {
@@ -23,7 +24,42 @@ function getKeyName(fwCode: FirmwareCode | undefined): string {
   return `0x${fwCode.toString(16)}`;
 }
 
-export function KeyRemapper() {
+export function KeyRemapperActionButton() {
+  const device = useSelectedDevice();
+  const toast = useToast();
+
+  if (!device) return null;
+
+  const handleResetAll = async () => {
+    try {
+      await device.resetAllMappings();
+      toast.showSuccess('All keys reset to default');
+    } catch (err) {
+      const errorMessage = 'Failed to reset keys. Please try again.';
+      toast.showError(errorMessage);
+      console.error(err);
+    }
+  };
+
+  const isLoading = device.isMappingLoading;
+
+  return (
+    <Button
+      onClick={handleResetAll}
+      disabled={isLoading}
+      variant="outline"
+      size="sm"
+    >
+      Reset All Keys to Default
+    </Button>
+  );
+}
+
+interface KeyRemapperProps {
+  imageManifest?: ImageManifest;
+}
+
+export function KeyRemapper({ imageManifest }: KeyRemapperProps = {}) {
   const device = useSelectedDevice();
   const toast = useToast();
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
@@ -83,45 +119,10 @@ export function KeyRemapper() {
     ? device.config.keys.find(k => k.bIndex === selectedKeyIndex)?.keyInfo.label
     : undefined;
 
-  const handleResetAll = async () => {
-    setError(null);
-    try {
-      await device.clearAll();
-      setSelectedKeyIndex(null);
-      setSelectedTargetKey(null);
-      toast.showSuccess('All keys reset to default');
-    } catch (err) {
-      const errorMessage = 'Failed to reset all keys. Please try again.';
-      setError(errorMessage);
-      toast.showError(errorMessage);
-      console.error(err);
-    }
-  };
-
   const isLoading = device.isMappingLoading;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-foreground">Key Mapping</h2>
-          {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Spinner size="sm" />
-              <span>Syncing...</span>
-            </div>
-          )}
-        </div>
-        <Button
-          onClick={handleResetAll}
-          disabled={isLoading}
-          variant="destructive"
-          size="sm"
-        >
-          Reset All Keys to Default
-        </Button>
-      </div>
-
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -131,6 +132,7 @@ export function KeyRemapper() {
       <KeyboardCanvas
         onKeyClick={handleKeyClick}
         selectedKeyIndex={selectedKeyIndex ?? undefined}
+        imageManifest={imageManifest}
       />
 
       {selectedKeyIndex !== null && (

@@ -1,80 +1,37 @@
 import { useState, useEffect } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
 import type { Key } from '../types/keyboard';
+import type { ImageManifest } from '../utils/buildImageManifest';
+import { getKeyBackgrounds } from '../utils/luminance';
 
 interface KeyboardCanvasProps {
   onKeyClick?: (keyIndex: number) => void;
   selectedKeyIndex?: number;
+  imageManifest?: ImageManifest;
 }
 
-export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasProps) {
+export function KeyboardCanvas({ onKeyClick, selectedKeyIndex, imageManifest }: KeyboardCanvasProps) {
   const device = useSelectedDevice();
   const [imgWidth, setImgWidth] = useState(0);
   const [imgHeight, setImgHeight] = useState(0);
   const [keyBackgrounds, setKeyBackgrounds] = useState<Map<number, string>>(new Map());
 
-  // Load image to get dimensions and detect per-key luminance
+  // Load image to get dimensions and use pre-calculated luminance data
   useEffect(() => {
     if (!device) return;
 
+    // Get key backgrounds from pre-calculated luminance data
+    const backgrounds = getKeyBackgrounds(device.config.pid, device.config.keys, imageManifest);
+    setKeyBackgrounds(backgrounds);
+
+    // Load image to get dimensions
     const img = new Image();
     img.onload = () => {
       setImgWidth(img.width);
       setImgHeight(img.height);
-
-      // Analyze luminance for each key region
-      const startTime = performance.now();
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
-        const pixels = imageData.data;
-
-        const backgrounds = new Map<number, string>();
-
-        // Analyze each key region
-        device.config.keys.forEach((key) => {
-          const [left, top, right, bottom] = key.rect;
-          let totalLuminance = 0;
-          let opaquePixelCount = 0;
-
-          // Sample pixels within this key's bounds
-          for (let y = Math.floor(top); y < Math.ceil(bottom); y++) {
-            for (let x = Math.floor(left); x < Math.ceil(right); x++) {
-              if (x >= 0 && x < img.width && y >= 0 && y < img.height) {
-                const idx = (y * img.width + x) * 4;
-                const alpha = pixels[idx + 3];
-                if (alpha > 25) { // Skip mostly transparent pixels
-                  const r = pixels[idx];
-                  const g = pixels[idx + 1];
-                  const b = pixels[idx + 2];
-                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-                  totalLuminance += luminance;
-                  opaquePixelCount++;
-                }
-              }
-            }
-          }
-
-          if (opaquePixelCount > 0) {
-            const avgLuminance = totalLuminance / opaquePixelCount;
-            // Light keys get dark text, dark keys get light text
-            backgrounds.set(key.bIndex, avgLuminance > 128 ? 'hsl(var(--foreground))' : 'hsl(var(--background))');
-          }
-        });
-
-        setKeyBackgrounds(backgrounds);
-
-        const elapsed = performance.now() - startTime;
-        console.log(`Per-key luminance analysis: ${elapsed.toFixed(2)}ms (${backgrounds.size} keys)`);
-      }
     };
     img.src = device.config.imageUrl;
-  }, [device]);
+  }, [device, imageManifest]);
 
   if (!device) {
     return (

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
+import { defaultPresets } from '@/utils/theme-presets';
+import type { ThemeStyles } from '@/types/theme';
 
 // Zod schema for theme validation
 const ThemeSchema = z.enum(['light', 'dark', 'system']);
@@ -21,6 +23,19 @@ function getEffectiveTheme(theme: Theme): 'light' | 'dark' {
   return theme;
 }
 
+function applyThemeStyles(styles: ThemeStyles) {
+  if (typeof window === 'undefined') return;
+
+  const root = document.documentElement;
+
+  // Apply colors as-is
+  Object.entries(styles).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      root.style.setProperty(`--${key}`, value);
+    }
+  });
+}
+
 function applyTheme(theme: Theme) {
   if (typeof window === 'undefined') return;
 
@@ -35,6 +50,14 @@ function applyTheme(theme: Theme) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
+  }
+
+  // Apply theme preset colors if selected
+  const presetKey = localStorage.getItem('themePreset');
+  if (presetKey && defaultPresets[presetKey]) {
+    const preset = defaultPresets[presetKey];
+    const styles = preset.styles[effective];
+    applyThemeStyles(styles);
   }
 
   // Remove transitioning class after animation completes

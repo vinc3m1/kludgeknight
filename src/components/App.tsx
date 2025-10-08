@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useSelectedDevice, useDevices } from '../hooks/useDevices';
-import { KeyRemapper } from './KeyRemapper';
-import { LightingControls } from './LightingControls';
+import { KeyRemapper, KeyRemapperActionButton } from './KeyRemapper';
+import { LightingControls, LightingControlsActionButton } from './LightingControls';
 import { HomePage } from './HomePage';
 import { ThemeToggle } from './ThemeToggle';
+import { ThemeSelector } from './ThemeSelector';
 import { DeviceProvider } from '../context/DeviceContext';
 import { ToastProvider } from '../context/ToastContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,7 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-2xl font-bold text-foreground">KludgeKnight</h1>
             <div className="flex flex-wrap items-center gap-3">
+              <ThemeSelector />
               <ThemeToggle />
               <a
                 href="https://github.com/vinc3m1/kludgeknight"
@@ -65,7 +67,7 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
                   </div>
                   <Button
                     onClick={() => disconnectDevice(device)}
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                   >
                     Disconnect
@@ -77,32 +79,41 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
             {/* Tab switcher - only show if keyboard has lighting */}
             {device.config.lightEnabled && (
               <Card className="overflow-hidden">
-                <div className="border-b border-border">
-                  <nav className="flex -mb-px">
+                <div className="flex justify-between items-center py-4 px-6">
+                  <div className="flex-1" />
+                  <div className="inline-flex bg-secondary rounded-lg p-1">
                     <button
                       onClick={() => setActiveTab('keys')}
-                      className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                      className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
                         activeTab === 'keys'
-                          ? 'border-primary text-primary'
-                          : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-secondary-foreground hover:text-foreground'
                       }`}
                     >
                       Key Mapping
                     </button>
                     <button
                       onClick={() => setActiveTab('lighting')}
-                      className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                      className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
                         activeTab === 'lighting'
-                          ? 'border-primary text-primary'
-                          : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-secondary-foreground hover:text-foreground'
                       }`}
                     >
                       Lighting
                     </button>
-                  </nav>
+                  </div>
+                  <div className="flex-1 flex justify-end">
+                    {activeTab === 'keys' ? <KeyRemapperActionButton /> : <LightingControlsActionButton />}
+                  </div>
                 </div>
                 <CardContent>
-                  {activeTab === 'keys' ? <KeyRemapper /> : <LightingControls />}
+                  <div className={activeTab === 'keys' ? '' : 'hidden'}>
+                    <KeyRemapper imageManifest={imageManifest} />
+                  </div>
+                  <div className={activeTab === 'lighting' ? '' : 'hidden'}>
+                    <LightingControls isVisible={activeTab === 'lighting'} />
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -111,7 +122,7 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
             {!device.config.lightEnabled && (
               <Card>
                 <CardContent>
-                  <KeyRemapper />
+                  <KeyRemapper imageManifest={imageManifest} />
                 </CardContent>
               </Card>
             )}
