@@ -105,26 +105,31 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
                   </div>
                 </div>
               )}
-              {!showRgb && imgDimensions && imageInfo?.keyBackgrounds && imageInfo?.keyRects ? (
+              {!showRgb && imgDimensions && imageInfo?.luminance ? (
                 <svg
                   viewBox={`0 0 ${imgDimensions.width} ${imgDimensions.height}`}
                   className="w-full h-auto"
                   style={{ maxHeight: '400px' }}
                 >
-                  {/* Render background rectangles behind non-RGB keyboard image */}
-                  {imageInfo.keyRects.map((keyRect, index) => {
-                    const backgroundColor = imageInfo.keyBackgrounds?.[keyRect.bIndex];
-                    if (!backgroundColor) return null;
-
-                    const [left, top, right, bottom] = keyRect.rect;
+                  {/* Render single large background rect for majority */}
+                  <rect
+                    x={imageInfo.luminance.keyboardBounds[0]}
+                    y={imageInfo.luminance.keyboardBounds[1]}
+                    width={imageInfo.luminance.keyboardBounds[2] - imageInfo.luminance.keyboardBounds[0]}
+                    height={imageInfo.luminance.keyboardBounds[3] - imageInfo.luminance.keyboardBounds[1]}
+                    fill={imageInfo.luminance.majorityBackground}
+                  />
+                  {/* Render small rects only for exception keys */}
+                  {imageInfo.luminance.exceptionKeys.map((exceptionKey, index) => {
+                    const [left, top, right, bottom] = exceptionKey.rect;
                     return (
                       <rect
-                        key={`bg-${index}`}
+                        key={`exception-${index}`}
                         x={left}
                         y={top}
                         width={right - left}
                         height={bottom - top}
-                        fill={backgroundColor}
+                        fill={exceptionKey.background}
                       />
                     );
                   })}
