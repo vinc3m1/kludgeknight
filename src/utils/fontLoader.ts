@@ -22,6 +22,7 @@ export function loadGoogleFont(fontFamily: string) {
 
   // Create Google Fonts link
   // Request multiple common weights - Google Fonts will serve only what's available
+  // Using display=swap to show fallback font while loading
   const link = document.createElement('link');
   link.id = linkId;
   link.rel = 'stylesheet';

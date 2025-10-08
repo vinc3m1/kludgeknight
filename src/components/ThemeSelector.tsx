@@ -92,10 +92,13 @@ export function ThemeSelector() {
     if (stored && defaultPresets[stored]) {
       setThemePreset(stored);
       applyCurrentTheme(stored);
+      // Ensure styles are stored for next load
+      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets[stored].styles));
     } else {
       // Default to tangerine for first-time visitors
       setThemePreset('tangerine');
       applyCurrentTheme('tangerine');
+      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets['tangerine'].styles));
     }
   }, []);
 
@@ -113,6 +116,13 @@ export function ThemeSelector() {
   const handleThemeChange = (value: string) => {
     setThemePreset(value);
     localStorage.setItem('themePreset', value);
+
+    // Store the full theme styles for instant loading
+    const preset = defaultPresets[value];
+    if (preset) {
+      localStorage.setItem('themeStyles', JSON.stringify(preset.styles));
+    }
+
     applyCurrentTheme(value);
   };
 
