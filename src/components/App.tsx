@@ -6,18 +6,9 @@ import { HomePage } from './HomePage';
 import { ThemeToggle } from './ThemeToggle';
 import { DeviceProvider } from '../context/DeviceContext';
 import { ToastProvider } from '../context/ToastContext';
+import type { ImageManifest } from '../utils/buildImageManifest';
 
 type Tab = 'keys' | 'lighting';
-
-interface ImageManifest {
-  [pid: string]: {
-    hasKeyimg: boolean;
-    hasKbled: boolean;
-    useRgbDefault: boolean;
-    kbImgUse?: string;
-    dirCase: string;
-  };
-}
 
 interface AppProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;

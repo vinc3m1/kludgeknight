@@ -5,16 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
-
-interface ImageManifest {
-  [pid: string]: {
-    hasKeyimg: boolean;
-    hasKbled: boolean;
-    useRgbDefault: boolean;
-    kbImgUse?: string;
-    dirCase: string;
-  };
-}
+import type { ImageManifest } from '../utils/buildImageManifest';
 
 interface KeyboardListItemProps {
   pid: string;
@@ -26,6 +17,7 @@ interface KeyboardListItemProps {
 
 function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: KeyboardListItemProps) {
     const [showRgb, setShowRgb] = useState<boolean>(false);
+    const [imgDimensions, setImgDimensions] = useState<{ width: number; height: number } | null>(null);
 
     // Get image info from manifest (pre-computed at build time)
     const pidUpper = pid.toUpperCase();
@@ -42,18 +34,31 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
     const hasImage = imageInfo && (imageInfo.hasKeyimg || imageInfo.hasKbled);
     const hasBothImages = imageInfo?.hasKeyimg && imageInfo?.hasKbled;
 
-    // Set default view based on manifest
+    // Default to RGB images if available
     useEffect(() => {
-      if (imageInfo?.useRgbDefault !== undefined) {
+      if (hasBothImages) {
+        setShowRgb(true);
+      } else if (imageInfo?.useRgbDefault !== undefined) {
         setShowRgb(imageInfo.useRgbDefault);
       }
-    }, [imageInfo?.useRgbDefault]);
+    }, [hasBothImages, imageInfo?.useRgbDefault]);
 
     const currentImageUrl = imageInfo && hasImage
       ? (showRgb && imageInfo.hasKbled
           ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
           : `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`)
       : null;
+
+    // Load image dimensions when expanded
+    useEffect(() => {
+      if (!isExpanded || !currentImageUrl) return;
+
+      const img = new Image();
+      img.onload = () => {
+        setImgDimensions({ width: img.width, height: img.height });
+      };
+      img.src = currentImageUrl;
+    }, [isExpanded, currentImageUrl]);
 
     return (
       <li className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
@@ -100,12 +105,45 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
                   </div>
                 </div>
               )}
-              <img
-                src={currentImageUrl}
-                alt={name}
-                className="max-w-full h-auto"
-                key={currentImageUrl}
-              />
+              {!showRgb && imgDimensions && imageInfo?.keyBackgrounds && imageInfo?.keyRects ? (
+                <svg
+                  viewBox={`0 0 ${imgDimensions.width} ${imgDimensions.height}`}
+                  className="w-full h-auto"
+                  style={{ maxHeight: '400px' }}
+                >
+                  {/* Render background rectangles behind non-RGB keyboard image */}
+                  {imageInfo.keyRects.map((keyRect, index) => {
+                    const backgroundColor = imageInfo.keyBackgrounds?.[keyRect.bIndex];
+                    if (!backgroundColor) return null;
+
+                    const [left, top, right, bottom] = keyRect.rect;
+                    return (
+                      <rect
+                        key={`bg-${index}`}
+                        x={left}
+                        y={top}
+                        width={right - left}
+                        height={bottom - top}
+                        fill={backgroundColor}
+                      />
+                    );
+                  })}
+                  <image
+                    href={currentImageUrl}
+                    x="0"
+                    y="0"
+                    width={imgDimensions.width}
+                    height={imgDimensions.height}
+                  />
+                </svg>
+              ) : (
+                <img
+                  src={currentImageUrl}
+                  alt={name}
+                  className="max-w-full h-auto"
+                  key={currentImageUrl}
+                />
+              )}
             </>
           ) : (
             <div className="text-sm text-gray-500 dark:text-gray-400">No image available</div>
