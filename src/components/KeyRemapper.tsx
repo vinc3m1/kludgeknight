@@ -185,7 +185,7 @@ export function KeyRemapper() {
                 <div className="flex flex-wrap gap-2">
                   {keys.map((keyInfo) => (
                     <button
-                      key={keyInfo.fw}
+                      key={keyInfo.vk}
                       onClick={() => setSelectedTargetKey(keyInfo.fw)}
                       className={`px-3 py-1 text-sm border rounded transition-colors cursor-pointer ${
                         selectedTargetKey === keyInfo.fw

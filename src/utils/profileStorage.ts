@@ -50,10 +50,22 @@ export function saveProfile(
     const existing = loadFullProfile(deviceId);
 
     const profile: DeviceProfile = {
-      mappings: mappings ? Array.from(mappings.entries()) : existing.mappings,
-      lightingSettings: lightingSettings !== undefined ? lightingSettings : existing.lightingSettings,
       version: 2,  // Version 2 includes lighting
     };
+
+    // Only include mappings if we have actual data
+    if (mappings) {
+      profile.mappings = Array.from(mappings.entries());
+    } else if (existing.mappings) {
+      profile.mappings = Array.from(existing.mappings.entries());
+    }
+
+    // Only include lighting settings if we have actual data
+    if (lightingSettings !== undefined) {
+      profile.lightingSettings = lightingSettings;
+    } else if (existing.lightingSettings) {
+      profile.lightingSettings = existing.lightingSettings;
+    }
 
     localStorage.setItem(key, JSON.stringify(profile));
   } catch (error) {

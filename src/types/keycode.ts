@@ -171,11 +171,11 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xFD: { vk: 0xfd, fw: 0x5800, category: 'Numpad', label: 'Num Enter' },
 
   // RK Macro keys (from USB capture of SPLIT70 reset)
-  0xD9: { vk: 0xd9, fw: 0x010400, category: 'Special', label: 'M1 (Ctrl+A)' },
-  0xB9: { vk: 0xb9, fw: 0x010600, category: 'Special', label: 'M2 (Ctrl+C)' },
-  0xD8: { vk: 0xd8, fw: 0x003200, category: 'Special', label: 'M3 (Sleep?)' },
-  0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'M4 (Ctrl+X)' },
-  0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'M5' },  // Unknown
+  0xD9: { vk: 0xd9, fw: 0x010400, category: 'Special', label: 'Select All (Ctrl+A)' },
+  0xB9: { vk: 0xb9, fw: 0x010600, category: 'Special', label: 'Copy (Ctrl+C)' },
+  0xD8: { vk: 0xd8, fw: 0x003200, category: 'Special', label: 'Sleep?' },
+  0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'Cut (Ctrl+X)' },
+  0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'Unknown' },
 
   // Media keys (VK: 0xAD-0xB3, FW: 0x01000000 | HID Consumer Control)
   0xAD: { vk: 0xad, fw: 0x010000e2, category: 'Media', label: 'Mute' },
