@@ -10,9 +10,24 @@ export class HIDDeviceManager {
   private devices: Map<string, KeyboardDevice> = new Map();
   private configs: Map<string, KeyboardConfig> = new Map();
   private opening: Map<string, Promise<KeyboardDevice | null>> = new Map(); // Track devices currently being opened
+  private ledManifest: string | null = null;
 
   private constructor() {
     // Private constructor for singleton
+  }
+
+  /**
+   * Set the LED manifest (called from DeviceProvider)
+   */
+  setLedManifest(manifest: string) {
+    this.ledManifest = manifest;
+  }
+
+  /**
+   * Get the LED manifest
+   */
+  getLedManifest(): string | null {
+    return this.ledManifest;
   }
 
   /**
@@ -36,7 +51,7 @@ export class HIDDeviceManager {
 
     // Load on-demand
     try {
-      const config = await parseKBIni(pid);
+      const config = await parseKBIni(pid, this.ledManifest);
       if (config) {
         this.configs.set(pid, config);
       }

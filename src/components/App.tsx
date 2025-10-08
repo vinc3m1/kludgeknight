@@ -16,6 +16,7 @@ type Tab = 'keys' | 'lighting';
 interface AppProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;
   imageManifest?: ImageManifest;
+  ledManifest?: string;
 }
 
 function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
@@ -146,7 +147,7 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
 export default function App(props: AppProps) {
   return (
     <ToastProvider>
-      <DeviceProvider>
+      <DeviceProvider ledManifest={props.ledManifest}>
         <AppContent {...props} />
       </DeviceProvider>
     </ToastProvider>

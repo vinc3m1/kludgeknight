@@ -15,7 +15,7 @@ export interface DeviceContextValue {
 
 export const DeviceContext = createContext<DeviceContextValue | null>(null);
 
-export function DeviceProvider({ children }: { children: ReactNode }) {
+export function DeviceProvider({ children, ledManifest }: { children: ReactNode; ledManifest?: string }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -23,6 +23,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   const toast = useContext(ToastContext);
 
   const manager = HIDDeviceManager.getInstance();
+
+  // Set led manifest on manager if provided
+  useEffect(() => {
+    if (ledManifest) {
+      manager.setLedManifest(ledManifest);
+    }
+  }, [ledManifest, manager]);
 
   // Helper to setup device callbacks
   const setupDeviceCallbacks = useCallback((device: KeyboardDevice) => {

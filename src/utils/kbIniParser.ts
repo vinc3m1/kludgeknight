@@ -78,7 +78,7 @@ async function fetchKBIni(pid: string): Promise<{ text: string; dirCase: string 
 /**
  * Parse KB.ini file for a specific keyboard PID
  */
-export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
+export async function parseKBIni(pid: string, ledManifest: string | null = null): Promise<KeyboardConfig | null> {
   try {
     const kbIni = await fetchKBIni(pid);
     if (!kbIni) {
@@ -165,7 +165,7 @@ export async function parseKBIni(pid: string): Promise<KeyboardConfig | null> {
           xmlLightingType = LightingType.Backlit;
         }
 
-        const modeNames = await parseLedXml(pid, xmlLightingType);
+        const modeNames = await parseLedXml(pid, xmlLightingType, ledManifest);
 
         for (const { index, flags } of ledOptEntries) {
           lightingModes.push({

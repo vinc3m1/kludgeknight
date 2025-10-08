@@ -1,13 +1,16 @@
 ---
 import { getRKDevices } from '../utils/rkConfig';
 import { buildImageManifest } from '../utils/buildImageManifest';
+import { buildLedManifest, serializeLedManifest } from '../utils/buildLedManifest';
 import App from '../components/App';
 import '../index.css';
 
-// Load keyboards and image manifest at build time
+// Load keyboards and manifests at build time
 const devices = await getRKDevices();
 const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
 const imageManifest = await buildImageManifest();
+const ledManifest = buildLedManifest();
+const ledManifestJson = serializeLedManifest(ledManifest);
 
 // SEO and metadata
 const siteName = 'KludgeKnight';
@@ -167,6 +170,6 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
-    <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} />
+    <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} ledManifest={ledManifestJson} />
   </body>
 </html>

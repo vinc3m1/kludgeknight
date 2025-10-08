@@ -7,14 +7,65 @@ import { LightingType } from '../types/keyboard';
 
 /**
  * Parse led.xml to get mode names
- * Tries device-specific path first, falls back to global
+ * Uses pre-built manifest if available, otherwise falls back to fetching
  * @param pid - Product ID
  * @param lightingType - Type of lighting system
+ * @param ledManifestJson - Pre-built LED manifest (optional)
  */
-export async function parseLedXml(pid: string, lightingType: LightingType): Promise<Map<number, string>> {
+export async function parseLedXml(
+  pid: string,
+  lightingType: LightingType,
+  ledManifestJson: string | null = null
+): Promise<Map<number, string>> {
   const modeNames = new Map<number, string>();
 
-  // Try device-specific path first
+  // Use manifest if available
+  if (ledManifestJson) {
+    try {
+      const manifest = JSON.parse(ledManifestJson);
+
+      // Determine which mode type to use
+      let modeType: 'rgb' | 'backlit' | 'eft';
+      switch (lightingType) {
+        case LightingType.EFT:
+          // Per-key reactive RGB effects (tc_eft1-19)
+          modeType = 'eft';
+          break;
+        case LightingType.RGB:
+          // Full keyboard RGB (tc_led_mode1-21)
+          modeType = 'rgb';
+          break;
+        case LightingType.Backlit:
+          // Single-color backlight (tc_led1-20)
+          modeType = 'backlit';
+          break;
+        default:
+          return modeNames;
+      }
+
+      // Try device-specific first
+      const deviceModes = manifest.devices?.[pid.toUpperCase()]?.[modeType];
+      if (deviceModes) {
+        for (const [index, name] of Object.entries(deviceModes)) {
+          modeNames.set(parseInt(index), name as string);
+        }
+        return modeNames;
+      }
+
+      // Fallback to global
+      const globalModes = manifest.global?.[modeType];
+      if (globalModes) {
+        for (const [index, name] of Object.entries(globalModes)) {
+          modeNames.set(parseInt(index), name as string);
+        }
+        return modeNames;
+      }
+    } catch (error) {
+      console.warn('Failed to parse LED manifest, falling back to fetch:', error);
+    }
+  }
+
+  // Fallback: Fetch XML files (old behavior, now only used if manifest unavailable)
   const devicePath = `${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/en/led.xml`;
   const globalPath = `${import.meta.env.BASE_URL}rk/Dev/en/led.xml`;
 
@@ -72,7 +123,6 @@ export async function parseLedXml(pid: string, lightingType: LightingType): Prom
       maxModes = 20;
       break;
     default:
-      // No lighting
       return modeNames;
   }
 
