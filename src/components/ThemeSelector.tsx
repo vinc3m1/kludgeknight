@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { defaultPresets } from '@/utils/theme-presets';
+import { loadGoogleFont } from '@/utils/fontLoader';
 import type { ThemeStyles } from '@/types/theme';
 
 // Zod schema for theme mode validation
@@ -29,17 +30,56 @@ function getEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
   return mode;
 }
 
+function buildShadow(color: string, opacity: string, blur: string, spread: string, offsetX: string, offsetY: string): string {
+  // If color already has opacity/alpha, use it directly
+  if (color.includes('/') || color.includes('rgba')) {
+    return `${offsetX} ${offsetY} ${blur} ${spread} ${color}`;
+  }
+  // Otherwise apply opacity
+  const opacityNum = parseFloat(opacity) || 0.1;
+  return `${offsetX} ${offsetY} ${blur} ${spread} ${color.replace(')', ` / ${opacityNum})`)}`;
+}
+
 function applyThemeStyles(styles: ThemeStyles) {
   if (typeof window === 'undefined') return;
 
   const root = document.documentElement;
 
-  // Apply colors as-is
+  // Apply colors and other properties
   Object.entries(styles).forEach(([key, value]) => {
     if (typeof value === 'string') {
       root.style.setProperty(`--${key}`, value);
+
+      // Load Google Font if this is a font property
+      if (key === 'font-sans' || key === 'font-serif' || key === 'font-mono') {
+        loadGoogleFont(value);
+      }
     }
   });
+
+  // Build shadow utilities from individual shadow properties if available
+  const shadowColor = styles['shadow-color'];
+  const shadowOpacity = styles['shadow-opacity'];
+  const shadowBlur = styles['shadow-blur'];
+  const shadowSpread = styles['shadow-spread'];
+  const shadowOffsetX = styles['shadow-offset-x'];
+  const shadowOffsetY = styles['shadow-offset-y'];
+
+  if (shadowColor && shadowOpacity && shadowBlur !== undefined && shadowOffsetX && shadowOffsetY) {
+    const spread = shadowSpread || '0px';
+
+    // Build shadow variants
+    const baseShadow = buildShadow(shadowColor, shadowOpacity, shadowBlur, spread, shadowOffsetX, shadowOffsetY);
+
+    // Apply to Tailwind shadow utilities
+    root.style.setProperty('--shadow-xs', baseShadow);
+    root.style.setProperty('--shadow-sm', baseShadow);
+    root.style.setProperty('--shadow', baseShadow);
+    root.style.setProperty('--shadow-md', baseShadow);
+    root.style.setProperty('--shadow-lg', baseShadow);
+    root.style.setProperty('--shadow-xl', baseShadow);
+    root.style.setProperty('--shadow-2xl', baseShadow);
+  }
 }
 
 export function ThemeSelector() {
@@ -80,10 +120,12 @@ export function ThemeSelector() {
     return <div className="w-40" />;
   }
 
-  const presetOptions = Object.entries(defaultPresets).map(([key, preset]) => ({
-    value: key,
-    label: preset.label,
-  }));
+  const presetOptions = Object.entries(defaultPresets)
+    .map(([key, preset]) => ({
+      value: key,
+      label: preset.label,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <Select value={themePreset} onValueChange={handleThemeChange}>

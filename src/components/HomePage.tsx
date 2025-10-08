@@ -312,8 +312,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -324,8 +324,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
             </div>
@@ -346,8 +346,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <CardContent>
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <svg className="w-7 h-7 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
+              <svg className="w-7 h-7 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
@@ -401,7 +401,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <div className="space-y-3">
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <Badge className="bg-primary/20 text-primary border-transparent">STABLE</Badge>
+              <Badge className="bg-accent/20 text-accent-foreground border-accent/30">STABLE</Badge>
             </div>
             <div>
               <p className="font-semibold text-card-foreground">Key Mapping</p>
@@ -410,7 +410,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
-              <Badge className="bg-primary/20 text-primary border-transparent">STABLE</Badge>
+              <Badge className="bg-accent/20 text-accent-foreground border-accent/30">STABLE</Badge>
             </div>
             <div>
               <p className="font-semibold text-card-foreground">Lighting & RGB Controls</p>
@@ -438,7 +438,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <CardContent>
         <ul className="space-y-3 text-card-foreground">
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-primary mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
@@ -447,7 +447,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
           </li>
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-primary mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
@@ -476,7 +476,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             {/* Filter input */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-accent" />
                 <Input
                   type="text"
                   value={filterQuery}

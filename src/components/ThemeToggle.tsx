@@ -28,9 +28,9 @@ function applyThemeStyles(styles: ThemeStyles) {
 
   const root = document.documentElement;
 
-  // Apply colors as-is
+  // Apply colors only - fonts should not change when toggling light/dark mode
   Object.entries(styles).forEach(([key, value]) => {
-    if (typeof value === 'string') {
+    if (typeof value === 'string' && !key.startsWith('font-')) {
       root.style.setProperty(`--${key}`, value);
     }
   });
