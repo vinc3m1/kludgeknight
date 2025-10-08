@@ -6,6 +6,8 @@ import { HomePage } from './HomePage';
 import { ThemeToggle } from './ThemeToggle';
 import { DeviceProvider } from '../context/DeviceContext';
 import { ToastProvider } from '../context/ToastContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import type { ImageManifest } from '../utils/buildImageManifest';
 
 type Tab = 'keys' | 'lighting';
@@ -49,26 +51,32 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
           <HomePage initialKeyboards={initialKeyboards} imageManifest={imageManifest} />
         ) : (
           <div className="space-y-8">
-            <div className="bg-card rounded-lg shadow p-6 border border-border">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-card-foreground">
-                  Connected: {device.config.name}
-                  <span className="ml-3 text-sm font-normal text-muted-foreground">
-                    VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')}  PID: {device.config.pid.toUpperCase()}
-                  </span>
-                </h2>
-                <button
-                  onClick={() => disconnectDevice(device)}
-                  className="px-3 py-1.5 text-sm bg-destructive/10 text-destructive border border-destructive/30 rounded hover:bg-destructive/20 transition-colors cursor-pointer"
-                >
-                  Disconnect
-                </button>
-              </div>
-            </div>
+            <Card>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Connected Device</p>
+                    <h2 className="text-lg font-semibold text-card-foreground">
+                      {device.config.name}
+                      <span className="ml-3 text-sm font-normal text-muted-foreground">
+                        VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')} · PID: {device.config.pid.toUpperCase()}
+                      </span>
+                    </h2>
+                  </div>
+                  <Button
+                    onClick={() => disconnectDevice(device)}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Tab switcher - only show if keyboard has lighting */}
             {device.config.lightEnabled && (
-              <div className="bg-card rounded-lg shadow border border-border">
+              <Card className="overflow-hidden">
                 <div className="border-b border-border">
                   <nav className="flex -mb-px">
                     <button
@@ -93,17 +101,19 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
                     </button>
                   </nav>
                 </div>
-                <div className="p-6">
+                <CardContent>
                   {activeTab === 'keys' ? <KeyRemapper /> : <LightingControls />}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* No tabs if keyboard doesn't have lighting */}
             {!device.config.lightEnabled && (
-              <div className="bg-card rounded-lg shadow p-6 border border-border">
-                <KeyRemapper />
-              </div>
+              <Card>
+                <CardContent>
+                  <KeyRemapper />
+                </CardContent>
+              </Card>
             )}
           </div>
         )}

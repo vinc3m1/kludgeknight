@@ -72,7 +72,7 @@ export function ThemeToggle() {
   };
 
   if (!mounted) {
-    return <div className="p-2 w-9 h-9" />;
+    return <div className="size-9" />;
   }
 
   const currentEffective = getEffectiveTheme(theme);

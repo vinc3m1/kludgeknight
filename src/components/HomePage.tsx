@@ -4,6 +4,8 @@ import { ConnectButton } from './ConnectButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search } from 'lucide-react';
 import type { ImageManifest } from '../utils/buildImageManifest';
 
@@ -259,7 +261,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Hero Section */}
+      {/* Hero Section with CTA */}
       <header className="text-center py-8">
         <h1 className="text-4xl font-bold text-foreground mb-3">
           Configure Your Royal Kludge Keyboard on Any OS
@@ -267,21 +269,24 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <p className="text-xl text-muted-foreground">
           Remap keys and control lighting on Mac, Linux, or Windows - all in your browser
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground mt-2 mb-6">
           Unofficial software, not affiliated with Royal Kludge.<br />
           Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Rangoli</a>.
         </p>
+
+        {/* CTA - Connect Keyboard */}
+        <div className="flex justify-center">
+          <ConnectButton />
+        </div>
       </header>
 
-      {/* CTA - Connect Keyboard */}
-      <div className="flex justify-center">
-        <ConnectButton />
-      </div>
-
       {/* Features / Value Props */}
-      <section className="bg-accent/50 rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-foreground mb-4">What You Can Do</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>What You Can Do</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,12 +334,16 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               <p className="text-sm text-muted-foreground">Works on Windows, Mac, and Linux. Your settings save automatically and stay with your browser.</p>
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Privacy Notice */}
-      <section className="bg-secondary/50 rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Private & Secure</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Private & Secure</CardTitle>
+        </CardHeader>
+        <CardContent>
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
@@ -352,11 +361,15 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </p>
           </div>
         </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Getting Started */}
-      <section className="bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-card-foreground mb-4">Getting Started</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Getting Started</CardTitle>
+        </CardHeader>
+        <CardContent>
         <ol className="space-y-3 text-card-foreground">
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary text-primary-foreground rounded-full text-sm font-bold mr-3">1</span>
@@ -371,16 +384,20 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             <span>In the browser popup dialog, select your Royal Kludge keyboard from the list and click <strong>Connect</strong></span>
           </li>
         </ol>
-        <div className="mt-4 p-4 bg-accent border border-border rounded-md">
-          <p className="text-sm text-accent-foreground">
+        <Alert className="mt-4">
+          <AlertDescription>
             <strong>Requires:</strong> Chrome, Edge, or Opera browser with WebHID support. Firefox and Safari are not supported.
-          </p>
-        </div>
-      </section>
+          </AlertDescription>
+        </Alert>
+        </CardContent>
+      </Card>
 
       {/* Feature Stability */}
-      <section className="bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-card-foreground mb-4">Feature Stability</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Feature Stability</CardTitle>
+        </CardHeader>
+        <CardContent>
         <div className="space-y-3">
           <div className="flex items-start">
             <div className="flex-shrink-0 w-20 mr-4">
@@ -410,23 +427,27 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
           </div>
         </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Important Limitations */}
-      <section className="bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-card-foreground mb-4">Important Limitations</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Important Limitations</CardTitle>
+        </CardHeader>
+        <CardContent>
         <ul className="space-y-3 text-card-foreground">
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-primary mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold text-card-foreground">Cannot Read Existing Settings</p>
-              <p className="text-sm text-muted-foreground">RK keyboards don&apos;t allow reading current mappings from the firmware. The app starts with the default layout each time you connect, then automatically restores any customizations you&apos;ve saved in your browser.</p>
+              <p className="font-semibold text-card-foreground">Firmware Doesn&apos;t Support Reading Mappings</p>
+              <p className="text-sm text-muted-foreground">Royal Kludge keyboard firmware only allows writing settings, not reading them. Your customizations are saved in the browser and automatically reapplied when you reconnect.</p>
             </div>
           </li>
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-primary mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
@@ -435,11 +456,15 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
           </li>
         </ul>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Supported Keyboards */}
-      <section className="bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-card-foreground mb-4">Supported Keyboards</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Supported Keyboards</CardTitle>
+        </CardHeader>
+        <CardContent>
         <p className="text-muted-foreground mb-2">
           KludgeKnight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
         </p>
@@ -493,20 +518,14 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
                   {/* Top shadow overlay */}
                   {showTopShadow && (
                     <div
-                      className="absolute top-0 left-0 right-0 h-4 pointer-events-none z-10"
-                      style={{
-                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent)'
-                      }}
+                      className="absolute top-0 left-0 right-0 h-4 pointer-events-none z-10 bg-gradient-to-b from-foreground/10 to-transparent"
                     />
                   )}
 
                   {/* Bottom shadow overlay */}
                   {showBottomShadow && (
                     <div
-                      className="absolute bottom-0 left-0 right-0 h-4 pointer-events-none z-10"
-                      style={{
-                        background: 'linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent)'
-                      }}
+                      className="absolute bottom-0 left-0 right-0 h-4 pointer-events-none z-10 bg-gradient-to-t from-foreground/10 to-transparent"
                     />
                   )}
 
@@ -533,11 +552,15 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         ) : (
           <p className="text-muted-foreground">Loading keyboard list...</p>
         )}
-      </section>
+        </CardContent>
+      </Card>
 
       {/* License */}
-      <section className="bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-card-foreground mb-4">License</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>License</CardTitle>
+        </CardHeader>
+        <CardContent>
         <div className="text-sm text-card-foreground space-y-2 font-mono bg-muted p-4 rounded border border-border">
           <p>KludgeKnight - Browser-based Software for Royal Kludge Keyboards</p>
           <p>Copyright (C) 2025 Vince Mi (vinc3m1)</p>
@@ -554,7 +577,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             GNU General Public License for more details.
           </p>
         </div>
-      </section>
+        </CardContent>
+      </Card>
 
     </div>
   );

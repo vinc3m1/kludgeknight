@@ -62,8 +62,8 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
 
           if (opaquePixelCount > 0) {
             const avgLuminance = totalLuminance / opaquePixelCount;
-            // Light keys get dark background, dark keys get light background
-            backgrounds.set(key.bIndex, avgLuminance > 128 ? '#1f2937' : '#ffffff');
+            // Light keys get dark text, dark keys get light text
+            backgrounds.set(key.bIndex, avgLuminance > 128 ? 'hsl(var(--foreground))' : 'hsl(var(--background))');
           }
         });
 
@@ -139,7 +139,7 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
           --key-default-fill: rgba(243, 244, 246, 0.3);
           --key-default-stroke: #9ca3af;
           --key-remapped-fill: rgba(187, 247, 208, 0.5);
-          --key-remapped-stroke: #9ca3af;
+          --key-remapped-stroke: #4ade80;
           --key-selected-fill: rgba(59, 130, 246, 0.5);
           --key-selected-stroke: #2563eb;
         }

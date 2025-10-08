@@ -4,6 +4,10 @@ import { useToast } from '../hooks/useToast';
 import { KEY_MAP, getAllKeysByCategory, type FirmwareCode } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
 import { Spinner } from './Spinner';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 // Helper to get friendly key name
 function getKeyName(fwCode: FirmwareCode | undefined): string {
@@ -108,19 +112,20 @@ export function KeyRemapper() {
             </div>
           )}
         </div>
-        <button
+        <Button
           onClick={handleResetAll}
           disabled={isLoading}
-          className="px-3 py-1.5 text-sm bg-destructive/10 text-destructive border border-destructive/30 rounded hover:bg-destructive/20 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          variant="destructive"
+          size="sm"
         >
           Reset All Keys to Default
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="p-3 bg-destructive/10 text-destructive rounded border border-destructive/30">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <KeyboardCanvas
@@ -129,48 +134,51 @@ export function KeyRemapper() {
       />
 
       {selectedKeyIndex !== null && (
-        <div className="border border-border rounded p-4 space-y-4 bg-card">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-card-foreground">Selected Key:</h3>
-                <span className="px-2 py-1 text-sm bg-accent border border-border text-accent-foreground rounded font-mono">
-                  {defaultKeyLabel || 'Unknown'}
-                </span>
-                {currentMapping !== undefined && (
-                  <>
-                    <span className="text-sm text-muted-foreground">→</span>
-                    <span className="px-2 py-1 text-sm bg-accent border border-border text-accent-foreground rounded font-mono">
-                      {getKeyName(currentMapping)}
-                    </span>
-                  </>
-                )}
+        <Card>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-bold text-card-foreground">Selected Key:</h3>
+                  <Badge variant="outline" className="font-mono">
+                    {defaultKeyLabel || 'Unknown'}
+                  </Badge>
+                  {currentMapping !== undefined && (
+                    <>
+                      <span className="text-sm text-muted-foreground">→</span>
+                      <Badge variant="outline" className="font-mono">
+                        {getKeyName(currentMapping)}
+                      </Badge>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={handleConfirmRemap}
                 disabled={selectedTargetKey === null || isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap flex items-center gap-2"
+                size="sm"
               >
                 {isLoading && <Spinner size="sm" className="text-primary-foreground" />}
                 Apply
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleSetToDefault}
                 disabled={isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                size="sm"
                 title={`Reset to default: ${defaultKeyLabel || 'Unknown'}`}
               >
                 Set to Default
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleClose}
                 disabled={isLoading}
-                className="px-3 py-1 min-h-[2.5rem] text-sm bg-muted text-muted-foreground rounded hover:bg-muted/80 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="ghost"
+                size="sm"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -202,7 +210,8 @@ export function KeyRemapper() {
               </div>
             ))}
           </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
