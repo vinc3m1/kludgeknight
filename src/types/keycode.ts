@@ -177,14 +177,14 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'M4 (Ctrl+X)' },
   0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'M5' },  // Unknown
 
-  // Media keys (VK: 0xAD-0xB3, FW: HID << 8)
-  0xAD: { vk: 0xad, fw: 0xed00, category: 'Media', label: 'Mute' },
-  0xAE: { vk: 0xae, fw: 0xef00, category: 'Media', label: 'Volume Down' },
-  0xAF: { vk: 0xaf, fw: 0xee00, category: 'Media', label: 'Volume Up' },
-  0xB0: { vk: 0xb0, fw: 0xea00, category: 'Media', label: 'Next Track' },
-  0xB1: { vk: 0xb1, fw: 0xeb00, category: 'Media', label: 'Previous Track' },
-  0xB2: { vk: 0xb2, fw: 0xe900, category: 'Media', label: 'Stop' },
-  0xB3: { vk: 0xb3, fw: 0xe800, category: 'Media', label: 'Play/Pause' },
+  // Media keys (VK: 0xAD-0xB3, FW: 0x01000000 | HID Consumer Control)
+  0xAD: { vk: 0xad, fw: 0x010000e2, category: 'Media', label: 'Mute' },
+  0xAE: { vk: 0xae, fw: 0x010000ea, category: 'Media', label: 'Volume Down' },
+  0xAF: { vk: 0xaf, fw: 0x010000e9, category: 'Media', label: 'Volume Up' },
+  0xB0: { vk: 0xb0, fw: 0x010000b5, category: 'Media', label: 'Next Track' },
+  0xB1: { vk: 0xb1, fw: 0x010000b6, category: 'Media', label: 'Previous Track' },
+  0xB2: { vk: 0xb2, fw: 0x010000b7, category: 'Media', label: 'Stop' },
+  0xB3: { vk: 0xb3, fw: 0x010000cd, category: 'Media', label: 'Play/Pause' },
 
   // Programmable functions (stub VK codes - not real Windows VKs, only for remapping)
   // Use 0x1xxx range to avoid conflicts with real VK codes (which max at 0xFF)
