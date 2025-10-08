@@ -11,8 +11,9 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   const device = useSelectedDevice();
   const [imgWidth, setImgWidth] = useState(0);
   const [imgHeight, setImgHeight] = useState(0);
+  const [keyBackgrounds, setKeyBackgrounds] = useState<Map<number, string>>(new Map());
 
-  // Load image to get dimensions
+  // Load image to get dimensions and detect per-key luminance
   useEffect(() => {
     if (!device) return;
 
@@ -20,6 +21,57 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
     img.onload = () => {
       setImgWidth(img.width);
       setImgHeight(img.height);
+
+      // Analyze luminance for each key region
+      const startTime = performance.now();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        const pixels = imageData.data;
+
+        const backgrounds = new Map<number, string>();
+
+        // Analyze each key region
+        device.config.keys.forEach((key) => {
+          const [left, top, right, bottom] = key.rect;
+          let totalLuminance = 0;
+          let opaquePixelCount = 0;
+
+          // Sample pixels within this key's bounds
+          for (let y = Math.floor(top); y < Math.ceil(bottom); y++) {
+            for (let x = Math.floor(left); x < Math.ceil(right); x++) {
+              if (x >= 0 && x < img.width && y >= 0 && y < img.height) {
+                const idx = (y * img.width + x) * 4;
+                const alpha = pixels[idx + 3];
+                if (alpha > 25) { // Skip mostly transparent pixels
+                  const r = pixels[idx];
+                  const g = pixels[idx + 1];
+                  const b = pixels[idx + 2];
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                  totalLuminance += luminance;
+                  opaquePixelCount++;
+                }
+              }
+            }
+          }
+
+          if (opaquePixelCount > 0) {
+            const avgLuminance = totalLuminance / opaquePixelCount;
+            // Light keys get dark background, dark keys get light background
+            backgrounds.set(key.bIndex, avgLuminance > 128 ? '#1f2937' : '#ffffff');
+          }
+        });
+
+        setKeyBackgrounds(backgrounds);
+
+        const elapsed = performance.now() - startTime;
+        console.log(`Per-key luminance analysis: ${elapsed.toFixed(2)}ms (${backgrounds.size} keys)`);
+      }
     };
     img.src = device.config.imageUrl;
   }, [device]);
@@ -33,6 +85,24 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
   }
 
   const { config } = device;
+
+  const renderKeyBackground = (key: Key, index: number) => {
+    const backgroundColor = keyBackgrounds.get(key.bIndex);
+    if (!backgroundColor) return null;
+
+    const [left, top, right, bottom] = key.rect;
+
+    return (
+      <rect
+        key={`bg-${index}`}
+        x={left}
+        y={top}
+        width={right - left}
+        height={bottom - top}
+        fill={backgroundColor}
+      />
+    );
+  };
 
   const renderKey = (key: Key, index: number) => {
     const hasMapping = device.hasMapping(key.bIndex);
@@ -86,6 +156,8 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
         className="w-full h-auto"
         style={{ maxHeight: '400px' }}
       >
+        {/* Render background rectangles behind keyboard image */}
+        {config.keys.map((key, index) => renderKeyBackground(key, index))}
         <image
           href={config.imageUrl}
           x="0"
@@ -94,6 +166,7 @@ export function KeyboardCanvas({ onKeyClick, selectedKeyIndex }: KeyboardCanvasP
           height={imgHeight}
           className="dark:opacity-80"
         />
+        {/* Render key overlays on top */}
         {config.keys.map((key, index) => renderKey(key, index))}
       </svg>
 
