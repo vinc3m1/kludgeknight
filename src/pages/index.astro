@@ -1,11 +1,13 @@
 ---
 import { getRKDevices } from '../utils/rkConfig';
+import { buildImageManifest } from '../utils/buildImageManifest';
 import App from '../components/App';
 import '../index.css';
 
-// Load keyboards at build time
+// Load keyboards and image manifest at build time
 const devices = await getRKDevices();
 const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, name }));
+const imageManifest = await buildImageManifest();
 ---
 
 <!DOCTYPE html>
@@ -42,6 +44,6 @@ const keyboards = Array.from(devices.entries()).map(([pid, name]) => ({ pid, nam
     </script>
   </head>
   <body>
-    <App client:load initialKeyboards={keyboards} />
+    <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} />
   </body>
 </html>

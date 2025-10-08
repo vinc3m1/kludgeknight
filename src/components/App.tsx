@@ -9,11 +9,22 @@ import { ToastProvider } from '../context/ToastContext';
 
 type Tab = 'keys' | 'lighting';
 
-interface AppProps {
-  initialKeyboards?: Array<{ pid: string; name: string }>;
+interface ImageManifest {
+  [pid: string]: {
+    hasKeyimg: boolean;
+    hasKbled: boolean;
+    useRgbDefault: boolean;
+    kbImgUse?: string;
+    dirCase: string;
+  };
 }
 
-function AppContent({ initialKeyboards }: AppProps = {}) {
+interface AppProps {
+  initialKeyboards?: Array<{ pid: string; name: string }>;
+  imageManifest?: ImageManifest;
+}
+
+function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
   const device = useSelectedDevice();
   const { disconnectDevice } = useDevices();
   const [activeTab, setActiveTab] = useState<Tab>('keys');
@@ -44,7 +55,7 @@ function AppContent({ initialKeyboards }: AppProps = {}) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!device ? (
-          <HomePage initialKeyboards={initialKeyboards} />
+          <HomePage initialKeyboards={initialKeyboards} imageManifest={imageManifest} />
         ) : (
           <div className="space-y-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

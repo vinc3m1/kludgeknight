@@ -1,200 +1,62 @@
-import { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getRKDevices } from '../utils/rkConfig';
-import {
-  decodeKBIni,
-  parseKBIniForImages
-} from '../utils/keyboardImages';
 import { ConnectButton } from './ConnectButton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 
+interface ImageManifest {
+  [pid: string]: {
+    hasKeyimg: boolean;
+    hasKbled: boolean;
+    useRgbDefault: boolean;
+    kbImgUse?: string;
+    dirCase: string;
+  };
+}
+
 interface KeyboardListItemProps {
   pid: string;
   name: string;
   isExpanded: boolean;
   onToggle: () => void;
+  imageManifest?: ImageManifest;
 }
 
-// Try to fetch KB.ini from a PID directory, handling case-sensitivity
-// Also verify the directory case by checking if an image file exists
-async function fetchKBIni(pid: string): Promise<{ text: string; dirCase: string } | null> {
-  // Helper to verify directory exists by trying to load an image
-  const verifyDirCase = async (testPid: string): Promise<string | null> => {
-    // Try to load keyimg.png to verify the directory case
-    const testUrl = `${import.meta.env.BASE_URL}rk/Dev/${testPid}/keyimg.png`;
-    try {
-      const response = await fetch(testUrl, { method: 'HEAD' });
-      if (response.ok) return testPid;
-    } catch {
-      // Ignore errors
-    }
-
-    // Also try kbled.png
-    const testUrl2 = `${import.meta.env.BASE_URL}rk/Dev/${testPid}/kbled.png`;
-    try {
-      const response = await fetch(testUrl2, { method: 'HEAD' });
-      if (response.ok) return testPid;
-    } catch {
-      // Ignore errors
-    }
-
-    return null;
-  };
-
-  // Try uppercase first (most common)
-  let response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toUpperCase()}/KB.ini`);
-  if (response.ok) {
-    const buffer = await response.arrayBuffer();
-    const text = decodeKBIni(buffer);
-
-    // Verify the actual directory case
-    const actualCase = await verifyDirCase(pid.toUpperCase()) || await verifyDirCase(pid.toLowerCase());
-    const dirCase = actualCase || pid.toUpperCase();
-
-    return { text, dirCase };
-  }
-
-  // Try lowercase
-  response = await fetch(`${import.meta.env.BASE_URL}rk/Dev/${pid.toLowerCase()}/KB.ini`);
-  if (response.ok) {
-    const buffer = await response.arrayBuffer();
-    const text = decodeKBIni(buffer);
-
-    // Verify the actual directory case
-    const actualCase = await verifyDirCase(pid.toLowerCase()) || await verifyDirCase(pid.toUpperCase());
-    const dirCase = actualCase || pid.toLowerCase();
-
-    return { text, dirCase };
-  }
-
-  return null;
-}
-
-interface KeyboardImageInfo {
-  defaultUrl: string;
-  hasRgb: boolean;
-  hasNonRgb: boolean;
-  useRgbDefault: boolean;
-  dirCase: string;
-}
-
-async function checkImageExists(url: string): Promise<boolean> {
-  try {
-    // Try to load the image by creating an Image element
-    // This is more reliable than HEAD requests in the browser
-    return new Promise<boolean>((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      // Set a timeout to avoid hanging
-      setTimeout(() => resolve(false), 5000);
-      img.src = url;
-    });
-  } catch {
-    return false;
-  }
-}
-
-async function getKeyboardImageInfo(pid: string): Promise<KeyboardImageInfo | null> {
-  try {
-    // Check if both images exist
-    const checkBothImages = async (dirCase: string, useRgbDefault: boolean) => {
-      const rgbUrl = `${import.meta.env.BASE_URL}rk/Dev/${dirCase}/kbled.png`;
-      const nonRgbUrl = `${import.meta.env.BASE_URL}rk/Dev/${dirCase}/keyimg.png`;
-
-      const [hasRgb, hasNonRgb] = await Promise.all([
-        checkImageExists(rgbUrl),
-        checkImageExists(nonRgbUrl)
-      ]);
-
-      const defaultUrl = useRgbDefault && hasRgb ? rgbUrl : nonRgbUrl;
-
-      return {
-        defaultUrl,
-        hasRgb,
-        hasNonRgb,
-        useRgbDefault,
-        dirCase
-      };
-    };
-
-    // Try to fetch KB.ini
-    const kbIni = await fetchKBIni(pid);
-
-    if (!kbIni) {
-      // No KB.ini, try uppercase
-      return checkBothImages(pid.toUpperCase(), false);
-    }
-
-    const { useRgbDefault, kbImgUse } = parseKBIniForImages(kbIni.text);
-    let dirCase: string;
-
-    if (kbImgUse) {
-      // Use the referenced keyboard's image
-      const refKbIni = await fetchKBIni(kbImgUse);
-      dirCase = refKbIni?.dirCase || kbImgUse.toUpperCase();
-    } else {
-      // Use this keyboard's own image
-      dirCase = kbIni.dirCase;
-    }
-
-    return checkBothImages(dirCase, useRgbDefault);
-  } catch (error) {
-    console.error(`Failed to get keyboard image info for ${pid}:`, error);
-    return null;
-  }
-}
-
-const KeyboardListItem = forwardRef<HTMLLIElement, KeyboardListItemProps>(
-  ({ pid, name, isExpanded, onToggle }, ref) => {
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const [hasImage, setHasImage] = useState(false);
-    const [imageInfo, setImageInfo] = useState<KeyboardImageInfo | null>(null);
+function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: KeyboardListItemProps) {
     const [showRgb, setShowRgb] = useState<boolean>(false);
 
-    useEffect(() => {
-      if (isExpanded && !imageLoaded) {
-        getKeyboardImageInfo(pid).then(info => {
-          if (!info || (!info.hasRgb && !info.hasNonRgb)) {
-            setHasImage(false);
-            setImageLoaded(true);
-            return;
-          }
+    // Get image info from manifest (pre-computed at build time)
+    const pidUpper = pid.toUpperCase();
+    let imageInfo = imageManifest?.[pidUpper];
 
-          setImageInfo(info);
-          setShowRgb(info.useRgbDefault);
-
-          // Check if default image actually loads
-          const img = new Image();
-          img.onload = () => {
-            setHasImage(true);
-            setImageLoaded(true);
-          };
-          img.onerror = () => {
-            setHasImage(false);
-            setImageLoaded(true);
-          };
-          img.src = info.defaultUrl;
-        });
+    // Handle kbImgUse references
+    if (imageInfo?.kbImgUse && imageManifest) {
+      const refInfo = imageManifest[imageInfo.kbImgUse.toUpperCase()];
+      if (refInfo) {
+        imageInfo = { ...refInfo, kbImgUse: undefined }; // Use referenced keyboard's images
       }
-    }, [isExpanded, imageLoaded, pid]);
+    }
 
-    const currentImageUrl = imageInfo
-      ? (showRgb && imageInfo.hasRgb
+    const hasImage = imageInfo && (imageInfo.hasKeyimg || imageInfo.hasKbled);
+    const hasBothImages = imageInfo?.hasKeyimg && imageInfo?.hasKbled;
+
+    // Set default view based on manifest
+    useEffect(() => {
+      if (imageInfo?.useRgbDefault !== undefined) {
+        setShowRgb(imageInfo.useRgbDefault);
+      }
+    }, [imageInfo?.useRgbDefault]);
+
+    const currentImageUrl = imageInfo && hasImage
+      ? (showRgb && imageInfo.hasKbled
           ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
           : `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`)
       : null;
 
-    const hasBothImages = imageInfo?.hasRgb && imageInfo?.hasNonRgb;
-
     return (
-      <li
-        ref={ref}
-        data-pid={pid}
-        className="border-b border-gray-200 dark:border-gray-700 last:border-b-0"
-      >
+      <li className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
       <button
         onClick={onToggle}
         className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between cursor-pointer text-gray-900 dark:text-gray-100"
@@ -216,9 +78,7 @@ const KeyboardListItem = forwardRef<HTMLLIElement, KeyboardListItemProps>(
       </button>
       {isExpanded && (
         <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
-          {!imageLoaded ? (
-            <div className="text-sm text-gray-500 dark:text-gray-400">Loading image...</div>
-          ) : hasImage && currentImageUrl ? (
+          {hasImage && currentImageUrl ? (
             <>
               {hasBothImages && (
                 <div className="mb-3 flex justify-end">
@@ -254,24 +114,20 @@ const KeyboardListItem = forwardRef<HTMLLIElement, KeyboardListItemProps>(
       )}
     </li>
   );
-});
-
-KeyboardListItem.displayName = 'KeyboardListItem';
+}
 
 interface HomePageProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;
+  imageManifest?: ImageManifest;
 }
 
-export function HomePage({ initialKeyboards }: HomePageProps = {}) {
+export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}) {
   const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>(initialKeyboards || []);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPids, setExpandedPids] = useState<Set<string>>(new Set());
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  const itemHeightsRef = useRef<Map<string, number>>(new Map());
-  const itemRefsMap = useRef<Map<string, HTMLLIElement>>(new Map());
 
   useEffect(() => {
     // Only fetch if we don't have initial data (SSR provides it)
@@ -286,12 +142,9 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
   // Reset expanded items and scroll when search query changes
   useEffect(() => {
     setExpandedPids(new Set());
-    setScrollTop(0);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-    // Clear cached heights when search changes
-    itemHeightsRef.current.clear();
   }, [searchQuery]);
 
   const toggleExpanded = (pid: string) => {
@@ -312,94 +165,6 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
         kb.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : keyboards;
-
-  // Virtual scrolling configuration
-  const CONTAINER_HEIGHT = 480;
-  const ESTIMATED_ITEM_HEIGHT = 41; // Collapsed item height
-  const OVERSCAN = 3; // Render extra items above/below viewport
-
-  // Calculate virtual scrolling parameters
-  const { visibleRange, totalHeight, offsetY } = useMemo(() => {
-    const heights = itemHeightsRef.current;
-
-    if (filteredKeyboards.length === 0) {
-      return {
-        visibleRange: { start: 0, end: 0 },
-        totalHeight: 0,
-        offsetY: 0
-      };
-    }
-
-    let currentOffset = 0;
-    let startIndex = 0;
-    let endIndex = filteredKeyboards.length - 1;
-    let foundStart = false;
-
-    // Find the start and end indices based on scroll position
-    for (let i = 0; i < filteredKeyboards.length; i++) {
-      const itemHeight = heights.get(filteredKeyboards[i].pid) || ESTIMATED_ITEM_HEIGHT;
-
-      if (!foundStart && currentOffset + itemHeight > scrollTop) {
-        startIndex = Math.max(0, i - OVERSCAN);
-        foundStart = true;
-      }
-
-      if (foundStart && currentOffset > scrollTop + CONTAINER_HEIGHT) {
-        endIndex = Math.min(filteredKeyboards.length - 1, i + OVERSCAN);
-        break;
-      }
-
-      currentOffset += itemHeight;
-    }
-
-    // Calculate total height and offset for the virtual list
-    let total = 0;
-    let offset = 0;
-    for (let i = 0; i < filteredKeyboards.length; i++) {
-      const itemHeight = heights.get(filteredKeyboards[i].pid) || ESTIMATED_ITEM_HEIGHT;
-      if (i < startIndex) {
-        offset += itemHeight;
-      }
-      total += itemHeight;
-    }
-
-    return {
-      visibleRange: { start: startIndex, end: endIndex },
-      totalHeight: total,
-      offsetY: offset
-    };
-  }, [filteredKeyboards, scrollTop]);
-
-  const visibleKeyboards = filteredKeyboards.slice(visibleRange.start, visibleRange.end + 1);
-
-  // Measure item heights when they render or expand/collapse
-  useEffect(() => {
-    const observer = new ResizeObserver((entries) => {
-      let heightsChanged = false;
-      for (const entry of entries) {
-        const pid = entry.target.getAttribute('data-pid');
-        if (pid) {
-          const newHeight = entry.contentRect.height;
-          const oldHeight = itemHeightsRef.current.get(pid);
-          if (oldHeight !== newHeight) {
-            itemHeightsRef.current.set(pid, newHeight);
-            heightsChanged = true;
-          }
-        }
-      }
-      // Force re-render if heights changed
-      if (heightsChanged) {
-        setScrollTop(prev => prev); // Trigger recalculation
-      }
-    });
-
-    // Observe all rendered items
-    itemRefsMap.current.forEach(element => {
-      observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, [visibleKeyboards, expandedPids]);
 
   // Update shadows when filtered list changes
   useEffect(() => {
@@ -423,21 +188,18 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const currentScrollTop = target.scrollTop;
+    const scrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
-
-    // Update scroll position for virtual scrolling
-    setScrollTop(currentScrollTop);
 
     // Only show shadows if content is scrollable
     const isScrollable = scrollHeight > clientHeight;
 
     // Show top shadow if scrolled down from top
-    setShowTopShadow(isScrollable && currentScrollTop > 0);
+    setShowTopShadow(isScrollable && scrollTop > 0);
 
     // Show bottom shadow if not at bottom (with 1px tolerance)
-    setShowBottomShadow(isScrollable && currentScrollTop + clientHeight < scrollHeight - 1);
+    setShowBottomShadow(isScrollable && scrollTop + clientHeight < scrollHeight - 1);
   };
 
   return (
@@ -703,32 +465,18 @@ export function HomePage({ initialKeyboards }: HomePageProps = {}) {
                   )}
 
                   <div className="h-full overflow-y-auto" onScroll={handleScroll} ref={scrollContainerRef}>
-                    <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
-                      <ul
-                        className="divide-y divide-gray-200 dark:divide-gray-600"
-                        style={{
-                          transform: `translateY(${offsetY}px)`,
-                          willChange: 'transform'
-                        }}
-                      >
-                        {visibleKeyboards.map(kb => (
-                          <KeyboardListItem
-                            key={kb.pid}
-                            pid={kb.pid}
-                            name={kb.name}
-                            isExpanded={expandedPids.has(kb.pid)}
-                            onToggle={() => toggleExpanded(kb.pid)}
-                            ref={(el) => {
-                              if (el) {
-                                itemRefsMap.current.set(kb.pid, el);
-                              } else {
-                                itemRefsMap.current.delete(kb.pid);
-                              }
-                            }}
-                          />
-                        ))}
-                      </ul>
-                    </div>
+                    <ul className="divide-y divide-gray-200 dark:divide-gray-600">
+                      {filteredKeyboards.map(kb => (
+                        <KeyboardListItem
+                          key={kb.pid}
+                          pid={kb.pid}
+                          name={kb.name}
+                          isExpanded={expandedPids.has(kb.pid)}
+                          onToggle={() => toggleExpanded(kb.pid)}
+                          imageManifest={imageManifest}
+                        />
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </>
