@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSelectedDevice } from '../hooks/useDevices';
 import { useToast } from '../hooks/useToast';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 import type { LightingMode } from '../types/keyboard';
 import type { StandardLightingSettings } from '../models/LightingCodec';
 import { Slider } from '@/components/ui/slider';
@@ -10,13 +10,14 @@ const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
 interface LightingControlsProps {
+  device: KeyboardDevice;
+  initialSettings: StandardLightingSettings | null;
   isVisible?: boolean;
 }
 
-export function LightingControls({ isVisible }: LightingControlsProps = {}) {
-  const device = useSelectedDevice();
+export function LightingControls({ device, initialSettings, isVisible }: LightingControlsProps) {
   const toast = useToast();
-  const [settings, setSettings] = useState<StandardLightingSettings | null>(null);
+  const [settings, setSettings] = useState<StandardLightingSettings | null>(initialSettings);
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedModeRef = useRef<HTMLButtonElement>(null);
   const modeListRef = useRef<HTMLDivElement>(null);
@@ -24,18 +25,9 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
 
   const selectedModeIndex = settings?.modeIndex ?? null;
 
-  // One-time hydration: load saved settings when device connects
-  useEffect(() => {
-    if (device?.lightingSettings) {
-      setSettings(device.lightingSettings);
-    } else {
-      setSettings(null);
-    }
-  }, [device?.id]); // Only re-run when device changes, not on every lightingSettings change
-
   // Apply settings changes to device with debouncing
   useEffect(() => {
-    if (!device || !settings) {
+    if (!settings) {
       return;
     }
 

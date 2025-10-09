@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSelectedDevice } from '../hooks/useDevices';
 import { useToast } from '../hooks/useToast';
 import { KEY_MAP, getAllKeysByCategory, type FirmwareCode } from '../types/keycode';
 import { KeyboardCanvas } from './KeyboardCanvas';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 import type { ImageManifest } from '../utils/buildImageManifest';
 
 // Helper to get friendly key name
@@ -24,11 +24,8 @@ function getKeyName(fwCode: FirmwareCode | undefined): string {
   return `0x${fwCode.toString(16)}`;
 }
 
-export function KeyRemapperActionButton() {
-  const device = useSelectedDevice();
+export function KeyRemapperActionButton({ device }: { device: KeyboardDevice }) {
   const toast = useToast();
-
-  if (!device) return null;
 
   const handleResetAll = async () => {
     try {
@@ -56,17 +53,15 @@ export function KeyRemapperActionButton() {
 }
 
 interface KeyRemapperProps {
+  device: KeyboardDevice;
   imageManifest?: ImageManifest;
 }
 
-export function KeyRemapper({ imageManifest }: KeyRemapperProps = {}) {
-  const device = useSelectedDevice();
+export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
   const toast = useToast();
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
   const [selectedTargetKey, setSelectedTargetKey] = useState<FirmwareCode | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  if (!device) return null;
 
   const keyCategories = getAllKeysByCategory();
 
@@ -130,6 +125,7 @@ export function KeyRemapper({ imageManifest }: KeyRemapperProps = {}) {
       )}
 
       <KeyboardCanvas
+        device={device}
         onKeyClick={handleKeyClick}
         selectedKeyIndex={selectedKeyIndex ?? undefined}
         imageManifest={imageManifest}

@@ -1,45 +1,33 @@
 import { useState, useEffect } from 'react';
-import { useSelectedDevice } from '../hooks/useDevices';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 import type { Key } from '../types/keyboard';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { getKeyBackgrounds } from '../utils/luminance';
 
 interface KeyboardCanvasProps {
+  device: KeyboardDevice;
   onKeyClick?: (keyIndex: number) => void;
   selectedKeyIndex?: number;
   imageManifest?: ImageManifest;
 }
 
-export function KeyboardCanvas({ onKeyClick, selectedKeyIndex, imageManifest }: KeyboardCanvasProps) {
-  const device = useSelectedDevice();
+export function KeyboardCanvas({ device, onKeyClick, selectedKeyIndex, imageManifest }: KeyboardCanvasProps) {
   const [imgWidth, setImgWidth] = useState(0);
   const [imgHeight, setImgHeight] = useState(0);
-  const [keyBackgrounds, setKeyBackgrounds] = useState<Map<number, string>>(new Map());
+  const [keyBackgrounds] = useState<Map<number, string>>(() =>
+    // Calculate key backgrounds once on mount
+    getKeyBackgrounds(device.config.pid, device.config.keys, imageManifest)
+  );
 
-  // Load image to get dimensions and use pre-calculated luminance data
+  // Load image to get dimensions
   useEffect(() => {
-    if (!device) return;
-
-    // Get key backgrounds from pre-calculated luminance data
-    const backgrounds = getKeyBackgrounds(device.config.pid, device.config.keys, imageManifest);
-    setKeyBackgrounds(backgrounds);
-
-    // Load image to get dimensions
     const img = new Image();
     img.onload = () => {
       setImgWidth(img.width);
       setImgHeight(img.height);
     };
     img.src = device.config.imageUrl;
-  }, [device, imageManifest]);
-
-  if (!device) {
-    return (
-      <div className="flex items-center justify-center h-64 border border-border rounded bg-muted">
-        <p className="text-muted-foreground">No keyboard connected</p>
-      </div>
-    );
-  }
+  }, [device.config.imageUrl]);
 
   const { config } = device;
 
