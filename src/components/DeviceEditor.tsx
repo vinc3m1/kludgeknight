@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { KeyboardDevice } from '../models/KeyboardDevice';
 import { KeyRemapper, KeyRemapperActionButton } from './KeyRemapper';
 import { LightingControls } from './LightingControls';
@@ -16,6 +16,12 @@ interface DeviceEditorProps {
 
 export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEditorProps) {
   const [activeTab, setActiveTab] = useState<Tab>('keys');
+  const lightingTabVisitedRef = useRef(false);
+
+  // Track when lighting tab is visited for the first time
+  if (activeTab === 'lighting') {
+    lightingTabVisitedRef.current = true;
+  }
 
   return (
     <div className="space-y-8">
@@ -74,13 +80,17 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
             </div>
           </div>
           <CardContent>
-            {activeTab === 'keys' ? (
+            <div className={activeTab === 'keys' ? '' : 'hidden'}>
               <KeyRemapper device={device} imageManifest={imageManifest} />
-            ) : (
-              <LightingControls
-                device={device}
-                initialSettings={device.lightingSettings}
-              />
+            </div>
+            {/* Lazy load lighting tab - only mount on first visit, then keep mounted */}
+            {lightingTabVisitedRef.current && (
+              <div className={activeTab === 'lighting' ? '' : 'hidden'}>
+                <LightingControls
+                  device={device}
+                  initialSettings={device.lightingSettings}
+                />
+              </div>
             )}
           </CardContent>
         </Card>
