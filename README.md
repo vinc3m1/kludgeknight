@@ -39,9 +39,12 @@ This means:
 
 **Every change writes the entire keymap** to the keyboard hardware. Even when you change a single key, the complete key mapping for your entire keyboard is sent. This is how the RK firmware works - it doesn't support updating individual keys.
 
-## 📸 Screenshot
+## 📸 Screenshots
 
-![Kludge Knight Screenshot](screenshot.png)
+<p align="center">
+  <img src="screenshot1.png" width="49%" alt="Kludge Knight Screenshot 1" style="vertical-align: top;">
+  <img src="screenshot2.png" width="49%" alt="Kludge Knight Screenshot 2" style="vertical-align: top;">
+</p>
 
 ## 🚀 Getting Started
 
