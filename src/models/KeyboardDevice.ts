@@ -23,7 +23,6 @@ export class KeyboardDevice {
 
   // Loading states
   isMappingLoading: boolean = false;
-  isLightingLoading: boolean = false;
 
   notify?: () => void;
   onDisconnect?: () => void;
@@ -219,22 +218,11 @@ export class KeyboardDevice {
     }
 
     return this.queue.enqueue(async () => {
-      const oldSettings = this.lightingSettings;
-      this.isLightingLoading = true;
-      this.notify?.();
-      try {
-        this.lightingSettings = settings;
-        await this.translator.sendStandardLighting(settings);
-        // Save lighting to localStorage (preserves key mappings)
-        saveProfile(this.id, undefined, settings);
-      } catch (error) {
-        // Rollback on failure
-        this.lightingSettings = oldSettings;
-        throw error;
-      } finally {
-        this.isLightingLoading = false;
-        this.notify?.();
-      }
+      await this.translator.sendStandardLighting(settings);
+      // Update local state after successful hardware write (for persistence)
+      this.lightingSettings = settings;
+      // Save lighting to localStorage (preserves key mappings)
+      saveProfile(this.id, undefined, settings);
     });
   }
 
@@ -248,8 +236,6 @@ export class KeyboardDevice {
 
     return this.queue.enqueue(async () => {
       const oldColors = { ...this.perKeyColors };
-      this.isLightingLoading = true;
-      this.notify?.();
       try {
         this.perKeyColors = colors;
         await this.translator.sendCustomRGB(colors);
@@ -257,9 +243,6 @@ export class KeyboardDevice {
         // Rollback on failure
         this.perKeyColors = oldColors;
         throw error;
-      } finally {
-        this.isLightingLoading = false;
-        this.notify?.();
       }
     });
   }

@@ -17,7 +17,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
   const device = useSelectedDevice();
   const toast = useToast();
   const [settings, setSettings] = useState<StandardLightingSettings | null>(null);
-  const syncingFromDeviceRef = useRef(false);
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedModeRef = useRef<HTMLButtonElement>(null);
   const modeListRef = useRef<HTMLDivElement>(null);
@@ -25,21 +24,18 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
 
   const selectedModeIndex = settings?.modeIndex ?? null;
 
-  // Sync settings from device when it changes
+  // One-time hydration: load saved settings when device connects
   useEffect(() => {
-    syncingFromDeviceRef.current = true;
     if (device?.lightingSettings) {
       setSettings(device.lightingSettings);
     } else {
       setSettings(null);
     }
-    syncingFromDeviceRef.current = false;
-  }, [device?.id, device?.lightingSettings]);
+  }, [device?.id]); // Only re-run when device changes, not on every lightingSettings change
 
   // Apply settings changes to device with debouncing
   useEffect(() => {
-    // Don't update device if we're syncing from it
-    if (!device || !settings || syncingFromDeviceRef.current) {
+    if (!device || !settings) {
       return;
     }
 
@@ -54,6 +50,7 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
       } catch (error) {
         console.error('Failed to update lighting:', error);
         toast.showError('Failed to update lighting settings');
+        // UI stays at user's setting - don't revert
       }
     }, 150); // 150ms debounce
 
@@ -135,7 +132,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
   };
 
   const colorHex = `#${color.r.toString(16).padStart(2, '0')}${color.g.toString(16).padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
-  const isLoading = device.isLightingLoading;
 
   return (
     <div className="grid grid-cols-[300px_1fr] gap-8">
@@ -153,8 +149,7 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
               key={mode.index}
               ref={mode.index === selectedModeIndex ? selectedModeRef : null}
               onClick={() => setSelectedModeIndex(mode.index)}
-              disabled={isLoading}
-              className={`w-full px-4 py-3 text-left text-sm transition-colors border-b border-border last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full px-4 py-3 text-left text-sm transition-colors border-b border-border last:border-b-0 ${
                 mode.index === selectedModeIndex
                   ? 'bg-primary text-primary-foreground font-medium'
                   : 'bg-background text-foreground hover:bg-accent'
@@ -181,7 +176,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
               min={1}
               max={5}
               step={1}
-              disabled={isLoading}
             />
           </div>
         )}
@@ -199,7 +193,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
               min={0}
               max={5}
               step={1}
-              disabled={isLoading}
             />
           </div>
         )}
@@ -213,8 +206,7 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
                 type="color"
                 value={colorHex}
                 onChange={handleColorChange}
-                disabled={isLoading}
-                className="h-10 w-16 rounded-md border border-input cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-16 rounded-md border border-input cursor-pointer"
               />
               <span className="text-sm font-mono text-muted-foreground">{colorHex.toUpperCase()}</span>
             </div>
@@ -228,7 +220,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
             <Switch
               checked={randomColor}
               onCheckedChange={setRandomColor}
-              disabled={isLoading}
             />
           </div>
         )}
@@ -246,7 +237,6 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
               min={1}
               max={5}
               step={1}
-              disabled={isLoading}
             />
           </div>
         )}
