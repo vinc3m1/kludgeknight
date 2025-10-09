@@ -386,7 +386,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         </ol>
         <Alert className="mt-4">
           <AlertDescription>
-            <strong>Requires:</strong> Chrome, Edge, or Opera browser with WebHID support. Firefox and Safari are not supported.
+            <strong>Requires:</strong> Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.
           </AlertDescription>
         </Alert>
         </CardContent>

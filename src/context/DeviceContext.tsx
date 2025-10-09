@@ -120,8 +120,8 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
       let errorMessage = 'Failed to connect to keyboard. Please try again.';
 
       if (error instanceof Error) {
-        if (error.message.includes('WebHID API not available')) {
-          errorMessage = 'WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.';
+        if (error.message.includes('WebHID') && error.message.includes('not support')) {
+          errorMessage = 'This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.';
         } else if (error.message.includes('No device selected')) {
           // User cancelled the picker, don't show error
           return;

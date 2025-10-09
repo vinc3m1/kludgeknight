@@ -43,7 +43,7 @@ export function ConnectButton() {
         <Alert variant="destructive">
           <TriangleAlert />
           <AlertDescription className="text-center">
-            WebHID is not supported in your browser. Please use Chrome, Edge, or Opera.
+            This browser doesn't support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.
           </AlertDescription>
         </Alert>
       )}

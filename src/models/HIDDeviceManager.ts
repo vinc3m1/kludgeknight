@@ -68,7 +68,7 @@ export class HIDDeviceManager {
    */
   async requestDevice(): Promise<KeyboardDevice | null> {
     if (!navigator.hid) {
-      throw new Error('WebHID API not available. Use Chrome, Edge, or Opera.');
+      throw new Error('This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.');
     }
 
     try {
@@ -100,7 +100,7 @@ export class HIDDeviceManager {
    */
   async scanAuthorizedDevices(): Promise<KeyboardDevice[]> {
     if (!navigator.hid) {
-      throw new Error('WebHID API not available. Use Chrome, Edge, or Opera.');
+      throw new Error('This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.');
     }
 
     try {
