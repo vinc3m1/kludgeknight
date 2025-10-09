@@ -1,4 +1,4 @@
-# KludgeKnight
+# Kludge Knight
 
 **Unofficial web-based key remapper for Royal Kludge keyboards**
 
@@ -41,7 +41,7 @@ This means:
 
 ## 📸 Screenshot
 
-![KludgeKnight Screenshot](screenshot.png)
+![Kludge Knight Screenshot](screenshot.png)
 
 ## 🚀 Getting Started
 
@@ -312,7 +312,7 @@ These tools are far more capable than keyboard-level macros and work regardless 
 ## 📄 License
 
 ```
-KludgeKnight - Browser-based Software for Royal Kludge Keyboards
+Kludge Knight - Browser-based Software for Royal Kludge Keyboards
 Copyright (C) 2025 Vince Mi (vinc3m1)
 
 This program is free software: you can redistribute it and/or modify

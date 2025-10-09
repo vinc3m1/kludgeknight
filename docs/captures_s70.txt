@@ -44,7 +44,7 @@ just the first buffer:
 same as above, but m5 set to brightness down:
 0a090101f800000000010000b5010000b6010000cd010000b701000070000000000000290000002b000001000000020000000100000000000000001e0000001400
 
-# KludgeKnight Software
+# Kludge Knight Software
 
 set macro keys to:
 m1 = vol up

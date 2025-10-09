@@ -1,5 +1,5 @@
 /**
- * Custom error types for KludgeKnight
+ * Custom error types for Kludge Knight
  * These errors provide type-safe error handling and separation of concerns
  * between model layer (throws) and UI layer (catches and displays messages)
  */

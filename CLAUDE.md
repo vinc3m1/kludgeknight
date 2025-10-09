@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-KludgeKnight is a web-based key remapper for Royal Kludge keyboards that runs entirely in the browser using the WebHID API. It allows users to remap keys on their RK keyboards without installing software. The key mappings and keyboard configurations are sourced from the official Royal Kludge Windows software.
+Kludge Knight is a web-based key remapper for Royal Kludge keyboards that runs entirely in the browser using the WebHID API. It allows users to remap keys on their RK keyboards without installing software. The key mappings and keyboard configurations are sourced from the official Royal Kludge Windows software.
 
 **Important**: This project can only write key mappings to keyboards, not read existing mappings due to firmware limitations.
 

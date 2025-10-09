@@ -466,7 +466,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         </CardHeader>
         <CardContent>
         <p className="text-muted-foreground mb-2">
-          KludgeKnight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
+          Kludge Knight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
         </p>
         <p className="text-xs text-muted-foreground mb-4">
           Configurations imported from official RK Windows software on October 4, 2025.
@@ -562,7 +562,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         </CardHeader>
         <CardContent>
         <div className="text-sm text-card-foreground space-y-2 font-mono bg-muted p-4 rounded border border-border">
-          <p>KludgeKnight - Browser-based Software for Royal Kludge Keyboards</p>
+          <p>Kludge Knight - Browser-based Software for Royal Kludge Keyboards</p>
           <p>Copyright (C) 2025 Vince Mi (vinc3m1)</p>
           <p className="pt-2">
             This program is free software: you can redistribute it and/or modify

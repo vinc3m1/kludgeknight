@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 KludgeKnight Contributors
+ * Copyright (C) 2024 Kludge Knight Contributors
  * Copyright (C) 2023 Debayan Sutradhar (rnayabed) (debayansutradhar3@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify

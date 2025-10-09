@@ -1,5 +1,5 @@
 /**
- * User-facing error messages for KludgeKnight
+ * User-facing error messages for Kludge Knight
  * Centralized location for all error messages shown to users
  */
 
