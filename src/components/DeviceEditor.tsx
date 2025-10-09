@@ -53,10 +53,10 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
         <Card className="overflow-hidden">
           <div className="flex justify-between items-center py-4 px-6">
             <div className="flex-1" />
-            <div className="inline-flex bg-muted border border-border rounded-lg p-1">
+            <div className="inline-flex bg-muted border border-border rounded-lg p-1 shrink-0">
               <button
                 onClick={() => setActiveTab('keys')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
+                className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'keys'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -66,7 +66,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
               </button>
               <button
                 onClick={() => setActiveTab('lighting')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
+                className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'lighting'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent'
