@@ -1,101 +1,68 @@
-import { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
 import { useToast } from '../hooks/useToast';
 import type { LightingMode } from '../types/keyboard';
 import type { StandardLightingSettings } from '../models/LightingCodec';
-import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 
 const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
-// Context for sharing lighting state between controls and action button
-const LightingStateContext = createContext<{
-  settings: StandardLightingSettings | null;
-  setSettings: (settings: StandardLightingSettings) => void;
-} | null>(null);
-
-// Provider component that manages lighting state
-interface LightingEditorProps {
-  children: React.ReactNode;
-}
-
-export function LightingEditor({ children }: LightingEditorProps) {
-  const device = useSelectedDevice();
-  const [settings, setSettings] = useState<StandardLightingSettings | null>(null);
-
-  // Sync settings from device when it changes
-  useEffect(() => {
-    if (device?.lightingSettings) {
-      setSettings(device.lightingSettings);
-    } else {
-      setSettings(null);
-    }
-  }, [device?.id, device?.lightingSettings]);
-
-  return (
-    <LightingStateContext.Provider value={{ settings, setSettings }}>
-      {children}
-    </LightingStateContext.Provider>
-  );
-}
-
-// Hook to access lighting state
-function useLightingState() {
-  const context = useContext(LightingStateContext);
-  if (!context) {
-    throw new Error('useLightingState must be used within LightingEditor');
-  }
-  return context;
-}
-
-// Action button component
-export function LightingControlsActionButton() {
-  const { settings } = useLightingState();
-  const device = useSelectedDevice();
-  const toast = useToast();
-
-  if (!device || !device.config.lightEnabled || !settings) {
-    return null;
-  }
-
-  const isLoading = device.isLightingLoading;
-
-  const handleApply = async () => {
-    try {
-      await device.setLighting(settings);
-      toast.showSuccess('Lighting settings applied successfully');
-    } catch (error) {
-      console.error('Failed to update lighting:', error);
-      toast.showError('Failed to update lighting settings. Please try again.');
-    }
-  };
-
-  return (
-    <Button
-      onClick={handleApply}
-      disabled={isLoading}
-      variant="default"
-      size="sm"
-    >
-      Apply Settings
-    </Button>
-  );
-}
-
 interface LightingControlsProps {
   isVisible?: boolean;
 }
 
 export function LightingControls({ isVisible }: LightingControlsProps = {}) {
-  const { settings, setSettings } = useLightingState();
   const device = useSelectedDevice();
+  const toast = useToast();
+  const [settings, setSettings] = useState<StandardLightingSettings | null>(null);
+  const syncingFromDeviceRef = useRef(false);
+  const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedModeRef = useRef<HTMLButtonElement>(null);
   const modeListRef = useRef<HTMLDivElement>(null);
   const prevVisibleRef = useRef(false);
 
   const selectedModeIndex = settings?.modeIndex ?? null;
+
+  // Sync settings from device when it changes
+  useEffect(() => {
+    syncingFromDeviceRef.current = true;
+    if (device?.lightingSettings) {
+      setSettings(device.lightingSettings);
+    } else {
+      setSettings(null);
+    }
+    syncingFromDeviceRef.current = false;
+  }, [device?.id, device?.lightingSettings]);
+
+  // Apply settings changes to device with debouncing
+  useEffect(() => {
+    // Don't update device if we're syncing from it
+    if (!device || !settings || syncingFromDeviceRef.current) {
+      return;
+    }
+
+    // Debounce updates to avoid spamming device during slider drags
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+
+    updateTimeoutRef.current = setTimeout(async () => {
+      try {
+        await device.setLighting(settings);
+      } catch (error) {
+        console.error('Failed to update lighting:', error);
+        toast.showError('Failed to update lighting settings');
+      }
+    }, 150); // 150ms debounce
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [settings, device, toast]);
 
   // Scroll to selected mode when tab transitions from hidden to visible
   useEffect(() => {
