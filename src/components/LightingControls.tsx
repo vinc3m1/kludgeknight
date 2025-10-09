@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { useSelectedDevice } from '../hooks/useDevices';
 import { useToast } from '../hooks/useToast';
 import type { LightingMode } from '../types/keyboard';
+import type { StandardLightingSettings } from '../models/LightingCodec';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -9,21 +10,59 @@ import { Switch } from '@/components/ui/switch';
 const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
+// Context for sharing lighting state between controls and action button
+const LightingStateContext = createContext<{
+  settings: StandardLightingSettings | null;
+  setSettings: (settings: StandardLightingSettings) => void;
+} | null>(null);
+
+// Provider component that manages lighting state
+interface LightingEditorProps {
+  children: React.ReactNode;
+}
+
+export function LightingEditor({ children }: LightingEditorProps) {
+  const device = useSelectedDevice();
+  const [settings, setSettings] = useState<StandardLightingSettings | null>(null);
+
+  // Sync settings from device when it changes
+  useEffect(() => {
+    if (device?.lightingSettings) {
+      setSettings(device.lightingSettings);
+    } else {
+      setSettings(null);
+    }
+  }, [device?.id, device?.lightingSettings]);
+
+  return (
+    <LightingStateContext.Provider value={{ settings, setSettings }}>
+      {children}
+    </LightingStateContext.Provider>
+  );
+}
+
+// Hook to access lighting state
+function useLightingState() {
+  const context = useContext(LightingStateContext);
+  if (!context) {
+    throw new Error('useLightingState must be used within LightingEditor');
+  }
+  return context;
+}
+
+// Action button component
 export function LightingControlsActionButton() {
+  const { settings } = useLightingState();
   const device = useSelectedDevice();
   const toast = useToast();
 
-  if (!device || !device.config.lightEnabled || !device.lightingSettings) {
+  if (!device || !device.config.lightEnabled || !settings) {
     return null;
   }
 
   const isLoading = device.isLightingLoading;
 
   const handleApply = async () => {
-    // Get current settings from device
-    const settings = device.lightingSettings;
-    if (!settings) return;
-
     try {
       await device.setLighting(settings);
       toast.showSuccess('Lighting settings applied successfully');
@@ -50,33 +89,19 @@ interface LightingControlsProps {
 }
 
 export function LightingControls({ isVisible }: LightingControlsProps = {}) {
+  const { settings, setSettings } = useLightingState();
   const device = useSelectedDevice();
-  const [selectedModeIndex, setSelectedModeIndex] = useState(device?.lightingSettings?.modeIndex ?? 0);
-  const [speed, setSpeed] = useState([device?.lightingSettings?.speed ?? 3]);
-  const [brightness, setBrightness] = useState([device?.lightingSettings?.brightness ?? 5]);
-  const [color, setColor] = useState(device?.lightingSettings?.color ?? { r: 255, g: 255, b: 255 });
-  const [randomColor, setRandomColor] = useState(device?.lightingSettings?.randomColor ?? false);
-  const [sleep, setSleep] = useState([device?.lightingSettings?.sleep ?? 2]);
   const selectedModeRef = useRef<HTMLButtonElement>(null);
   const modeListRef = useRef<HTMLDivElement>(null);
+  const prevVisibleRef = useRef(false);
 
-  // Sync local state to device.lightingSettings whenever it changes
-  useEffect(() => {
-    if (device?.lightingSettings) {
-      device.lightingSettings = {
-        modeIndex: selectedModeIndex,
-        speed: speed[0],
-        brightness: brightness[0],
-        color,
-        randomColor,
-        sleep: sleep[0],
-      };
-    }
-  }, [device, selectedModeIndex, speed, brightness, color, randomColor, sleep]);
+  const selectedModeIndex = settings?.modeIndex ?? null;
 
-  // Scroll to selected mode when tab becomes visible (only within the list container)
+  // Scroll to selected mode when tab transitions from hidden to visible
   useEffect(() => {
-    if (isVisible && selectedModeRef.current && modeListRef.current) {
+    const justBecameVisible = isVisible && !prevVisibleRef.current;
+
+    if (justBecameVisible && selectedModeRef.current && modeListRef.current) {
       const button = selectedModeRef.current;
       const container = modeListRef.current;
 
@@ -92,11 +117,43 @@ export function LightingControls({ isVisible }: LightingControlsProps = {}) {
         behavior: 'smooth'
       });
     }
+
+    prevVisibleRef.current = isVisible;
   }, [isVisible]);
 
-  if (!device || !device.config.lightEnabled || !device.lightingSettings) {
+  if (!device || !device.config.lightEnabled || !settings) {
     return null;
   }
+
+  const speed = [settings.speed];
+  const brightness = [settings.brightness];
+  const color = settings.color;
+  const randomColor = settings.randomColor;
+  const sleep = [settings.sleep];
+
+  const setSelectedModeIndex = (modeIndex: number) => {
+    if (settings) setSettings({ ...settings, modeIndex });
+  };
+
+  const setSpeed = (newSpeed: number[]) => {
+    if (settings) setSettings({ ...settings, speed: newSpeed[0] });
+  };
+
+  const setBrightness = (newBrightness: number[]) => {
+    if (settings) setSettings({ ...settings, brightness: newBrightness[0] });
+  };
+
+  const setColor = (newColor: { r: number; g: number; b: number }) => {
+    if (settings) setSettings({ ...settings, color: newColor });
+  };
+
+  const setRandomColor = (newRandomColor: boolean) => {
+    if (settings) setSettings({ ...settings, randomColor: newRandomColor });
+  };
+
+  const setSleep = (newSleep: number[]) => {
+    if (settings) setSettings({ ...settings, sleep: newSleep[0] });
+  };
 
   const currentMode = device.config.lightingModes.find(m => m.index === selectedModeIndex);
   const flags = currentMode?.flags;
