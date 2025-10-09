@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { KeyboardDevice } from '../models/KeyboardDevice';
 import type { ImageManifest } from '../utils/buildImageManifest';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 
 // Helper to get friendly key name
 function getKeyName(fwCode: FirmwareCode | undefined): string {
@@ -32,8 +33,7 @@ export function KeyRemapperActionButton({ device }: { device: KeyboardDevice }) 
       await device.resetAllMappings();
       toast.showSuccess('All keys reset to default');
     } catch (err) {
-      const errorMessage = 'Failed to reset keys. Please try again.';
-      toast.showError(errorMessage);
+      toast.showError(ERROR_MESSAGES.RESET_ALL_FAILED);
       console.error(err);
     }
   };
@@ -74,9 +74,8 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
       setSelectedTargetKey(null);
       toast.showSuccess('Key mapping updated successfully');
     } catch (err) {
-      const errorMessage = 'Failed to update key mapping. Please try again.';
-      setError(errorMessage);
-      toast.showError(errorMessage);
+      setError(ERROR_MESSAGES.REMAP_FAILED);
+      toast.showError(ERROR_MESSAGES.REMAP_FAILED);
       console.error('Remap error:', err);
     }
   };
@@ -90,9 +89,8 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
       setSelectedTargetKey(null);
       toast.showSuccess('Key reset to default');
     } catch (err) {
-      const errorMessage = 'Failed to reset key to default. Please try again.';
-      setError(errorMessage);
-      toast.showError(errorMessage);
+      setError(ERROR_MESSAGES.RESET_KEY_FAILED);
+      toast.showError(ERROR_MESSAGES.RESET_KEY_FAILED);
       console.error(err);
     }
   };

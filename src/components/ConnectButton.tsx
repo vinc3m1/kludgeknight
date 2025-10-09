@@ -4,6 +4,7 @@ import { Spinner } from './Spinner';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TriangleAlert } from 'lucide-react';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 
 export function ConnectButton() {
   const { requestDevice, isConnecting, isScanning } = useDevices();
@@ -43,7 +44,7 @@ export function ConnectButton() {
         <Alert variant="destructive">
           <TriangleAlert />
           <AlertDescription className="text-center">
-            This browser doesn't support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.
+            {ERROR_MESSAGES.WEBHID_NOT_AVAILABLE}
           </AlertDescription>
         </Alert>
       )}

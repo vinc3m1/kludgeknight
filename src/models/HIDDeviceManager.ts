@@ -1,6 +1,7 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
 import { parseKBIni } from '../utils/kbIniParser';
+import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError } from '../errors/KludgeKnightErrors';
 
 /**
  * Singleton manager for HID device lifecycle
@@ -68,7 +69,7 @@ export class HIDDeviceManager {
    */
   async requestDevice(): Promise<KeyboardDevice | null> {
     if (!navigator.hid) {
-      throw new Error('This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.');
+      throw new WebHIDNotAvailableError();
     }
 
     try {
@@ -83,12 +84,16 @@ export class HIDDeviceManager {
       });
 
       if (devices.length === 0) {
-        return null;
+        throw new UserCancelledError();
       }
 
       const hidDevice = devices[0];
       return await this.openDevice(hidDevice);
     } catch (error) {
+      // User cancelled the picker (browser throws DOMException)
+      if (error instanceof DOMException && error.name === 'NotFoundError') {
+        throw new UserCancelledError();
+      }
       console.error('Failed to request device:', error);
       throw error;
     }
@@ -100,7 +105,7 @@ export class HIDDeviceManager {
    */
   async scanAuthorizedDevices(): Promise<KeyboardDevice[]> {
     if (!navigator.hid) {
-      throw new Error('This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.');
+      throw new WebHIDNotAvailableError();
     }
 
     try {
@@ -184,7 +189,7 @@ export class HIDDeviceManager {
 
       if (!config) {
         console.warn(`No configuration found for device PID ${pid}`);
-        return null;
+        throw new UnsupportedKeyboardError(pid);
       }
 
       // Debug: Log HID collections to understand device structure

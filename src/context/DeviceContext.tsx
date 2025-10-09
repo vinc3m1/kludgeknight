@@ -2,6 +2,8 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useReduce
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
 import { ToastContext } from './ToastContext';
+import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError } from '../errors/KludgeKnightErrors';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 
 export interface DeviceContextValue {
   devices: KeyboardDevice[];
@@ -76,7 +78,7 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
       console.error('Failed to scan for authorized devices:', error);
       if (mounted) {
         setIsScanning(false);
-        toast?.showError('Failed to reconnect to previously authorized keyboards. Please try connecting again.');
+        toast?.showError(ERROR_MESSAGES.SCAN_FAILED);
       }
     });
 
@@ -114,20 +116,20 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
         toast?.showSuccess(`Connected to ${device.config.name}`);
       }
     } catch (error) {
+      // User cancelled - don't show error
+      if (error instanceof UserCancelledError) {
+        return;
+      }
+
       console.error('Failed to connect device:', error);
 
-      // Provide user-friendly error messages
-      let errorMessage = 'Failed to connect to keyboard. Please try again.';
+      // Provide user-friendly error messages based on error type
+      let errorMessage = ERROR_MESSAGES.CONNECTION_FAILED;
 
-      if (error instanceof Error) {
-        if (error.message.includes('WebHID') && error.message.includes('not support')) {
-          errorMessage = 'This browser doesn\'t support WebHID. Please use Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.';
-        } else if (error.message.includes('No device selected')) {
-          // User cancelled the picker, don't show error
-          return;
-        } else if (error.message.includes('not found') || error.message.includes('configuration')) {
-          errorMessage = 'This keyboard model is not supported. Check the device list for compatible models.';
-        }
+      if (error instanceof WebHIDNotAvailableError) {
+        errorMessage = ERROR_MESSAGES.WEBHID_NOT_AVAILABLE;
+      } else if (error instanceof UnsupportedKeyboardError) {
+        errorMessage = ERROR_MESSAGES.UNSUPPORTED_KEYBOARD;
       }
 
       toast?.showError(errorMessage);
@@ -161,7 +163,7 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
       toast?.showInfo(`Disconnected from ${device.config.name}`);
     } catch (error) {
       console.error('Failed to disconnect device:', error);
-      toast?.showError('Failed to disconnect from keyboard. The device may already be disconnected.');
+      toast?.showError(ERROR_MESSAGES.DISCONNECT_FAILED);
     }
   };
 

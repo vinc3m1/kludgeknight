@@ -4,6 +4,7 @@ import { OperationQueue } from './OperationQueue';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 import type { FirmwareCode } from '../types/keycode';
 import { loadFullProfile, saveProfile } from '../utils/profileStorage';
+import { LightingNotSupportedError, RGBNotSupportedError } from '../errors/KludgeKnightErrors';
 
 /**
  * Represents a connected Royal Kludge keyboard
@@ -214,7 +215,7 @@ export class KeyboardDevice {
    */
   async setLighting(settings: StandardLightingSettings): Promise<void> {
     if (!this.config.lightEnabled) {
-      throw new Error('Keyboard does not support lighting');
+      throw new LightingNotSupportedError(this.config.name);
     }
 
     return this.queue.enqueue(async () => {
@@ -231,7 +232,7 @@ export class KeyboardDevice {
    */
   async setPerKeyColors(colors: PerKeyColors): Promise<void> {
     if (!this.config.lightEnabled || !this.config.rgb) {
-      throw new Error('Keyboard does not support RGB lighting');
+      throw new RGBNotSupportedError(this.config.name);
     }
 
     return this.queue.enqueue(async () => {

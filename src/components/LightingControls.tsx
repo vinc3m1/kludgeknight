@@ -5,6 +5,8 @@ import type { LightingMode } from '../types/keyboard';
 import type { StandardLightingSettings } from '../models/LightingCodec';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { LightingNotSupportedError, RGBNotSupportedError } from '../errors/KludgeKnightErrors';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 
 const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
@@ -43,7 +45,16 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         await device.setLighting(settings);
       } catch (error) {
         console.error('Failed to update lighting:', error);
-        toast.showError('Failed to update lighting settings');
+
+        // Provide specific error message based on error type
+        let errorMessage = ERROR_MESSAGES.LIGHTING_UPDATE_FAILED;
+        if (error instanceof LightingNotSupportedError) {
+          errorMessage = ERROR_MESSAGES.LIGHTING_NOT_SUPPORTED;
+        } else if (error instanceof RGBNotSupportedError) {
+          errorMessage = ERROR_MESSAGES.RGB_NOT_SUPPORTED;
+        }
+
+        toast.showError(errorMessage);
         // UI stays at user's setting - don't revert
       }
     }, 150); // 150ms debounce
