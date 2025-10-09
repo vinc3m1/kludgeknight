@@ -12,18 +12,20 @@ const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 interface LightingControlsProps {
   device: KeyboardDevice;
   initialSettings: StandardLightingSettings | null;
-  isVisible?: boolean;
 }
 
-export function LightingControls({ device, initialSettings, isVisible }: LightingControlsProps) {
+export function LightingControls({ device, initialSettings }: LightingControlsProps) {
   const toast = useToast();
   const [settings, setSettings] = useState<StandardLightingSettings | null>(initialSettings);
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedModeRef = useRef<HTMLButtonElement>(null);
-  const modeListRef = useRef<HTMLDivElement>(null);
-  const prevVisibleRef = useRef(false);
 
   const selectedModeIndex = settings?.modeIndex ?? null;
+
+  // Scroll to initially selected mode after layout
+  useEffect(() => {
+    selectedModeRef.current?.scrollIntoView({ block: 'center' });
+  }, []);
 
   // Apply settings changes to device with debouncing
   useEffect(() => {
@@ -52,30 +54,6 @@ export function LightingControls({ device, initialSettings, isVisible }: Lightin
       }
     };
   }, [settings, device, toast]);
-
-  // Scroll to selected mode when tab transitions from hidden to visible
-  useEffect(() => {
-    const justBecameVisible = isVisible && !prevVisibleRef.current;
-
-    if (justBecameVisible && selectedModeRef.current && modeListRef.current) {
-      const button = selectedModeRef.current;
-      const container = modeListRef.current;
-
-      // Calculate position to center the button in the container
-      const buttonTop = button.offsetTop;
-      const buttonHeight = button.offsetHeight;
-      const containerHeight = container.clientHeight;
-
-      const scrollTo = buttonTop - (containerHeight / 2) + (buttonHeight / 2);
-
-      container.scrollTo({
-        top: scrollTo,
-        behavior: 'smooth'
-      });
-    }
-
-    prevVisibleRef.current = isVisible;
-  }, [isVisible]);
 
   if (!device || !device.config.lightEnabled || !settings) {
     return null;
@@ -135,7 +113,7 @@ export function LightingControls({ device, initialSettings, isVisible }: Lightin
             {device.config.rgb ? 'RGB' : 'Single-color'}
           </span>
         </div>
-        <div ref={modeListRef} className="border border-border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
+        <div className="border border-border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
           {device.config.lightingModes.map((mode: LightingMode) => (
             <button
               key={mode.index}

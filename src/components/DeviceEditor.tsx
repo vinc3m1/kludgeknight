@@ -74,16 +74,14 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
             </div>
           </div>
           <CardContent>
-            <div className={activeTab === 'keys' ? '' : 'hidden'}>
+            {activeTab === 'keys' ? (
               <KeyRemapper device={device} imageManifest={imageManifest} />
-            </div>
-            <div className={activeTab === 'lighting' ? '' : 'hidden'}>
+            ) : (
               <LightingControls
                 device={device}
                 initialSettings={device.lightingSettings}
-                isVisible={activeTab === 'lighting'}
               />
-            </div>
+            )}
           </CardContent>
         </Card>
       )}
