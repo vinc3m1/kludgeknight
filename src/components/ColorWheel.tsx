@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { hsvToRgb, rgbToHsv } from '../utils/colorConversion';
 
 interface ColorWheelProps {
@@ -11,6 +11,56 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const hsv = rgbToHsv(color.r, color.g, color.b);
+
+  const handleInteraction = useCallback((clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2 - 10;
+
+    // Calculate distance from center
+    const dx = x - centerX;
+    const dy = y - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Calculate hue from angle
+    let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+    if (angle < 0) angle += 360;
+
+    // Calculate saturation from distance, clamped to radius
+    const saturation = Math.min(distance / radius, 1);
+
+    // Convert to RGB and update
+    const newColor = hsvToRgb(angle, saturation, 1);
+    onChange(newColor);
+  }, [onChange, size]);
+
+  // Add document-level mouse listeners when dragging
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleDocumentMouseMove = (e: MouseEvent) => {
+      handleInteraction(e.clientX, e.clientY);
+    };
+
+    const handleDocumentMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', handleDocumentMouseMove);
+    document.addEventListener('mouseup', handleDocumentMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleDocumentMouseMove);
+      document.removeEventListener('mouseup', handleDocumentMouseUp);
+    };
+  }, [isDragging, handleInteraction]);
 
   // Draw the color wheel and indicator
   useEffect(() => {
@@ -66,14 +116,13 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
     ctx.stroke();
   }, [hsv, size]);
 
-  const handleInteraction = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const centerX = size / 2;
     const centerY = size / 2;
     const radius = size / 2 - 10;
@@ -83,38 +132,11 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
     const dy = y - centerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Clamp to wheel radius
-    if (distance > radius) return;
-
-    // Calculate hue from angle
-    let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
-    if (angle < 0) angle += 360;
-
-    // Calculate saturation from distance
-    const saturation = Math.min(distance / radius, 1);
-
-    // Convert to RGB and update
-    const newColor = hsvToRgb(angle, saturation, 1);
-    onChange(newColor);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsDragging(true);
-    handleInteraction(e);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDragging) {
-      handleInteraction(e);
+    // Only start dragging if click is inside the circle
+    if (distance <= radius) {
+      setIsDragging(true);
+      handleInteraction(e.clientX, e.clientY);
     }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
   };
 
   return (
@@ -124,9 +146,6 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
       height={size}
       className="cursor-crosshair"
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
     />
   );
 }
