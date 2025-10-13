@@ -259,3 +259,16 @@ body {
   clip: auto;
   white-space: normal;
 }
+
+/* Keyboard image visibility states */
+.kb-img-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.kb-img-visible {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}

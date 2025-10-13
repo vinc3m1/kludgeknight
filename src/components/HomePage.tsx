@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, memo, useCallback } from 'react';
 import { getRKDevices } from '../utils/rkConfig';
 import { ConnectButton } from './ConnectButton';
 import { Input } from '@/components/ui/input';
@@ -13,25 +13,33 @@ interface KeyboardListItemProps {
   pid: string;
   name: string;
   isExpanded: boolean;
-  onToggle: () => void;
+  onToggle: (pid: string) => void;
   imageManifest?: ImageManifest;
 }
 
-function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: KeyboardListItemProps) {
+const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: KeyboardListItemProps) {
     const [showRgb, setShowRgb] = useState<boolean>(false);
-    const [imgDimensions, setImgDimensions] = useState<{ width: number; height: number } | null>(null);
+    const [standardLoaded, setStandardLoaded] = useState<boolean>(false);
+    const [rgbLoaded, setRgbLoaded] = useState<boolean>(false);
+    const [hasRequestedStandard, setHasRequestedStandard] = useState<boolean>(false);
+    const [hasRequestedRgb, setHasRequestedRgb] = useState<boolean>(false);
 
     // Get image info from manifest (pre-computed at build time)
+    // Memoize to keep stable reference across re-renders
     const pidUpper = pid.toUpperCase();
-    let imageInfo = imageManifest?.[pidUpper];
+    const imageInfo = useMemo(() => {
+      let info = imageManifest?.[pidUpper];
 
-    // Handle kbImgUse references
-    if (imageInfo?.kbImgUse && imageManifest) {
-      const refInfo = imageManifest[imageInfo.kbImgUse.toUpperCase()];
-      if (refInfo) {
-        imageInfo = { ...refInfo, kbImgUse: undefined }; // Use referenced keyboard's images
+      // Handle kbImgUse references
+      if (info?.kbImgUse && imageManifest) {
+        const refInfo = imageManifest[info.kbImgUse.toUpperCase()];
+        if (refInfo) {
+          info = { ...refInfo, kbImgUse: undefined }; // Use referenced keyboard's images
+        }
       }
-    }
+
+      return info;
+    }, [imageManifest, pidUpper]);
 
     const hasImage = imageInfo && (imageInfo.hasKeyimg || imageInfo.hasKbled);
     const hasBothImages = imageInfo?.hasKeyimg && imageInfo?.hasKbled;
@@ -45,30 +53,56 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
       }
     }, [hasBothImages, imageInfo?.useRgbDefault]);
 
-    const currentImageUrl = imageInfo && hasImage
-      ? (showRgb && imageInfo.hasKbled
-          ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
-          : `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`)
+    const standardImageUrl = imageInfo && hasImage && imageInfo.hasKeyimg
+      ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/keyimg.png`
       : null;
 
-    // Load image dimensions when expanded
-    useEffect(() => {
-      if (!isExpanded || !currentImageUrl) return;
+    const rgbImageUrl = imageInfo && hasImage && imageInfo.hasKbled
+      ? `${import.meta.env.BASE_URL}rk/Dev/${imageInfo.dirCase}/kbled.png`
+      : null;
 
-      const img = new Image();
-      img.onload = () => {
-        setImgDimensions({ width: img.width, height: img.height });
-      };
-      img.src = currentImageUrl;
-    }, [isExpanded, currentImageUrl]);
+    const currentImageUrl = showRgb ? rgbImageUrl : standardImageUrl;
+    const currentImageLoaded = showRgb ? rgbLoaded : standardLoaded;
+
+    // Reset state when collapsed
+    useEffect(() => {
+      if (!isExpanded) {
+        setStandardLoaded(false);
+        setRgbLoaded(false);
+        setHasRequestedStandard(false);
+        setHasRequestedRgb(false);
+      }
+    }, [isExpanded]);
+
+    // Request images based on which view is active
+    useEffect(() => {
+      if (!isExpanded) return;
+
+      if (showRgb && !hasRequestedRgb) {
+        setHasRequestedRgb(true);
+      } else if (!showRgb && !hasRequestedStandard) {
+        setHasRequestedStandard(true);
+      }
+    }, [isExpanded, showRgb, hasRequestedRgb, hasRequestedStandard]);
+
+    const handleStandardLoad = () => {
+      setStandardLoaded(true);
+    };
+
+    const handleRgbLoad = () => {
+      setRgbLoaded(true);
+    };
 
     const expandedPanelId = `kb-${pidUpper}-panel`;
-    const altText = `${name} keyboard layout${showRgb ? ' with RGB lighting' : ''}`;
+
+    // Get dimensions from manifest (pre-computed at build time)
+    const standardDims = imageInfo?.keyimgDimensions;
+    const rgbDims = imageInfo?.kbledDimensions;
 
     return (
       <li className="border-b border-border last:border-b-0">
       <button
-        onClick={onToggle}
+        onClick={() => onToggle(pid)}
         className="w-full text-left px-4 py-2 hover:bg-accent transition-colors flex items-center justify-between cursor-pointer text-foreground"
         aria-expanded={isExpanded}
         aria-controls={expandedPanelId}
@@ -113,56 +147,86 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
                   </div>
                 </div>
               )}
-              {!showRgb && imgDimensions && imageInfo?.luminance ? (
-                <svg
-                  viewBox={`0 0 ${imgDimensions.width} ${imgDimensions.height}`}
-                  className="w-full h-auto"
-                  style={{ maxHeight: '400px' }}
-                  role="img"
-                  aria-label={altText}
-                >
-                  {/* Render single large background rect for majority */}
-                  <rect
-                    x={imageInfo.luminance.keyboardBounds[0]}
-                    y={imageInfo.luminance.keyboardBounds[1]}
-                    width={imageInfo.luminance.keyboardBounds[2] - imageInfo.luminance.keyboardBounds[0]}
-                    height={imageInfo.luminance.keyboardBounds[3] - imageInfo.luminance.keyboardBounds[1]}
-                    fill={imageInfo.luminance.majorityBackground}
-                  />
-                  {/* Render small rects only for exception keys */}
-                  {imageInfo.luminance.exceptionKeys.map((exceptionKey, index) => {
-                    const [left, top, right, bottom] = exceptionKey.rect;
-                    return (
-                      <rect
-                        key={`exception-${index}`}
-                        x={left}
-                        y={top}
-                        width={right - left}
-                        height={bottom - top}
-                        fill={exceptionKey.background}
-                      />
-                    );
-                  })}
-                  <image
-                    href={currentImageUrl}
-                    x="0"
-                    y="0"
-                    width={imgDimensions.width}
-                    height={imgDimensions.height}
-                  />
-                </svg>
-              ) : (
-                <img
-                  src={currentImageUrl}
-                  alt={altText}
-                  className="max-w-full h-auto"
-                  key={currentImageUrl}
-                  loading="lazy"
-                  decoding="async"
-                  width={imgDimensions?.width}
-                  height={imgDimensions?.height}
-                />
+              {!currentImageLoaded && (
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
               )}
+              <div
+                className="relative"
+                style={{
+                  display: currentImageLoaded ? 'block' : 'none',
+                  minHeight: showRgb ? (rgbDims?.height || 0) : (standardDims?.height || 0)
+                }}
+              >
+                {/* Standard image with SVG background - mount once requested, keep mounted */}
+                {hasRequestedStandard && standardImageUrl && imageInfo?.luminance && standardDims && (
+                  <svg
+                    key={`svg-${standardImageUrl}`}
+                    viewBox={`0 0 ${standardDims.width} ${standardDims.height}`}
+                    className={`w-full h-auto absolute inset-0 ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
+                    style={{ maxHeight: '400px' }}
+                    role="img"
+                    aria-label={`${name} keyboard layout`}
+                    aria-hidden={showRgb}
+                  >
+                    {/* Render single large background rect for majority */}
+                    <rect
+                      x={imageInfo.luminance.keyboardBounds[0]}
+                      y={imageInfo.luminance.keyboardBounds[1]}
+                      width={imageInfo.luminance.keyboardBounds[2] - imageInfo.luminance.keyboardBounds[0]}
+                      height={imageInfo.luminance.keyboardBounds[3] - imageInfo.luminance.keyboardBounds[1]}
+                      fill={imageInfo.luminance.majorityBackground}
+                    />
+                    {/* Render small rects only for exception keys */}
+                    {imageInfo.luminance.exceptionKeys.map((exceptionKey, index) => {
+                      const [left, top, right, bottom] = exceptionKey.rect;
+                      return (
+                        <rect
+                          key={`exception-${index}`}
+                          x={left}
+                          y={top}
+                          width={right - left}
+                          height={bottom - top}
+                          fill={exceptionKey.background}
+                        />
+                      );
+                    })}
+                    <image
+                      href={standardImageUrl}
+                      x="0"
+                      y="0"
+                      width={standardDims.width}
+                      height={standardDims.height}
+                      onLoad={handleStandardLoad}
+                    />
+                  </svg>
+                )}
+                {/* Standard image without luminance data - mount once requested, keep mounted */}
+                {hasRequestedStandard && standardImageUrl && !imageInfo?.luminance && (
+                  <img
+                    key={`img-${standardImageUrl}`}
+                    src={standardImageUrl}
+                    alt={`${name} keyboard layout`}
+                    className={`max-w-full h-auto absolute inset-0 ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
+                    aria-hidden={showRgb}
+                    onLoad={handleStandardLoad}
+                    decoding="async"
+                  />
+                )}
+                {/* RGB image - mount once requested, keep mounted */}
+                {hasRequestedRgb && rgbImageUrl && (
+                  <img
+                    key={`img-${rgbImageUrl}`}
+                    src={rgbImageUrl}
+                    alt={`${name} keyboard layout with RGB lighting`}
+                    className={`max-w-full h-auto absolute inset-0 ${showRgb && rgbLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
+                    aria-hidden={!showRgb}
+                    onLoad={handleRgbLoad}
+                    decoding="async"
+                  />
+                )}
+              </div>
             </>
           ) : (
             <div className="text-sm text-muted-foreground">No image available</div>
@@ -171,7 +235,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
       )}
     </li>
   );
-}
+});
 
 interface HomePageProps {
   initialKeyboards?: Array<{ pid: string; name: string }>;
@@ -204,7 +268,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
     }
   }, [filterQuery]);
 
-  const toggleExpanded = (pid: string) => {
+  const toggleExpanded = useCallback((pid: string) => {
     setExpandedPids(prev => {
       const next = new Set(prev);
       if (next.has(pid)) {
@@ -214,7 +278,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       }
       return next;
     });
-  };
+  }, []);
 
   // Filter keyboards based on filter query (by name or PID, case-insensitive)
   const filteredKeyboards = filterQuery
@@ -538,7 +602,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
                           pid={kb.pid}
                           name={kb.name}
                           isExpanded={expandedPids.has(kb.pid)}
-                          onToggle={() => toggleExpanded(kb.pid)}
+                          onToggle={toggleExpanded}
                           imageManifest={imageManifest}
                         />
                       ))}

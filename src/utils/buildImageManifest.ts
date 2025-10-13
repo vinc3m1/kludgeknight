@@ -29,6 +29,8 @@ export interface ImageManifest {
     kbImgUse?: string; // References another keyboard's images
     dirCase: string; // Actual directory case (uppercase or lowercase)
     luminance?: LuminanceData; // Optimized luminance data
+    keyimgDimensions?: { width: number; height: number }; // Dimensions of keyimg.png
+    kbledDimensions?: { width: number; height: number }; // Dimensions of kbled.png
   };
 }
 
@@ -44,6 +46,22 @@ function parseKeyRect(value: string): { rect: [number, number, number, number]; 
     rect: [parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3])],
     bIndex: parseInt(parts[7]),
   };
+}
+
+/**
+ * Get image dimensions
+ */
+async function getImageDimensions(imagePath: string): Promise<{ width: number; height: number } | null> {
+  try {
+    const metadata = await sharp(imagePath).metadata();
+    if (metadata.width && metadata.height) {
+      return { width: metadata.width, height: metadata.height };
+    }
+    return null;
+  } catch (error) {
+    console.warn(`Failed to get dimensions for ${imagePath}:`, error);
+    return null;
+  }
 }
 
 /**
@@ -176,6 +194,18 @@ export async function buildImageManifest(): Promise<ImageManifest> {
     let useRgbDefault = false;
     let kbImgUse: string | undefined;
     let luminance: LuminanceData | undefined;
+    let keyimgDimensions: { width: number; height: number } | undefined;
+    let kbledDimensions: { width: number; height: number } | undefined;
+
+    // Get dimensions for both images if they exist
+    if (hasKeyimg) {
+      const keyimgPath = path.join(dirPath, 'keyimg.png');
+      keyimgDimensions = await getImageDimensions(keyimgPath) || undefined;
+    }
+    if (hasKbled) {
+      const kbledPath = path.join(dirPath, 'kbled.png');
+      kbledDimensions = await getImageDimensions(kbledPath) || undefined;
+    }
 
     const kbIniPath = path.join(dirPath, 'KB.ini');
     if (fs.existsSync(kbIniPath)) {
@@ -222,6 +252,8 @@ export async function buildImageManifest(): Promise<ImageManifest> {
         kbImgUse,
         dirCase: pid, // Store actual case for later use
         luminance,
+        keyimgDimensions,
+        kbledDimensions,
       };
     }
   }
