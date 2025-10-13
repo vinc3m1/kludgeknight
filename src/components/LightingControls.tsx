@@ -163,12 +163,16 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
             ref={scrollContainerRef}
             onScroll={handleScroll}
             className="max-h-[300px] overflow-y-auto"
+            role="listbox"
+            aria-label="Lighting modes"
           >
             {device.config.lightingModes.map((mode: LightingMode) => (
               <button
                 key={mode.index}
                 ref={mode.index === selectedModeIndex ? selectedModeRef : null}
                 onClick={() => setSelectedModeIndex(mode.index)}
+                role="option"
+                aria-selected={mode.index === selectedModeIndex}
                 className={`w-full px-4 py-3 text-left text-sm transition-colors border-b border-border last:border-b-0 ${
                   mode.index === selectedModeIndex
                     ? 'bg-primary text-primary-foreground font-medium'
@@ -188,15 +192,17 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         {!isOffMode && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">Sleep Timer</label>
+              <label htmlFor="sleep-timer" className="text-sm font-medium text-foreground">Sleep Timer</label>
               <span className="text-sm text-muted-foreground">{SLEEP_LABELS[sleep[0] - 1]}</span>
             </div>
             <Slider
+              id="sleep-timer"
               value={sleep}
               onValueChange={setSleep}
               min={1}
               max={5}
               step={1}
+              aria-label="Sleep timer"
             />
           </div>
         )}
@@ -205,15 +211,17 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         {flags?.speed && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">Speed</label>
+              <label htmlFor="speed-slider" className="text-sm font-medium text-foreground">Speed</label>
               <span className="text-sm text-muted-foreground">{SPEED_LABELS[speed[0] - 1]}</span>
             </div>
             <Slider
+              id="speed-slider"
               value={speed}
               onValueChange={setSpeed}
               min={1}
               max={5}
               step={1}
+              aria-label="Lighting speed"
             />
           </div>
         )}
@@ -221,13 +229,15 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         {/* Brightness slider */}
         {flags?.brightness && (
           <div className="space-y-3">
-            <label className="text-sm font-medium text-foreground">Brightness</label>
+            <label htmlFor="brightness-slider" className="text-sm font-medium text-foreground">Brightness</label>
             <Slider
+              id="brightness-slider"
               value={brightness}
               onValueChange={setBrightness}
               min={0}
               max={5}
               step={1}
+              aria-label="Lighting brightness"
             />
           </div>
         )}
@@ -235,10 +245,11 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         {/* Color mode selector */}
         {flags?.random && (
           <div className="space-y-3">
-            <label className="text-sm font-medium text-foreground block">Color</label>
-            <div className="inline-flex bg-muted border border-border rounded-lg p-0.5">
+            <span id="color-mode-label" className="text-sm font-medium text-foreground block">Color</span>
+            <div className="inline-flex bg-muted border border-border rounded-lg p-0.5" role="group" aria-labelledby="color-mode-label">
               <button
                 onClick={() => setRandomColor(false)}
+                aria-pressed={!randomColor}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                   !randomColor
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -249,6 +260,7 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
               </button>
               <button
                 onClick={() => setRandomColor(true)}
+                aria-pressed={randomColor}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                   randomColor
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -263,11 +275,11 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
 
         {/* Color picker */}
         {flags?.colorPicker && (
-          <div className={`space-y-3 transition-opacity ${randomColor ? 'opacity-40 pointer-events-none' : ''}`}>
-            <label className="text-sm font-medium text-foreground">Color</label>
+          <div className={`space-y-3 transition-opacity ${randomColor ? 'opacity-40 pointer-events-none' : ''}`} aria-disabled={randomColor}>
+            <span id="color-picker-label" className="text-sm font-medium text-foreground">Color</span>
             <div className="flex flex-col items-start gap-3">
               <ColorWheel color={color} onChange={setColor} size={200} />
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" role="group" aria-labelledby="color-picker-label">
                 {[
                   { name: 'White', r: 255, g: 255, b: 255 },
                   { name: 'Red', r: 255, g: 0, b: 0 },
@@ -284,10 +296,11 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
                     className="w-8 h-8 rounded border-2 border-border hover:border-primary transition-colors"
                     style={{ backgroundColor: `rgb(${preset.r}, ${preset.g}, ${preset.b})` }}
                     title={preset.name}
+                    aria-label={`Set color to ${preset.name}`}
                   />
                 ))}
               </div>
-              <span className="text-sm font-mono text-muted-foreground">{colorHex.toUpperCase()}</span>
+              <span className="text-sm font-mono text-muted-foreground" aria-live="polite">{colorHex.toUpperCase()}</span>
             </div>
           </div>
         )}

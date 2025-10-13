@@ -150,7 +150,7 @@ const structuredData = {
                 root.style.setProperty('--shadow-2xl', shadow);
               }
             }
-          } catch (e) {
+          } catch {
             // Silently fail if JSON is invalid
           }
         }
@@ -161,7 +161,10 @@ const structuredData = {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
+      function gtag() {
+        // eslint-disable-next-line prefer-rest-params
+        dataLayer.push(arguments);
+      }
       gtag('js', new Date());
       gtag('config', 'G-YBJQ3DKPZR');
     </script>
@@ -170,6 +173,11 @@ const structuredData = {
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
-    <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} ledManifest={ledManifestJson} />
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground">
+      Skip to main content
+    </a>
+    <main id="main-content">
+      <App client:load initialKeyboards={keyboards} imageManifest={imageManifest} ledManifest={ledManifestJson} />
+    </main>
   </body>
 </html>

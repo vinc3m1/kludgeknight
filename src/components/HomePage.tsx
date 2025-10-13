@@ -83,6 +83,7 @@ function KeyboardListItem({ pid, name, isExpanded, onToggle, imageManifest }: Ke
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -288,7 +289,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
@@ -300,7 +301,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -312,7 +313,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-6 h-6 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -324,7 +325,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           </div>
 
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center" aria-hidden="true">
               <svg className="w-6 h-6 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
@@ -345,7 +346,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         </CardHeader>
         <CardContent>
         <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" aria-hidden="true">
             <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
               <svg className="w-7 h-7 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -438,7 +439,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
         <CardContent>
         <ul className="space-y-3 text-card-foreground">
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
@@ -447,7 +448,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
           </li>
           <li className="flex items-start">
-            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="flex-shrink-0 w-5 h-5 text-accent mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
@@ -498,14 +499,14 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
                   >
                     {expandedPids.size > 0 ? (
                       <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                         </svg>
                         Hide All Images
                       </>
                     ) : (
                       <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                         Show All Images

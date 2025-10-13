@@ -53,9 +53,13 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
         <Card className="overflow-hidden">
           <div className="flex justify-between items-center py-4 px-6">
             <div className="flex-1" />
-            <div className="inline-flex bg-muted border border-border rounded-lg p-1 shrink-0">
+            <div className="inline-flex bg-muted border border-border rounded-lg p-1 shrink-0" role="tablist" aria-label="Device configuration tabs">
               <button
                 onClick={() => setActiveTab('keys')}
+                role="tab"
+                aria-selected={activeTab === 'keys'}
+                aria-controls="keys-panel"
+                id="keys-tab"
                 className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'keys'
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -66,6 +70,10 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
               </button>
               <button
                 onClick={() => setActiveTab('lighting')}
+                role="tab"
+                aria-selected={activeTab === 'lighting'}
+                aria-controls="lighting-panel"
+                id="lighting-tab"
                 className={`px-6 py-2 text-sm font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'lighting'
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -80,12 +88,22 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
             </div>
           </div>
           <CardContent>
-            <div className={activeTab === 'keys' ? '' : 'hidden'}>
+            <div
+              id="keys-panel"
+              role="tabpanel"
+              aria-labelledby="keys-tab"
+              className={activeTab === 'keys' ? '' : 'hidden'}
+            >
               <KeyRemapper device={device} imageManifest={imageManifest} />
             </div>
             {/* Lazy load lighting tab - only mount on first visit, then keep mounted */}
             {lightingTabVisitedRef.current && (
-              <div className={activeTab === 'lighting' ? '' : 'hidden'}>
+              <div
+                id="lighting-panel"
+                role="tabpanel"
+                aria-labelledby="lighting-tab"
+                className={activeTab === 'lighting' ? '' : 'hidden'}
+              >
                 <LightingControls
                   device={device}
                   initialSettings={device.lightingSettings}

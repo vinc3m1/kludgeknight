@@ -11,6 +11,7 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const hsv = rgbToHsv(color.r, color.g, color.b);
+  const colorHex = `#${color.r.toString(16).padStart(2, '0')}${color.g.toString(16).padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
 
   const handleInteraction = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -139,13 +140,51 @@ export function ColorWheel({ color, onChange, size = 200 }: ColorWheelProps) {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    const step = e.shiftKey ? 10 : 1;
+    let newHue = hsv.h;
+    let newSat = hsv.s;
+
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        newHue = (hsv.h - step + 360) % 360;
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        newHue = (hsv.h + step) % 360;
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        newSat = Math.min(1, hsv.s + step / 100);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        newSat = Math.max(0, hsv.s - step / 100);
+        break;
+      default:
+        return;
+    }
+
+    const newColor = hsvToRgb(newHue, newSat, 1);
+    onChange(newColor);
+  };
+
   return (
     <canvas
       ref={canvasRef}
       width={size}
       height={size}
-      className="cursor-crosshair"
+      className="cursor-crosshair focus:outline-2 focus:outline-primary focus:outline-offset-2"
       onMouseDown={handleMouseDown}
+      onKeyDown={handleKeyDown}
+      role="slider"
+      aria-label="Color picker wheel"
+      aria-valuenow={Math.round(hsv.h)}
+      aria-valuemin={0}
+      aria-valuemax={360}
+      aria-valuetext={`Hue ${Math.round(hsv.h)} degrees, Saturation ${Math.round(hsv.s * 100)} percent, Color ${colorHex}`}
+      tabIndex={0}
     />
   );
 }
