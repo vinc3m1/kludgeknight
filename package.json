@@ -8,6 +8,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "validate": "bun run lint && bun run build",
     "preview": "astro preview"
   },
   "dependencies": {
