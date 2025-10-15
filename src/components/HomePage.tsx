@@ -153,19 +153,19 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
                   </div>
                 </div>
               )}
-              {!currentImageLoaded && (
-                <div className="flex items-center justify-center py-16">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              )}
               <div
                 className="relative w-full mx-auto"
                 style={{
-                  display: currentImageLoaded ? 'block' : 'none',
                   aspectRatio: aspectRatio ? `${aspectRatio}` : undefined,
                   maxWidth: currentDims?.width ? `${currentDims.width}px` : undefined
                 }}
               >
+                {/* Loading spinner - shown while image loads */}
+                {!currentImageLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                )}
                 {/* Standard image with SVG background - mount once requested, keep mounted */}
                 {hasRequestedStandard && standardImageUrl && imageInfo?.luminance && standardDims && (
                   <svg
