@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { defaultPresets } from '@/utils/theme-presets';
-import type { ThemeStyles } from '@/types/theme';
+import { applyThemeStylesForToggle } from '@/utils/themeUtils';
 
 // Zod schema for theme validation
 const ThemeSchema = z.enum(['light', 'dark', 'system']);
@@ -21,19 +21,6 @@ function getEffectiveTheme(theme: Theme): 'light' | 'dark' {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   return theme;
-}
-
-function applyThemeStyles(styles: ThemeStyles) {
-  if (typeof window === 'undefined') return;
-
-  const root = document.documentElement;
-
-  // Apply colors only - fonts should not change when toggling light/dark mode
-  Object.entries(styles).forEach(([key, value]) => {
-    if (typeof value === 'string' && !key.startsWith('font-')) {
-      root.style.setProperty(`--${key}`, value);
-    }
-  });
 }
 
 function applyTheme(theme: Theme) {
@@ -57,7 +44,7 @@ function applyTheme(theme: Theme) {
   if (presetKey && defaultPresets[presetKey]) {
     const preset = defaultPresets[presetKey];
     const styles = preset.styles[effective];
-    applyThemeStyles(styles);
+    applyThemeStylesForToggle(styles);
   }
 
   // Remove transitioning class after animation completes

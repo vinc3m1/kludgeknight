@@ -8,8 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { defaultPresets } from '@/utils/theme-presets';
-import { loadGoogleFont } from '@/utils/fontLoader';
-import type { ThemeStyles } from '@/types/theme';
+import { applyThemeStyles } from '@/utils/themeUtils';
 
 // Zod schema for theme mode validation
 const ThemeModeSchema = z.enum(['light', 'dark', 'system']);
@@ -28,64 +27,6 @@ function getEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   return mode;
-}
-
-function buildShadow(color: string, opacity: string, blur: string, spread: string, offsetX: string, offsetY: string): string {
-  // If color already has opacity/alpha, use it directly
-  if (color.includes('/') || color.includes('rgba')) {
-    return `${offsetX} ${offsetY} ${blur} ${spread} ${color}`;
-  }
-  // Otherwise apply opacity
-  const opacityNum = parseFloat(opacity) || 0.1;
-  return `${offsetX} ${offsetY} ${blur} ${spread} ${color.replace(')', ` / ${opacityNum})`)}`;
-}
-
-function applyThemeStyles(styles: ThemeStyles) {
-  if (typeof window === 'undefined') return;
-
-  const root = document.documentElement;
-
-  // Apply ALL properties synchronously first
-  Object.entries(styles).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      root.style.setProperty(`--${key}`, value);
-    }
-  });
-
-  // Build shadow utilities from individual shadow properties if available
-  const shadowColor = styles['shadow-color'];
-  const shadowOpacity = styles['shadow-opacity'];
-  const shadowBlur = styles['shadow-blur'];
-  const shadowSpread = styles['shadow-spread'];
-  const shadowOffsetX = styles['shadow-offset-x'];
-  const shadowOffsetY = styles['shadow-offset-y'];
-
-  if (shadowColor && shadowOpacity && shadowBlur !== undefined && shadowOffsetX && shadowOffsetY) {
-    const spread = shadowSpread || '0px';
-
-    // Build shadow variants
-    const baseShadow = buildShadow(shadowColor, shadowOpacity, shadowBlur, spread, shadowOffsetX, shadowOffsetY);
-
-    // Apply to Tailwind shadow utilities
-    root.style.setProperty('--shadow-xs', baseShadow);
-    root.style.setProperty('--shadow-sm', baseShadow);
-    root.style.setProperty('--shadow', baseShadow);
-    root.style.setProperty('--shadow-md', baseShadow);
-    root.style.setProperty('--shadow-lg', baseShadow);
-    root.style.setProperty('--shadow-xl', baseShadow);
-    root.style.setProperty('--shadow-2xl', baseShadow);
-  }
-
-  // Force a reflow to ensure CSS variables are applied
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  root.offsetHeight;
-
-  // Load Google Fonts after CSS variables are set and reflow is forced
-  Object.entries(styles).forEach(([key, value]) => {
-    if (typeof value === 'string' && (key === 'font-sans' || key === 'font-serif' || key === 'font-mono')) {
-      loadGoogleFont(value);
-    }
-  });
 }
 
 export function ThemeSelector() {
@@ -116,7 +57,20 @@ export function ThemeSelector() {
     const effectiveMode = getEffectiveMode(mode);
     const styles = preset.styles[effectiveMode];
 
-    applyThemeStyles(styles);
+    // Apply fonts and letter-spacing from light mode (they're consistent across light/dark)
+    // This ensures these typographic properties are applied even when switching themes while in dark mode
+    const lightStyles = preset.styles.light;
+    const typographyFromLight = {
+      'font-sans': lightStyles['font-sans'],
+      'font-serif': lightStyles['font-serif'],
+      'font-mono': lightStyles['font-mono'],
+      'letter-spacing': lightStyles['letter-spacing'],
+    };
+
+    // Merge typography from light mode with current mode styles
+    const mergedStyles = { ...styles, ...typographyFromLight };
+
+    applyThemeStyles(mergedStyles);
   };
 
   const handleThemeChange = (value: string) => {
