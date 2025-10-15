@@ -80,18 +80,59 @@ export function KeyRemapperActionButton({ device }: { device: KeyboardDevice | D
     }
   };
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const isLoading = device.isMappingLoading;
 
+  const handleResetClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmReset = async () => {
+    setShowConfirmDialog(false);
+    await handleResetAll();
+  };
+
   return (
-    <Button
-      onClick={handleResetAll}
-      disabled={isLoading}
-      variant="outline"
-      size="sm"
-    >
-      {isDemo && <span className="text-primary mr-1">[DEMO]</span>}
-      Reset All Keys to Default
-    </Button>
+    <>
+      <Button
+        onClick={handleResetClick}
+        disabled={isLoading}
+        variant="outline"
+        size="sm"
+      >
+        {isDemo && <span className="text-primary mr-1">[DEMO]</span>}
+        Reset All Keys to Default
+      </Button>
+
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-2">Reset All Keys?</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                This will reset all key mappings to their default values. This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <Button
+                  onClick={() => setShowConfirmDialog(false)}
+                  variant="outline"
+                  size="sm"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmReset}
+                  variant="destructive"
+                  size="sm"
+                >
+                  Reset All Keys
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -160,9 +201,9 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
   const isLoading = device.isMappingLoading;
 
   // Render a keyboard row
-  const renderKeyboardRow = (row: KeyboardRow, rowIndex: number | string) => {
+  const renderKeyboardRow = (row: KeyboardRow, rowIndex: number | string, allowWrap: boolean = false) => {
     return (
-      <div key={rowIndex} className={`flex gap-1 ${row.rowClass || ''}`}>
+      <div key={rowIndex} className={`flex gap-1 ${allowWrap ? 'flex-wrap' : ''} ${row.rowClass || ''}`}>
         {row.keys.map((item, keyIndex) => {
           if (item.isPlaceholder) {
             // Render a spacer
@@ -205,7 +246,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               key={keyInfo.vk}
               onClick={() => setSelectedTargetKey(keyInfo.fw)}
               disabled={selectedKeyIndex === null}
-              className={`px-2 py-1 text-xs border rounded transition-colors cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`px-2 py-1 text-xs border rounded transition-colors cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
                 isSelected
                   ? 'bg-primary text-primary-foreground border-primary'
                   : isCurrent
@@ -333,12 +374,12 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
 
       <Card>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-card-foreground">Selected Key:</h3>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-bold text-card-foreground whitespace-nowrap">Selected Key:</h3>
                 {selectedKeyIndex !== null ? (
-                  <>
+                  <span className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className="font-mono text-base px-3 py-1">
                       {defaultKeyLabel || 'Unknown'}
                     </Badge>
@@ -353,76 +394,85 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
                         </Badge>
                       </>
                     )}
-                  </>
+                  </span>
                 ) : (
                   <Badge variant="outline" className="font-mono text-base px-3 py-1 text-muted-foreground">
                     None
                   </Badge>
                 )}
               </div>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedKeyIndex !== null ? (
+                  <>
+                    <Badge variant="secondary" className="font-mono text-xs shrink-0">
+                      key: {selectedKeyIndex} code: {defaultKeyInfo?.vk.toString(16).toUpperCase() || '?'}
+                    </Badge>
+                    <span className="flex items-center gap-1.5 shrink-0">
+                      {defaultKeyInfo && (
+                        <Badge variant="secondary" className="font-mono text-xs shrink-0">
+                          fw=0x{defaultKeyInfo.fw.toString(16).toUpperCase().padStart(4, '0')}
+                        </Badge>
+                      )}
+                      {(currentMapping !== undefined || selectedTargetKey !== null) && (
+                        <>
+                          <span className="text-xs text-muted-foreground">→</span>
+                          <Badge variant="secondary" className="font-mono text-xs shrink-0">
+                            fw=0x{(selectedTargetKey ?? currentMapping)!.toString(16).toUpperCase().padStart(4, '0')}
+                          </Badge>
+                        </>
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">No key selected</span>
+                )}
+              </div>
             </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleConfirmRemap}
-              disabled={selectedKeyIndex === null || selectedTargetKey === null || isLoading}
-              size="sm"
-            >
-              {isLoading && <Spinner size="sm" className="text-primary-foreground" />}
-              {isDemo && <span className="mr-1">[DEMO]</span>}
-              Apply
-            </Button>
-            <Button
-              onClick={handleSetToDefault}
-              disabled={selectedKeyIndex === null || isLoading}
-              variant="secondary"
-              size="sm"
-              title={selectedKeyIndex !== null ? `Reset to default: ${defaultKeyLabel || 'Unknown'}` : 'Select a key first'}
-            >
-              Set to Default
-            </Button>
-            <Button
-              onClick={handleClearSelection}
-              disabled={selectedKeyIndex === null || isLoading}
-              variant="ghost"
-              size="sm"
-            >
-              Clear Selection
-            </Button>
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:justify-end">
+              <Button
+                onClick={handleConfirmRemap}
+                disabled={selectedKeyIndex === null || selectedTargetKey === null || isLoading}
+                size="sm"
+              >
+                {isLoading && <Spinner size="sm" className="text-primary-foreground" />}
+                {isDemo && <span className="mr-1">[DEMO]</span>}
+                Apply
+              </Button>
+              <Button
+                onClick={handleSetToDefault}
+                disabled={selectedKeyIndex === null || isLoading}
+                variant="secondary"
+                size="sm"
+                title={selectedKeyIndex !== null ? `Reset to default: ${defaultKeyLabel || 'Unknown'}` : 'Select a key first'}
+              >
+                Set to Default
+              </Button>
+              <Button
+                onClick={handleClearSelection}
+                disabled={selectedKeyIndex === null || isLoading}
+                variant="outline"
+                size="sm"
+              >
+                Clear Selection
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <p className="text-xs text-muted-foreground font-mono">
-          {selectedKeyIndex !== null ? (
-            <>
-              Index: {selectedKeyIndex}
-              {defaultKeyInfo && (
-                <> | Default: KC=0x{defaultKeyInfo.vk.toString(16).toUpperCase()} FW=0x{defaultKeyInfo.fw.toString(16).toUpperCase()}</>
-              )}
-              {currentMapping !== undefined && (
-                <> | Current: FW=0x{currentMapping.toString(16).toUpperCase()}</>
-              )}
-              {selectedTargetKey !== null && (
-                <> | Target: FW=0x{selectedTargetKey.toString(16).toUpperCase()}</>
-              )}
-            </>
-          ) : (
-            'No key selected'
-          )}
-        </p>
-
-          <div className="space-y-4 overflow-x-auto">
-            {/* Main Keyboard Layout */}
+          <div className="space-y-4">
+            {/* Main Keyboard Layout - Only this scrolls horizontally */}
             <div>
               <h4 className="text-sm font-semibold mb-3 text-card-foreground">Standard Layout</h4>
-              <div className="space-y-1 w-fit">
-                {KEYBOARD_LAYOUT.map((row, idx) => renderKeyboardRow(row, idx))}
+              <div className="overflow-x-auto">
+                <div className="space-y-1 w-fit">
+                  {KEYBOARD_LAYOUT.map((row, idx) => renderKeyboardRow(row, idx))}
+                </div>
               </div>
             </div>
 
-            {/* Navigation & Numpad side by side */}
+            {/* Navigation & Numpad - Numpad wraps below nav */}
             <div>
               <h4 className="text-sm font-semibold mb-3 text-card-foreground">Navigation, Arrows & Numpad</h4>
-              <div className="flex gap-4 w-fit">
+              <div className="flex flex-wrap gap-4 w-fit">
                 {/* Navigation Cluster */}
                 <div className="space-y-1">
                   {NAVIGATION_CLUSTER.map((row, idx) => renderKeyboardRow(row, `nav-${idx}`))}
@@ -435,11 +485,11 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               </div>
             </div>
 
-            {/* Media and Special Keys */}
+            {/* Media and Special Keys - Keys wrap within rows, don't shrink */}
             <div>
               <h4 className="text-sm font-semibold mb-3 text-card-foreground">Media & Special Functions</h4>
-              <div className="space-y-1 w-fit">
-                {ADDITIONAL_KEYS_LAYOUT.map((row, idx) => renderKeyboardRow(row, `special-${idx}`))}
+              <div className="space-y-1">
+                {ADDITIONAL_KEYS_LAYOUT.map((row, idx) => renderKeyboardRow(row, `special-${idx}`, true))}
               </div>
             </div>
         </div>

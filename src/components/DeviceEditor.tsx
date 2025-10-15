@@ -68,7 +68,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
 
       <Card>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs text-muted-foreground mb-1">
                 {isDemo ? 'Demo Keyboard' : 'Connected Device'}
@@ -76,12 +76,14 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
               <h2 className="text-lg font-semibold text-card-foreground">
                 {device.config.name}
                 {isDemo && <span className="ml-2 text-sm font-medium text-primary">(DEMO)</span>}
-                <span className="ml-3 text-sm font-normal text-muted-foreground">
-                  VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')} · PID: {device.config.pid.toUpperCase()}
-                </span>
               </h2>
+              <p className="text-sm font-normal text-muted-foreground mt-1">
+                <span className="whitespace-nowrap">VID: {device.hidDevice.vendorId.toString(16).toUpperCase().padStart(4, '0')}</span>
+                {' · '}
+                <span className="whitespace-nowrap">PID: {device.config.pid.toUpperCase()}</span>
+              </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {isDemo && (
                 <Button
                   onClick={() => setShowKeyboardSwitcher(!showKeyboardSwitcher)}
@@ -118,8 +120,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
       {/* Tab switcher - only show if keyboard has lighting */}
       {device.config.lightEnabled && (
         <Card className="overflow-hidden">
-          <div className="flex justify-between items-center py-4 px-6">
-            <div className="flex-1" />
+          <div className="flex flex-col items-center gap-4 py-4 px-6">
             <div className="inline-flex bg-muted border border-border rounded-lg p-1 shrink-0" role="tablist" aria-label="Device configuration tabs">
               <button
                 onClick={() => setActiveTab('keys')}
@@ -150,9 +151,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
                 Lighting
               </button>
             </div>
-            <div className="flex-1 flex justify-end">
-              {activeTab === 'keys' && <KeyRemapperActionButton device={device} />}
-            </div>
+            {activeTab === 'keys' && <KeyRemapperActionButton device={device} />}
           </div>
           <CardContent>
             <div

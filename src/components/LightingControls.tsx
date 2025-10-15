@@ -138,9 +138,9 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
 
   return (
     <div className="flex justify-center">
-      <div className="grid grid-cols-[300px_auto] gap-8">
+      <div className="flex flex-wrap gap-8 justify-center">
         {/* Left column - Mode selector */}
-        <div className="space-y-3">
+        <div className="space-y-3 w-full sm:w-[300px]">
         <div className="flex items-baseline gap-2">
           <h3 className="text-sm font-semibold text-foreground">Lighting Modes</h3>
           <span className="text-xs text-muted-foreground">
@@ -195,7 +195,7 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
       </div>
 
       {/* Right column - Controls */}
-      <div className="space-y-6 max-w-md">
+      <div className="space-y-6 w-full sm:w-auto sm:max-w-md">
         {/* Sleep timer */}
         {!isOffMode && (
           <div className="space-y-3">
