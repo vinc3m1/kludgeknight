@@ -127,7 +127,7 @@ export function ThemeSelector() {
   };
 
   if (!mounted) {
-    return <div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">Theme:</span><div className="w-40" /></div>;
+    return <div className="w-40" />;
   }
 
   const presetOptions = Object.entries(defaultPresets)
@@ -138,20 +138,17 @@ export function ThemeSelector() {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Theme:</span>
-      <Select value={themePreset} onValueChange={handleThemeChange}>
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Select theme" />
-        </SelectTrigger>
-        <SelectContent>
-          {presetOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={themePreset} onValueChange={handleThemeChange}>
+      <SelectTrigger className="w-40">
+        <SelectValue placeholder="Select theme" />
+      </SelectTrigger>
+      <SelectContent>
+        {presetOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

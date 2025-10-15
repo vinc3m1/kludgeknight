@@ -24,7 +24,12 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-2xl font-bold text-foreground">Kludge Knight</h1>
             <div className="flex flex-wrap items-center gap-3">
-              <ThemeSelector />
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Themes by <a href="https://tweakcn.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">tweakcn</a>:
+                </span>
+                <ThemeSelector />
+              </div>
               <ThemeToggle />
               <a
                 href="https://github.com/vinc3m1/kludgeknight"
