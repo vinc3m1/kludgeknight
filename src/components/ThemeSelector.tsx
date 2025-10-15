@@ -95,10 +95,10 @@ export function ThemeSelector() {
       // Ensure styles are stored for next load
       localStorage.setItem('themeStyles', JSON.stringify(defaultPresets[stored].styles));
     } else {
-      // Default to tangerine for first-time visitors
-      setThemePreset('tangerine');
-      applyCurrentTheme('tangerine');
-      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets['tangerine'].styles));
+      // Default to doom-64 for first-time visitors
+      setThemePreset('doom-64');
+      applyCurrentTheme('doom-64');
+      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets['doom-64'].styles));
     }
   }, []);
 
@@ -127,7 +127,7 @@ export function ThemeSelector() {
   };
 
   if (!mounted) {
-    return <div className="w-40" />;
+    return <div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">Theme:</span><div className="w-40" /></div>;
   }
 
   const presetOptions = Object.entries(defaultPresets)
@@ -138,17 +138,20 @@ export function ThemeSelector() {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
-    <Select value={themePreset} onValueChange={handleThemeChange}>
-      <SelectTrigger className="w-40">
-        <SelectValue placeholder="Select theme" />
-      </SelectTrigger>
-      <SelectContent>
-        {presetOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">Theme:</span>
+      <Select value={themePreset} onValueChange={handleThemeChange}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="Select theme" />
+        </SelectTrigger>
+        <SelectContent>
+          {presetOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

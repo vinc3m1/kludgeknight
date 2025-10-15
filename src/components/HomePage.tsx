@@ -329,10 +329,10 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Hero Section with CTA */}
       <header className="text-center py-8">
         <h1 className="text-4xl font-bold text-foreground mb-3">
-          Configure Your Royal Kludge Keyboard on Any OS
+          Configure Royal Kludge Keyboards<br />from the browser
         </h1>
         <p className="text-xl text-muted-foreground">
-          Remap keys and control lighting on Mac, Linux, or Windows - all in your browser
+          Remap keys and control lighting, works on Mac, Linux, and Windows
         </p>
         <p className="text-sm text-muted-foreground mt-2 mb-6">
           Unofficial software, not affiliated with Royal Kludge.<br />
@@ -348,7 +348,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Features / Value Props */}
       <Card>
         <CardHeader>
-          <CardTitle>What You Can Do</CardTitle>
+          <CardTitle>Features</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
@@ -360,7 +360,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Remap Any Key</h3>
-              <p className="text-sm text-muted-foreground">Customize your keyboard layout to match your workflow. Change any key to any other key, including modifiers.</p>
+              <p className="text-sm text-muted-foreground">Map any key to any other key or modifier. Changes are written directly to keyboard firmware.</p>
             </div>
           </div>
 
@@ -372,7 +372,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Control Lighting</h3>
-              <p className="text-sm text-muted-foreground">Adjust backlight brightness, speed, and effects. Customize your keyboard&apos;s appearance to match your setup.</p>
+              <p className="text-sm text-muted-foreground">Set backlight brightness, speed, and effects. Works with both standard and RGB models.</p>
             </div>
           </div>
 
@@ -383,8 +383,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">No Installation Required</h3>
-              <p className="text-sm text-muted-foreground">Works instantly in Chrome, Edge, or Opera. No drivers, no admin permissions, no bloatware.</p>
+              <h3 className="font-semibold text-foreground">Runs in Browser</h3>
+              <p className="text-sm text-muted-foreground">Uses WebHID API. Works in Chrome, Edge, and Opera. No drivers or admin permissions needed.</p>
             </div>
           </div>
 
@@ -396,7 +396,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Cross-Platform</h3>
-              <p className="text-sm text-muted-foreground">Works on Windows, Mac, and Linux. Your settings save automatically and stay with your browser.</p>
+              <p className="text-sm text-muted-foreground">Works across Windows, Mac, and Linux. Settings saved in browser storage.</p>
             </div>
           </div>
           </div>
@@ -406,7 +406,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Privacy Notice */}
       <Card>
         <CardHeader>
-          <CardTitle>Private & Secure</CardTitle>
+          <CardTitle>Everything Runs Locally</CardTitle>
         </CardHeader>
         <CardContent>
         <div className="flex items-start space-x-4">
@@ -418,11 +418,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-card-foreground mb-3">
-              Everything runs locally in your browser. All key remapping and configuration happens on your device. Your keyboard settings are saved only in your browser&apos;s storage and never leave your computer.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              We use Google Analytics to understand basic site traffic (page views, visitor counts), but no keyboard configuration data or personal information is collected.
+            <p className="text-card-foreground">
+              Hosted as a static site on GitHub Pages with no backend. All configuration happens directly between browser and keyboard via WebHID. Settings stored in browser localStorage only.
             </p>
           </div>
         </div>
@@ -432,26 +429,26 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Getting Started */}
       <Card>
         <CardHeader>
-          <CardTitle>Getting Started</CardTitle>
+          <CardTitle>Instructions</CardTitle>
         </CardHeader>
         <CardContent>
         <ol className="space-y-3 text-card-foreground">
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary text-primary-foreground rounded-full text-sm font-bold mr-3">1</span>
-            <span>Connect your Royal Kludge keyboard <strong>via USB cable</strong> (Bluetooth and wireless USB receivers are not supported)</span>
+            <span>Connect Royal Kludge keyboard via USB (Bluetooth not supported)</span>
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary text-primary-foreground rounded-full text-sm font-bold mr-3">2</span>
-            <span>Click the "Connect Keyboard" button above</span>
+            <span>Click Connect Keyboard button</span>
           </li>
           <li className="flex items-start">
             <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary text-primary-foreground rounded-full text-sm font-bold mr-3">3</span>
-            <span>In the browser popup dialog, select your Royal Kludge keyboard from the list and click <strong>Connect</strong></span>
+            <span>Select keyboard from browser dialog and click Connect</span>
           </li>
         </ol>
         <Alert className="mt-4">
           <AlertDescription>
-            <strong>Requires:</strong> Chrome, Edge, or Opera on desktop. Mobile browsers and Firefox/Safari are not supported.
+            Chrome, Edge, or Opera required (desktop only). WebHID not supported in Firefox/Safari or mobile browsers.
           </AlertDescription>
         </Alert>
         </CardContent>
@@ -498,7 +495,7 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Important Limitations */}
       <Card>
         <CardHeader>
-          <CardTitle>Important Limitations</CardTitle>
+          <CardTitle>Limitations</CardTitle>
         </CardHeader>
         <CardContent>
         <ul className="space-y-3 text-card-foreground">
@@ -507,8 +504,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold text-card-foreground">Firmware Doesn&apos;t Support Reading Mappings</p>
-              <p className="text-sm text-muted-foreground">Royal Kludge keyboard firmware only allows writing settings, not reading them. Your customizations are saved in the browser and automatically reapplied when you reconnect.</p>
+              <p className="font-semibold text-card-foreground">Can&apos;t read existing mappings from keyboard</p>
+              <p className="text-sm text-muted-foreground">RK firmware only accepts writes. KludgeKnight starts with default layout and can only save mappings to browser localStorage.</p>
             </div>
           </li>
           <li className="flex items-start">
@@ -516,8 +513,8 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="font-semibold text-card-foreground">Settings Stored in Your Browser</p>
-              <p className="text-sm text-muted-foreground">Your custom mappings are saved in your browser&apos;s storage, not on the keyboard itself. This means they&apos;ll work on the same browser and computer. Switching browsers or computers requires reconfiguring, and clearing browser data will remove saved mappings.</p>
+              <p className="font-semibold text-card-foreground">Settings only saved in browser localStorage</p>
+              <p className="text-sm text-muted-foreground">Since keyboard firmware can&apos;t be read, settings are saved to browser localStorage as a fallback. No backend means these stay local to one browser. Clearing browser data or switching browsers resets to defaults.</p>
             </div>
           </li>
         </ul>
@@ -527,14 +524,14 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Supported Keyboards */}
       <Card>
         <CardHeader>
-          <CardTitle>Supported Keyboards</CardTitle>
+          <CardTitle>Supported Models</CardTitle>
         </CardHeader>
         <CardContent>
         <p className="text-muted-foreground mb-2">
-          Kludge Knight supports {keyboards.length} Royal Kludge keyboard models. Click on any keyboard to view its layout image.
+          {keyboards.length} RK keyboard models supported.
         </p>
         <p className="text-xs text-muted-foreground mb-4">
-          Configurations imported from official RK Windows software on October 4, 2025.
+          Configurations from official RK Windows software (Oct 2025).
         </p>
         {keyboards.length > 0 ? (
           <>

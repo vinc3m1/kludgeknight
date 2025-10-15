@@ -13,7 +13,7 @@ export function loadGoogleFont(fontFamily: string) {
     'arial', 'helvetica', 'times new roman', 'courier new', 'georgia', 'verdana',
     'comic sans ms', 'trebuchet ms', 'impact', 'courier', 'helvetica neue',
     'segoe ui', '-apple-system', 'blinkmacsystemfont',
-    'inter' // Self-hosted for default theme
+    'inter' // Self-hosted (fallback for some themes)
   ];
   if (systemFonts.includes(fontName.toLowerCase())) return;
 

@@ -69,7 +69,7 @@ const structuredData = {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Self-hosted Inter font for default theme (Tangerine) -->
+    <!-- Self-hosted Inter font (fallback for some themes) -->
     <link rel="stylesheet" href="/fonts/inter/inter.css" />
 
     <!-- Preconnect to Google Fonts for faster font loading -->
@@ -171,6 +171,8 @@ const structuredData = {
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+    <script src="https://tweakcn.com/live-preview.min.js"></script>
   </head>
   <body>
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground">
