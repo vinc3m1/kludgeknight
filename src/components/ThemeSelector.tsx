@@ -45,15 +45,10 @@ function applyThemeStyles(styles: ThemeStyles) {
 
   const root = document.documentElement;
 
-  // Apply colors and other properties
+  // Apply ALL properties synchronously first
   Object.entries(styles).forEach(([key, value]) => {
     if (typeof value === 'string') {
       root.style.setProperty(`--${key}`, value);
-
-      // Load Google Font if this is a font property
-      if (key === 'font-sans' || key === 'font-serif' || key === 'font-mono') {
-        loadGoogleFont(value);
-      }
     }
   });
 
@@ -80,6 +75,17 @@ function applyThemeStyles(styles: ThemeStyles) {
     root.style.setProperty('--shadow-xl', baseShadow);
     root.style.setProperty('--shadow-2xl', baseShadow);
   }
+
+  // Force a reflow to ensure CSS variables are applied
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  root.offsetHeight;
+
+  // Load Google Fonts after CSS variables are set and reflow is forced
+  Object.entries(styles).forEach(([key, value]) => {
+    if (typeof value === 'string' && (key === 'font-sans' || key === 'font-serif' || key === 'font-mono')) {
+      loadGoogleFont(value);
+    }
+  });
 }
 
 export function ThemeSelector() {
