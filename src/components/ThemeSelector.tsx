@@ -15,14 +15,17 @@ const ThemeModeSchema = z.enum(['light', 'dark', 'system']);
 type ThemeMode = z.infer<typeof ThemeModeSchema>;
 
 function getThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'system';
   const stored = localStorage.getItem('theme');
   const result = ThemeModeSchema.safeParse(stored);
-  return result.success ? result.data : 'light';
+  return result.success ? result.data : 'system';
 }
 
 function getEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') {
+    // During SSR, assume light as a safe default for hydration
+    return 'light';
+  }
   if (mode === 'system') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }

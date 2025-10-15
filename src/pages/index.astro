@@ -80,7 +80,7 @@ const structuredData = {
     <script is:inline>
       (function() {
         // Apply light/dark mode
-        const theme = localStorage.getItem('theme') || 'light';
+        const theme = localStorage.getItem('theme') || 'system';
         const effective = theme === 'system'
           ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
           : theme;

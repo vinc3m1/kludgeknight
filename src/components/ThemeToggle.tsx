@@ -9,14 +9,17 @@ const ThemeSchema = z.enum(['light', 'dark', 'system']);
 type Theme = z.infer<typeof ThemeSchema>;
 
 function getThemePreference(): Theme {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'system';
   const stored = localStorage.getItem('theme');
   const result = ThemeSchema.safeParse(stored);
-  return result.success ? result.data : 'light';
+  return result.success ? result.data : 'system';
 }
 
 function getEffectiveTheme(theme: Theme): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') {
+    // During SSR, assume light as a safe default for hydration
+    return 'light';
+  }
   if (theme === 'system') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
@@ -54,7 +57,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('system');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
