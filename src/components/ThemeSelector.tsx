@@ -30,7 +30,7 @@ function getEffectiveMode(mode: ThemeMode): 'light' | 'dark' {
 }
 
 export function ThemeSelector() {
-  const [themePreset, setThemePreset] = useState<string>('tangerine');
+  const [themePreset, setThemePreset] = useState<string>('claymorphism');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -42,10 +42,10 @@ export function ThemeSelector() {
       // Ensure styles are stored for next load
       localStorage.setItem('themeStyles', JSON.stringify(defaultPresets[stored].styles));
     } else {
-      // Default to doom-64 for first-time visitors
-      setThemePreset('doom-64');
-      applyCurrentTheme('doom-64');
-      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets['doom-64'].styles));
+      // Default to claymorphism for first-time visitors
+      setThemePreset('claymorphism');
+      applyCurrentTheme('claymorphism');
+      localStorage.setItem('themeStyles', JSON.stringify(defaultPresets['claymorphism'].styles));
     }
   }, []);
 
