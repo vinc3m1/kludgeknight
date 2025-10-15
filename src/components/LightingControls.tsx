@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../hooks/useToast';
 import type { KeyboardDevice } from '../models/KeyboardDevice';
+import type { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import type { LightingMode } from '../types/keyboard';
 import type { StandardLightingSettings } from '../models/LightingCodec';
 import { Slider } from '@/components/ui/slider';
 import { LightingNotSupportedError, RGBNotSupportedError } from '../errors/KludgeKnightErrors';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { ColorWheel } from './ColorWheel';
+import { Badge } from '@/components/ui/badge';
 
 const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
 interface LightingControlsProps {
-  device: KeyboardDevice;
+  device: KeyboardDevice | DemoKeyboardDevice;
   initialSettings: StandardLightingSettings | null;
 }
 
@@ -25,6 +27,7 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
 
+  const isDemo = 'isDemo' in device && device.isDemo;
   const selectedModeIndex = settings?.modeIndex ?? null;
 
   // Scroll to initially selected mode after layout and update shadows
@@ -143,6 +146,11 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
           <span className="text-xs text-muted-foreground">
             {device.config.rgb ? 'RGB' : 'Single-color'}
           </span>
+          {isDemo && (
+            <Badge variant="outline" className="text-xs text-primary border-primary">
+              DEMO
+            </Badge>
+          )}
         </div>
         <div className="relative border border-border rounded-lg overflow-hidden">
           {/* Top shadow overlay */}

@@ -1,27 +1,35 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
+import { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import { ToastContext } from './ToastContext';
 import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError } from '../errors/KludgeKnightErrors';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
+import { parseKBIni } from '../utils/kbIniParser';
 
 export interface DeviceContextValue {
-  devices: KeyboardDevice[];
-  selectedDevice: KeyboardDevice | null;
-  selectDevice: (device: KeyboardDevice | null) => void;
+  devices: (KeyboardDevice | DemoKeyboardDevice)[];
+  selectedDevice: KeyboardDevice | DemoKeyboardDevice | null;
+  selectDevice: (device: KeyboardDevice | DemoKeyboardDevice | null) => void;
   requestDevice: () => Promise<void>;
-  disconnectDevice: (device: KeyboardDevice) => Promise<void>;
+  disconnectDevice: (device: KeyboardDevice | DemoKeyboardDevice) => Promise<void>;
   isConnecting: boolean;
   isScanning: boolean;
+  isDemoMode: boolean;
+  enterDemoMode: (pid: string) => Promise<void>;
+  switchDemoKeyboard: (pid: string) => Promise<void>;
+  exitDemoMode: () => void;
 }
 
 export const DeviceContext = createContext<DeviceContextValue | null>(null);
 
 export function DeviceProvider({ children, ledManifest }: { children: ReactNode; ledManifest?: string }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | DemoKeyboardDevice | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [demoDevice, setDemoDevice] = useState<DemoKeyboardDevice | null>(null);
   const toast = useContext(ToastContext);
 
   const manager = HIDDeviceManager.getInstance();
@@ -138,7 +146,13 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
     }
   };
 
-  const disconnectDevice = async (device: KeyboardDevice) => {
+  const disconnectDevice = async (device: KeyboardDevice | DemoKeyboardDevice) => {
+    // Handle demo device disconnect
+    if ('isDemo' in device && device.isDemo) {
+      exitDemoMode();
+      return;
+    }
+
     try {
       // Clean up event listeners before closing
       device.cleanup();
@@ -167,14 +181,84 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
     }
   };
 
+  const enterDemoMode = async (pid: string) => {
+    try {
+      setIsConnecting(true);
+
+      // Load keyboard config for the selected PID
+      const config = await parseKBIni(pid, ledManifest || null);
+      if (!config) {
+        toast?.showError(`Failed to load configuration for keyboard ${pid.toUpperCase()}`);
+        return;
+      }
+
+      // Create demo device
+      const demo = new DemoKeyboardDevice(config);
+      demo.notify = forceUpdate;
+
+      // Set demo device and mode
+      setDemoDevice(demo);
+      setSelectedDevice(demo);
+      setIsDemoMode(true);
+
+      toast?.showSuccess(`Entered demo mode with ${config.name}`);
+    } catch (error) {
+      console.error('Failed to enter demo mode:', error);
+      toast?.showError('Failed to enter demo mode');
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const switchDemoKeyboard = async (pid: string) => {
+    if (!isDemoMode) return;
+
+    try {
+      setIsConnecting(true);
+
+      // Load new keyboard config
+      const config = await parseKBIni(pid, ledManifest || null);
+      if (!config) {
+        toast?.showError(`Failed to load configuration for keyboard ${pid.toUpperCase()}`);
+        return;
+      }
+
+      // Create new demo device
+      const demo = new DemoKeyboardDevice(config);
+      demo.notify = forceUpdate;
+
+      // Replace demo device
+      setDemoDevice(demo);
+      setSelectedDevice(demo);
+
+      toast?.showInfo(`Switched to ${config.name}`);
+    } catch (error) {
+      console.error('Failed to switch demo keyboard:', error);
+      toast?.showError('Failed to switch keyboard');
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const exitDemoMode = () => {
+    setDemoDevice(null);
+    setSelectedDevice(null);
+    setIsDemoMode(false);
+    toast?.showInfo('Exited demo mode');
+  };
+
   const value: DeviceContextValue = {
-    devices: manager.getAllDevices(),
+    devices: isDemoMode && demoDevice ? [demoDevice] : manager.getAllDevices(),
     selectedDevice,
     selectDevice: setSelectedDevice,
     requestDevice,
     disconnectDevice,
     isConnecting,
     isScanning,
+    isDemoMode,
+    enterDemoMode,
+    switchDemoKeyboard,
+    exitDemoMode,
   };
 
   return (

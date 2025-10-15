@@ -24,6 +24,9 @@ jobs:
       - name: Run ESLint (includes a11y checks)
         run: bun run lint
 
+      - name: Run tests
+        run: bun run test
+
       - name: Build project
         run: bun run build
 

@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useMemo, memo, useCallback } from 'react';
 import { getRKDevices } from '../utils/rkConfig';
 import { ConnectButton } from './ConnectButton';
+import { KeyboardSelector } from './KeyboardSelector';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Search } from 'lucide-react';
+import { Search, Rocket } from 'lucide-react';
 import type { ImageManifest } from '../utils/buildImageManifest';
+import { useDevices } from '../hooks/useDevices';
 
 interface KeyboardListItemProps {
   pid: string;
@@ -99,6 +101,10 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
     const standardDims = imageInfo?.keyimgDimensions;
     const rgbDims = imageInfo?.kbledDimensions;
 
+    // Calculate aspect ratio (width/height) for the current view
+    const currentDims = showRgb ? rgbDims : standardDims;
+    const aspectRatio = currentDims ? currentDims.width / currentDims.height : undefined;
+
     return (
       <li className="border-b border-border last:border-b-0">
       <button
@@ -153,10 +159,11 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
                 </div>
               )}
               <div
-                className="relative"
+                className="relative w-full mx-auto"
                 style={{
                   display: currentImageLoaded ? 'block' : 'none',
-                  minHeight: showRgb ? (rgbDims?.height || 0) : (standardDims?.height || 0)
+                  aspectRatio: aspectRatio ? `${aspectRatio}` : undefined,
+                  maxWidth: currentDims?.width ? `${currentDims.width}px` : undefined
                 }}
               >
                 {/* Standard image with SVG background - mount once requested, keep mounted */}
@@ -164,8 +171,7 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
                   <svg
                     key={`svg-${standardImageUrl}`}
                     viewBox={`0 0 ${standardDims.width} ${standardDims.height}`}
-                    className={`w-full h-auto absolute inset-0 ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
-                    style={{ maxHeight: '400px' }}
+                    className={`absolute inset-0 w-full h-full ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
                     role="img"
                     aria-label={`${name} keyboard layout`}
                     aria-hidden={showRgb}
@@ -208,7 +214,7 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
                     key={`img-${standardImageUrl}`}
                     src={standardImageUrl}
                     alt={`${name} keyboard layout`}
-                    className={`max-w-full h-auto absolute inset-0 ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
+                    className={`absolute inset-0 w-full h-full object-contain ${!showRgb && standardLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
                     aria-hidden={showRgb}
                     onLoad={handleStandardLoad}
                     decoding="async"
@@ -220,7 +226,7 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
                     key={`img-${rgbImageUrl}`}
                     src={rgbImageUrl}
                     alt={`${name} keyboard layout with RGB lighting`}
-                    className={`max-w-full h-auto absolute inset-0 ${showRgb && rgbLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
+                    className={`absolute inset-0 w-full h-full object-contain ${showRgb && rgbLoaded ? 'kb-img-visible' : 'kb-img-hidden'}`}
                     aria-hidden={!showRgb}
                     onLoad={handleRgbLoad}
                     decoding="async"
@@ -248,7 +254,9 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
   const [expandedPids, setExpandedPids] = useState<Set<string>>(new Set());
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(true);
+  const [showDemoSelector, setShowDemoSelector] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { enterDemoMode } = useDevices();
 
   useEffect(() => {
     // Only fetch if we don't have initial data (SSR provides it)
@@ -324,6 +332,11 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
     setShowBottomShadow(isScrollable && scrollTop + clientHeight < scrollHeight - 1);
   };
 
+  const handleEnterDemoMode = async (pid: string) => {
+    await enterDemoMode(pid);
+    setShowDemoSelector(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Hero Section with CTA */}
@@ -339,9 +352,47 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
           Built through reverse engineering and referencing other works like <a href="https://rnayabed.github.io/rangoli_website/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Rangoli</a>.
         </p>
 
-        {/* CTA - Connect Keyboard */}
-        <div className="flex justify-center">
+        {/* CTA - Connect Keyboard & Demo Mode */}
+        <div className="flex flex-col items-center gap-4">
           <ConnectButton />
+
+          <div className="flex items-center gap-3">
+            <div className="h-px bg-border w-16"></div>
+            <span className="text-sm text-muted-foreground">or</span>
+            <div className="h-px bg-border w-16"></div>
+          </div>
+
+          <Button
+            onClick={() => setShowDemoSelector(!showDemoSelector)}
+            variant="outline"
+            size="lg"
+            className="px-8 py-6 text-lg"
+          >
+            <Rocket className="w-5 h-5 mr-2" />
+            {showDemoSelector ? 'Hide Demo Mode' : 'Try Demo Mode'}
+          </Button>
+
+          {/* Demo Mode Keyboard Selector */}
+          {showDemoSelector && (
+            <Card className="w-full mt-4">
+              <CardHeader>
+                <CardTitle>Select a Keyboard to Demo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Alert className="mb-4">
+                  <AlertDescription>
+                    Demo mode lets you explore the interface without connecting a physical keyboard. All features work normally, but nothing is written to hardware.
+                  </AlertDescription>
+                </Alert>
+
+                <KeyboardSelector
+                  keyboards={keyboards}
+                  onSelect={handleEnterDemoMode}
+                  showRandom={true}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
       </header>
 

@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { KeyboardDevice } from '../models/KeyboardDevice';
+import type { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import {
@@ -64,13 +65,15 @@ function renderIcon(iconName: string, className?: string) {
   return <Icon className={className} size={16} />;
 }
 
-export function KeyRemapperActionButton({ device }: { device: KeyboardDevice }) {
+export function KeyRemapperActionButton({ device }: { device: KeyboardDevice | DemoKeyboardDevice }) {
   const toast = useToast();
+  const isDemo = 'isDemo' in device && device.isDemo;
 
   const handleResetAll = async () => {
     try {
       await device.resetAllMappings();
-      toast.showSuccess('All keys reset to default');
+      const message = isDemo ? 'All keys reset to default (Simulated)' : 'All keys reset to default';
+      toast.showSuccess(message);
     } catch (err) {
       toast.showError(ERROR_MESSAGES.RESET_ALL_FAILED);
       console.error(err);
@@ -86,13 +89,14 @@ export function KeyRemapperActionButton({ device }: { device: KeyboardDevice }) 
       variant="outline"
       size="sm"
     >
+      {isDemo && <span className="text-primary mr-1">[DEMO]</span>}
       Reset All Keys to Default
     </Button>
   );
 }
 
 interface KeyRemapperProps {
-  device: KeyboardDevice;
+  device: KeyboardDevice | DemoKeyboardDevice;
   imageManifest?: ImageManifest;
 }
 
@@ -101,6 +105,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
   const [selectedTargetKey, setSelectedTargetKey] = useState<FirmwareCode | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isDemo = 'isDemo' in device && device.isDemo;
 
   const handleConfirmRemap = async () => {
     if (selectedKeyIndex === null || selectedTargetKey === null) return;
@@ -109,7 +114,8 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
     try {
       await device.setMapping(selectedKeyIndex, selectedTargetKey);
       setSelectedTargetKey(null);
-      toast.showSuccess('Key mapping updated successfully');
+      const message = isDemo ? 'Key mapping updated successfully (Simulated)' : 'Key mapping updated successfully';
+      toast.showSuccess(message);
     } catch (err) {
       setError(ERROR_MESSAGES.REMAP_FAILED);
       toast.showError(ERROR_MESSAGES.REMAP_FAILED);
@@ -124,7 +130,8 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
     try {
       await device.clearMapping(selectedKeyIndex);
       setSelectedTargetKey(null);
-      toast.showSuccess('Key reset to default');
+      const message = isDemo ? 'Key reset to default (Simulated)' : 'Key reset to default';
+      toast.showSuccess(message);
     } catch (err) {
       setError(ERROR_MESSAGES.RESET_KEY_FAILED);
       toast.showError(ERROR_MESSAGES.RESET_KEY_FAILED);
@@ -361,6 +368,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               size="sm"
             >
               {isLoading && <Spinner size="sm" className="text-primary-foreground" />}
+              {isDemo && <span className="mr-1">[DEMO]</span>}
               Apply
             </Button>
             <Button
