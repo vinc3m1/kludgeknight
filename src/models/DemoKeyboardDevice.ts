@@ -1,7 +1,6 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 import type { FirmwareCode } from '../types/keycode';
-import { loadFullProfile, saveProfile } from '../utils/profileStorage';
 
 /**
  * Demo keyboard device that simulates all operations without hardware
@@ -36,29 +35,17 @@ export class DemoKeyboardDevice {
     const pid = parseInt(config.pid, 16);
     this.id = `demo-${0x258a}-${pid}-${config.name}`;
 
-    // Load saved profile from localStorage (if any)
-    const profile = loadFullProfile(this.id);
-    if (profile.mappings) {
-      this.mappings = profile.mappings;
-    }
-
-    // Initialize lighting - use saved settings or defaults
+    // Initialize lighting with defaults (no persistence in demo mode)
     if (config.lightEnabled && config.lightingModes.length > 0) {
-      if (profile.lightingSettings) {
-        // Use saved lighting settings
-        this.lightingSettings = profile.lightingSettings;
-      } else {
-        // Use defaults
-        const firstMode = config.lightingModes[0];
-        this.lightingSettings = {
-          modeIndex: firstMode.index,
-          speed: 3, // Normal
-          brightness: 5, // Max
-          color: { r: 255, g: 255, b: 255 }, // White
-          randomColor: false,
-          sleep: 2, // 10 min default
-        };
-      }
+      const firstMode = config.lightingModes[0];
+      this.lightingSettings = {
+        modeIndex: firstMode.index,
+        speed: 3, // Normal
+        brightness: 5, // Max
+        color: { r: 255, g: 255, b: 255 }, // White
+        randomColor: false,
+        sleep: 2, // 10 min default
+      };
     }
   }
 
@@ -119,7 +106,7 @@ export class DemoKeyboardDevice {
   }
 
   /**
-   * Simulate setting a key mapping (no hardware write)
+   * Simulate setting a key mapping (no hardware write, no persistence)
    */
   async setMapping(keyIndex: number, fwCode: FirmwareCode): Promise<void> {
     this.isMappingLoading = true;
@@ -130,7 +117,6 @@ export class DemoKeyboardDevice {
 
     try {
       this.mappings.set(keyIndex, fwCode);
-      saveProfile(this.id, this.mappings);
     } finally {
       this.isMappingLoading = false;
       this.notify?.();
@@ -138,7 +124,7 @@ export class DemoKeyboardDevice {
   }
 
   /**
-   * Simulate clearing a key mapping
+   * Simulate clearing a key mapping (no persistence)
    */
   async clearMapping(keyIndex: number): Promise<void> {
     this.isMappingLoading = true;
@@ -148,7 +134,6 @@ export class DemoKeyboardDevice {
 
     try {
       this.mappings.delete(keyIndex);
-      saveProfile(this.id, this.mappings);
     } finally {
       this.isMappingLoading = false;
       this.notify?.();
@@ -156,7 +141,7 @@ export class DemoKeyboardDevice {
   }
 
   /**
-   * Simulate clearing all mappings
+   * Simulate clearing all mappings (no persistence)
    */
   async clearAll(): Promise<void> {
     this.isMappingLoading = true;
@@ -166,7 +151,6 @@ export class DemoKeyboardDevice {
 
     try {
       this.mappings.clear();
-      saveProfile(this.id, this.mappings);
     } finally {
       this.isMappingLoading = false;
       this.notify?.();
@@ -195,15 +179,13 @@ export class DemoKeyboardDevice {
   }
 
   /**
-   * Simulate updating lighting settings (no hardware write)
+   * Simulate updating lighting settings (no hardware write, no persistence)
    */
   async setLighting(settings: StandardLightingSettings): Promise<void> {
     await this.simulateDelay(80);
 
-    // Update local state
+    // Update local state (no persistence in demo mode)
     this.lightingSettings = settings;
-    // Save lighting to localStorage
-    saveProfile(this.id, undefined, settings);
   }
 
   /**

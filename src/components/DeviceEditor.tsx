@@ -59,7 +59,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
             <div className="flex flex-col gap-2">
               <div className="font-bold text-base">DEMO MODE - No Keyboard Connected</div>
               <div className="text-sm">
-                You are exploring the interface without a physical keyboard. All operations are simulated and nothing is written to hardware.
+                You are exploring the interface without a physical keyboard. All operations are simulated — changes are not saved and nothing is written to hardware.
               </div>
             </div>
           </AlertDescription>
