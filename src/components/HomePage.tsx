@@ -342,10 +342,10 @@ export function HomePage({ initialKeyboards, imageManifest }: HomePageProps = {}
       {/* Hero Section with CTA */}
       <header className="text-center py-8">
         <h1 className="text-4xl font-bold text-foreground mb-3">
-          Configure Royal Kludge Keyboards<br />from the browser
+          Open source Royal Kludge software<br />for Mac, Linux, and Windows
         </h1>
         <p className="text-xl text-muted-foreground">
-          Remap keys and control lighting, works on Mac, Linux, and Windows
+          Remap keys and configure lighting in your browser — no installation required
         </p>
         <p className="text-sm text-muted-foreground mt-2 mb-4">
           Unofficial software, not affiliated with Royal Kludge.<br />
