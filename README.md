@@ -4,24 +4,18 @@
 
 Remap any key on your Royal Kludge keyboard directly in your browser. No installation required.
 
-🌐 **[Try it now at kludgeknight.com](https://www.kludgeknight.com/)**
+🌐 **Hosted via Github Pages at [kludgeknight.com](https://www.kludgeknight.com/).** Includes a demo mode to try different keyboards without actually connecting them.
 
 > ⚠️ **Disclaimer**: This is unofficial software and is not affiliated with, endorsed by, or connected to Royal Kludge in any way. Use at your own risk.
 
-> **Note**: This software has only been tested on the Royal Kludge F68 keyboard. While the key mappings and lighting configurations are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
->
-> **Lighting Support**: Single-zone (single-color backlit) lighting has been tested on the F68. RGB/multi-zone lighting support is implemented but has not been tested with actual RGB hardware yet.
+> **Note**: I only have the RK F68 and S79 keyboards to test on. While the key mappings and lighting configurations are sourced from the official RK software and should work with other RK keyboards, functionality on other models has not been verified.
 
 ## ✨ Features
 
 - 🌐 **Runs in your browser** - No downloads or installation
 - 🎹 **Visual keyboard layout** - See your keyboard and click to remap
 - 💡 **Lighting control** - Adjust brightness, speed, colors, and lighting modes
-- 🔄 **Live updates** - Changes apply immediately to your hardware
-- 💾 **Auto-save** - Key mappings are saved in your browser and restored when you reconnect
-- 🔌 **Auto-reconnect** - Maintains connection across page refreshes (no need to re-authorize)
-- 🔒 **Privacy first** - Everything happens locally, no data sent anywhere
-- 🗺️ **Key mappings from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge app
+- 🗺️ **Key configurations from official RK software** - Keyboard layouts and configurations pulled from the official Royal Kludge Windows app
 
 ### ⚠️ Important Limitations
 
