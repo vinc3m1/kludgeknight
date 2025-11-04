@@ -55,7 +55,7 @@ function AppContent({ initialKeyboards, imageManifest }: AppProps = {}) {
       <footer className="bg-card border-t border-border mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <p className="text-center text-sm text-muted-foreground">
-            Unofficial browser-based software for Royal Kludge keyboards
+            Unofficial browser-based Royal Kludge software
           </p>
           <p className="text-center text-xs text-muted-foreground mt-2">
             <a
