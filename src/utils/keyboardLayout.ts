@@ -91,7 +91,7 @@ export const KEYBOARD_LAYOUT: KeyboardRow[] = [
       key(0x30, 1), // 0
       key(0xbd, 1), // - _
       key(0xbb, 1), // = +
-      key(0x08, 2), // Backspace
+      key(0x08, 2, 'Backspace'), // Backspace
     ],
     rowClass: 'number-row',
   },

@@ -222,14 +222,15 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
           const isCurrent = currentMapping === keyInfo.fw;
           const displayLabel = item.displayLabel || keyInfo.label;
 
-          // Width: 0 means auto-width (fit content), otherwise use fixed width
+          // Width: 0 means auto-width (fit content), otherwise use minimum width
           // Height: Match numpad grid height
           const style: React.CSSProperties = {};
 
           if (item.width === 0) {
             // Auto-width: no width constraint
           } else {
-            style.width = `${(item.width || 1) * 2.5}rem`;
+            // Use minWidth instead of width to allow horizontal expansion
+            style.minWidth = `${(item.width || 1) * 2.5}rem`;
           }
 
           // Set fixed height to match numpad grid rows
@@ -246,7 +247,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               key={keyInfo.vk}
               onClick={() => setSelectedTargetKey(keyInfo.fw)}
               disabled={selectedKeyIndex === null}
-              className={`px-2 py-1 text-xs border rounded transition-colors cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
+              className={`px-2 py-1 text-xs border rounded transition-colors cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 whitespace-nowrap ${
                 isSelected
                   ? 'bg-primary text-primary-foreground border-primary'
                   : isCurrent
@@ -257,7 +258,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               title={keyInfo.label}
             >
               {item.iconName && renderIcon(item.iconName)}
-              <span className={item.width === 0 ? '' : 'truncate'}>{displayLabel}</span>
+              <span>{displayLabel}</span>
             </button>
           );
         })}
