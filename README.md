@@ -35,10 +35,12 @@ This means:
 
 ## 📸 Screenshots
 
-<p align="center">
-  <img src="screenshot1.png" width="49%" alt="Kludge Knight Screenshot 1" style="vertical-align: top;">
-  <img src="screenshot2.png" width="49%" alt="Kludge Knight Screenshot 2" style="vertical-align: top;">
-</p>
+<table align="center">
+  <tr>
+    <td valign="top" width="49%"><img src="screenshot1.png" width="100%" alt="Kludge Knight Screenshot 1"></td>
+    <td valign="top" width="49%"><img src="screenshot2.png" width="100%" alt="Kludge Knight Screenshot 2"></td>
+  </tr>
+</table>
 
 ## 🚀 Getting Started
 
