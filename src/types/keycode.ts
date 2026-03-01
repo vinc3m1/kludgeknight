@@ -176,8 +176,24 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xD8: { vk: 0xd8, fw: 0x003200, category: 'Special', label: 'Sleep?' },
   0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'Cut (Ctrl+X)' },
   0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'Unknown' },
+  0xC1: { vk: 0xc1, fw: 0x011d00, category: 'Special', label: 'Undo (Ctrl+Z)' },
   0xC6: { vk: 0xc6, fw: 0x011900, category: 'Special', label: 'Paste (Ctrl+V)' },
   0xC7: { vk: 0xc7, fw: 0x011600, category: 'Special', label: 'Save (Ctrl+S)' },
+
+  // Alt media key encodings used by older RK keyboards
+  0x89: { vk: 0x89, fw: 0x010000cd, category: 'Media', label: 'Play/Pause' },
+  0x8A: { vk: 0x8a, fw: 0x010000b7, category: 'Media', label: 'Stop' },
+  0x8B: { vk: 0x8b, fw: 0x010000b6, category: 'Media', label: 'Previous Track' },
+  0x8C: { vk: 0x8c, fw: 0x010000b5, category: 'Media', label: 'Next Track' },
+  0x8D: { vk: 0x8d, fw: 0x010000e9, category: 'Media', label: 'Volume Up' },
+  0x8E: { vk: 0x8e, fw: 0x010000ea, category: 'Media', label: 'Volume Down' },
+  0x8F: { vk: 0x8f, fw: 0x010000e2, category: 'Media', label: 'Mute' },
+
+  // Calculator
+  0x99: { vk: 0x99, fw: 0x01000192, category: 'Media', label: 'Calculator' },
+
+  // ISO key (European layouts)
+  0xE2: { vk: 0xe2, fw: 0x6400, category: 'Symbols', label: '\\ |' },
 
   // Media keys (VK: 0xAD-0xB3, FW: 0x01000000 | HID Consumer Control)
   0xAD: { vk: 0xad, fw: 0x010000e2, category: 'Media', label: 'Mute' },
@@ -213,7 +229,19 @@ export function vkToLabel(vk: VKCode): string {
  */
 export function parseVK(vkHex: string): KeyInfo | undefined {
   const vk = parseInt(vkHex, 16);
-  return KEY_MAP[vk];
+  if (KEY_MAP[vk]) return KEY_MAP[vk];
+
+  // Skip VK codes that are sequential indices (0x00-0x05) used by
+  // A72-style keyboards with a different encoding scheme
+  if (vk <= 0x05) return undefined;
+
+  // Return fallback for unrecognized but valid-looking VK codes
+  return {
+    vk,
+    fw: 0,
+    category: 'Special',
+    label: `VK 0x${vk.toString(16).toUpperCase()}`,
+  };
 }
 
 /**

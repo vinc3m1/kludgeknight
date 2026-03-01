@@ -268,6 +268,27 @@ export const NUMPAD_CLUSTER: KeyboardRow[] = [
   },
 ];
 
+const ZXCV_ROW_INDEX = 4;
+
+/**
+ * Get keyboard layout, inserting ISO key in ZXCV row for ISO keyboards
+ */
+export function getKeyboardLayout(iso: boolean = false): KeyboardRow[] {
+  if (!iso) return KEYBOARD_LAYOUT;
+
+  return KEYBOARD_LAYOUT.map((row, idx) => {
+    if (idx !== ZXCV_ROW_INDEX) return row;
+    return {
+      ...row,
+      keys: [
+        key(0xa0, 1.25, 'L Shift'), // Narrower L Shift for ISO
+        key(0xe2, 1),               // ISO key (label from locale)
+        ...row.keys.slice(1),       // Z, X, C, V, B, N, M, ...
+      ],
+    };
+  });
+}
+
 /**
  * Additional keys that don't fit in the main layout
  */
@@ -294,8 +315,12 @@ export const ADDITIONAL_KEYS_LAYOUT: KeyboardRow[] = [
   {
     keys: [
       key(0x5d, 0, 'App'), // App/Menu
+      key(0xe2, 0), // ISO key (European layouts)
       key(0xd9, 0), // Select All (Ctrl+A) - use default label
       key(0xb9, 0), // Copy (Ctrl+C) - use default label
+      key(0xc6, 0), // Paste (Ctrl+V) - use default label
+      key(0xc7, 0), // Save (Ctrl+S) - use default label
+      key(0xc1, 0), // Undo (Ctrl+Z) - use default label
       key(0xb8, 0), // Cut (Ctrl+X) - use default label
       key(0xd8, 0, 'Sleep?'), // Sleep?
       key(0xda, 0, 'Unknown'), // Unknown

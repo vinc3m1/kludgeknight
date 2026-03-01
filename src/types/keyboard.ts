@@ -37,6 +37,7 @@ export interface LightingMode {
 export interface KeyboardConfig {
   pid: string;
   name: string;
+  locale?: string; // Keyboard locale from device name (DE, FR, ES)
   keys: Key[];
   imageUrl: string; // Full URL to keyboard image
   lightEnabled: boolean; // Has lighting support

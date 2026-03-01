@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '../hooks/useToast';
-import { KEY_MAP, type FirmwareCode } from '../types/keycode';
+import { type FirmwareCode } from '../types/keycode';
+import { getLocaleLabel, getLocalizedKeyName } from '../utils/localeLabels';
 import { KeyboardCanvas } from './KeyboardCanvas';
 import { Spinner } from './Spinner';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import type { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import {
-  KEYBOARD_LAYOUT,
+  getKeyboardLayout,
   NAVIGATION_CLUSTER,
   NUMPAD_CLUSTER,
   ADDITIONAL_KEYS_LAYOUT,
@@ -31,18 +32,10 @@ import {
   SunDim,
 } from 'lucide-react';
 
-// Helper to get friendly key name
-function getKeyName(fwCode: FirmwareCode | undefined): string {
+// Helper to get friendly key name (locale-aware)
+function getKeyName(fwCode: FirmwareCode | undefined, locale?: string): string {
   if (fwCode === undefined) return 'Unknown';
-
-  // Try to find the key in KEY_MAP by firmware code
-  const keyInfo = Object.values(KEY_MAP).find(k => k.fw === fwCode);
-  if (keyInfo) {
-    return keyInfo.label;
-  }
-
-  // Fallback to hex representation
-  return `0x${fwCode.toString(16)}`;
+  return getLocalizedKeyName(fwCode, locale);
 }
 
 // Map of icon names to components
@@ -196,7 +189,10 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
   const defaultKeyInfo = selectedKeyIndex !== null
     ? device.config.keys.find(k => k.bIndex === selectedKeyIndex)?.keyInfo
     : undefined;
-  const defaultKeyLabel = defaultKeyInfo?.label;
+  const locale = device.config.locale;
+  const defaultKeyLabel = defaultKeyInfo
+    ? (getLocaleLabel(defaultKeyInfo.vk, locale) || defaultKeyInfo.label)
+    : undefined;
 
   const isLoading = device.isMappingLoading;
 
@@ -220,7 +216,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
           const keyInfo = item.keyInfo;
           const isSelected = selectedTargetKey === keyInfo.fw;
           const isCurrent = currentMapping === keyInfo.fw;
-          const displayLabel = item.displayLabel || keyInfo.label;
+          const displayLabel = item.displayLabel || getLocaleLabel(keyInfo.vk, locale) || keyInfo.label;
 
           // Width: 0 means auto-width (fit content), otherwise use minimum width
           // Height: Match numpad grid height
@@ -255,7 +251,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
                   : 'bg-background border-border hover:bg-accent text-foreground'
               }`}
               style={style}
-              title={keyInfo.label}
+              title={getLocaleLabel(keyInfo.vk, locale) || keyInfo.label}
             >
               {item.iconName && renderIcon(item.iconName)}
               <span>{displayLabel}</span>
@@ -329,7 +325,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
           const keyInfo = item.keyInfo;
           const isSelected = selectedTargetKey === keyInfo.fw;
           const isCurrent = currentMapping === keyInfo.fw;
-          const displayLabel = item.displayLabel || keyInfo.label;
+          const displayLabel = item.displayLabel || getLocaleLabel(keyInfo.vk, locale) || keyInfo.label;
 
           return (
             <button
@@ -347,7 +343,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
                 gridColumn: `${col + 1} / span ${colSpan}`,
                 gridRow: `${row + 1} / span ${rowSpan}`,
               }}
-              title={keyInfo.label}
+              title={getLocaleLabel(keyInfo.vk, locale) || keyInfo.label}
             >
               {item.iconName && renderIcon(item.iconName)}
               <span>{displayLabel}</span>
@@ -391,7 +387,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
                           variant={selectedTargetKey !== null ? "default" : "outline"}
                           className="font-mono text-base px-3 py-1"
                         >
-                          {getKeyName(selectedTargetKey !== null ? selectedTargetKey : currentMapping!)}
+                          {getKeyName(selectedTargetKey !== null ? selectedTargetKey : currentMapping!, locale)}
                         </Badge>
                       </>
                     )}
@@ -465,7 +461,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
               <h4 className="text-sm font-semibold mb-3 text-card-foreground">Standard Layout</h4>
               <div className="overflow-x-auto">
                 <div className="space-y-1 w-fit">
-                  {KEYBOARD_LAYOUT.map((row, idx) => renderKeyboardRow(row, idx))}
+                  {getKeyboardLayout(!!locale).map((row, idx) => renderKeyboardRow(row, idx))}
                 </div>
               </div>
             </div>

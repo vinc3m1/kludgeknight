@@ -8,6 +8,7 @@ import { LightingType, type Key, type KeyboardConfig, type LightingMode, type Li
 import { getDeviceName } from './rkConfig';
 import { parseLedXml } from './ledXmlParser';
 import { decodeKBIni } from './keyboardImages';
+import { extractLocale } from './localeLabels';
 
 /**
  * Parse a single key entry from KB.ini
@@ -22,7 +23,7 @@ function parseKeyEntry(value: string, keyName: string): Key | null {
 
   const keyInfo = parseVK(parts[5]);
   if (!keyInfo) {
-    console.error(`Unknown VK code for ${keyName}: ${parts[5]}`);
+    console.warn(`Skipping unsupported key format ${keyName}: ${parts[5]}`);
     return null;
   }
 
@@ -193,10 +194,12 @@ export async function parseKBIni(pid: string, ledManifest: string | null = null)
 
     // Get device name from Cfg.ini
     const name = await getDeviceName(pid) || `RK ${pid.toUpperCase()}`;
+    const locale = extractLocale(name);
 
     return {
       pid: pid.toLowerCase(),
       name,
+      locale,
       keys,
       imageUrl,
       lightEnabled,
