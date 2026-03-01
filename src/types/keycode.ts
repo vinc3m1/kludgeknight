@@ -176,6 +176,8 @@ export const KEY_MAP: Record<number, KeyInfo> = {
   0xD8: { vk: 0xd8, fw: 0x003200, category: 'Special', label: 'Sleep?' },
   0xB8: { vk: 0xb8, fw: 0x011b00, category: 'Special', label: 'Cut (Ctrl+X)' },
   0xDA: { vk: 0xda, fw: 0x008a00, category: 'Special', label: 'Unknown' },
+  0xC6: { vk: 0xc6, fw: 0x011900, category: 'Special', label: 'Paste (Ctrl+V)' },
+  0xC7: { vk: 0xc7, fw: 0x011600, category: 'Special', label: 'Save (Ctrl+S)' },
 
   // Media keys (VK: 0xAD-0xB3, FW: 0x01000000 | HID Consumer Control)
   0xAD: { vk: 0xad, fw: 0x010000e2, category: 'Media', label: 'Mute' },
