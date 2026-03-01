@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, Rocket } from 'lucide-react';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { useDevices } from '../hooks/useDevices';
+import { isRKWebSoftwareSupported, RK_WEB_SOFTWARE_URL } from '../constants/rkWebSoftware';
 
 interface KeyboardListItemProps {
   pid: string;
@@ -113,8 +114,19 @@ const KeyboardListItem = memo(function KeyboardListItem({ pid, name, isExpanded,
         aria-expanded={isExpanded}
         aria-controls={expandedPanelId}
       >
-        <span className="text-sm">
-          <span className="font-mono text-muted-foreground">{pid.toUpperCase()}</span> - {name}
+        <span className="text-sm flex items-center gap-2">
+          <span><span className="font-mono text-muted-foreground">{pid.toUpperCase()}</span> - {name}</span>
+          {isRKWebSoftwareSupported(pid) && (
+            <a
+              href={RK_WEB_SOFTWARE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Use RK Official Web App
+            </a>
+          )}
         </span>
         <span className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
           {isExpanded ? 'Hide Image' : 'Show Image'}

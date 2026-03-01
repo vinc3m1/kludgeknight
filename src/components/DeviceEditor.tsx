@@ -7,10 +7,11 @@ import { KeyboardSelector } from './KeyboardSelector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { TriangleAlert } from 'lucide-react';
+import { TriangleAlert, ExternalLink } from 'lucide-react';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { useDevices } from '../hooks/useDevices';
 import { getRKDevices } from '../utils/rkConfig';
+import { isRKWebSoftwareSupported, RK_WEB_SOFTWARE_URL } from '../constants/rkWebSoftware';
 
 type Tab = 'keys' | 'lighting';
 
@@ -62,6 +63,16 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
                 You are exploring the interface without a physical keyboard. All operations are simulated — changes are not saved and nothing is written to hardware.
               </div>
             </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* OFFICIAL RK WEB SOFTWARE BANNER */}
+      {isRKWebSoftwareSupported(device.config.pid) && (
+        <Alert className="border-primary/30 bg-primary/5">
+          <ExternalLink className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-sm">
+            <p>This keyboard is also supported by <a href={RK_WEB_SOFTWARE_URL} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">RK&apos;s official web configurator</a>, which has full support for macros and media keys.</p>
           </AlertDescription>
         </Alert>
       )}
