@@ -36,6 +36,18 @@ export class UserCancelledError extends Error {
 }
 
 /**
+ * Thrown when device.open() fails on macOS.
+ * Common cause: Karabiner-Elements or similar HID interceptors have
+ * exclusive access to the device.
+ */
+export class DeviceOpenBlockedError extends Error {
+  constructor(public readonly pid: string) {
+    super(`Device open blocked by OS for PID ${pid}`);
+    this.name = 'DeviceOpenBlockedError';
+  }
+}
+
+/**
  * Thrown when attempting lighting operations on a keyboard without lighting support
  */
 export class LightingNotSupportedError extends Error {

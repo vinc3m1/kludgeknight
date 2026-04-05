@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
   // Device connection errors
   UNSUPPORTED_KEYBOARD: 'This keyboard model is not supported. Check the device list for compatible models.',
   CONNECTION_FAILED: 'Failed to connect to keyboard. Please try again.',
+  DEVICE_OPEN_BLOCKED: 'Could not open this keyboard on macOS. If you have Karabiner-Elements or other HID interceptors running, quit them and restart your browser — they seize exclusive access to keyboard devices.',
   DISCONNECT_FAILED: 'Failed to disconnect from keyboard. The device may already be disconnected.',
   SCAN_FAILED: 'Failed to reconnect to previously authorized keyboards. Please try connecting again.',
 

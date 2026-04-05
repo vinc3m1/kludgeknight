@@ -1,7 +1,7 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
 import { parseKBIni } from '../utils/kbIniParser';
-import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError } from '../errors/KludgeKnightErrors';
+import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenBlockedError } from '../errors/KludgeKnightErrors';
 
 /**
  * Singleton manager for HID device lifecycle
@@ -199,7 +199,12 @@ export class HIDDeviceManager {
       // Open device if not already open
       if (!hidDevice.opened) {
         console.log(`Opening device (currently closed): ${hidDevice.productName}`);
-        await hidDevice.open();
+        try {
+          await hidDevice.open();
+        } catch (openError) {
+          console.error(`device.open() failed for ${hidDevice.productName}:`, openError);
+          throw new DeviceOpenBlockedError(pid);
+        }
         console.log(`Device opened successfully: ${hidDevice.productName}`);
       } else {
         console.log(`Device already open: ${hidDevice.productName}`);
