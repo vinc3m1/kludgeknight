@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
   // Device connection errors
   UNSUPPORTED_KEYBOARD: 'This keyboard model is not supported. Check the device list for compatible models.',
   CONNECTION_FAILED: 'Failed to connect to keyboard. Please try again.',
+  DEVICE_OPEN_BLOCKED: 'This keyboard can\'t be opened because macOS has locked its USB interface (NKRO + config on same interface). Run the bridge server to work around this — see the project README for instructions.',
   DISCONNECT_FAILED: 'Failed to disconnect from keyboard. The device may already be disconnected.',
   SCAN_FAILED: 'Failed to reconnect to previously authorized keyboards. Please try connecting again.',
 

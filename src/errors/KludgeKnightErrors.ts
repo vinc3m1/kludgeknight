@@ -54,3 +54,15 @@ export class RGBNotSupportedError extends Error {
     this.name = 'RGBNotSupportedError';
   }
 }
+
+/**
+ * Thrown when device.open() fails because the OS kernel has seized the USB interface.
+ * On macOS, this happens when the device's HID descriptor combines NKRO keyboard
+ * collections with vendor config endpoints on the same USB interface.
+ */
+export class DeviceOpenBlockedError extends Error {
+  constructor(public readonly pid: string) {
+    super(`Cannot open device (PID ${pid}) — the OS has locked the USB interface`);
+    this.name = 'DeviceOpenBlockedError';
+  }
+}

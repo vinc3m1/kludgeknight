@@ -1,7 +1,8 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import { KeyboardDevice } from './KeyboardDevice';
 import { parseKBIni } from '../utils/kbIniParser';
-import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError } from '../errors/KludgeKnightErrors';
+import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenBlockedError } from '../errors/KludgeKnightErrors';
+import { BridgeDeviceAdapter } from './BridgeDeviceAdapter';
 
 /**
  * Singleton manager for HID device lifecycle
@@ -197,16 +198,35 @@ export class HIDDeviceManager {
       console.log('Product name:', hidDevice.productName);
 
       // Open device if not already open
+      let deviceToUse: HIDDevice = hidDevice;
+
       if (!hidDevice.opened) {
         console.log(`Opening device (currently closed): ${hidDevice.productName}`);
-        await hidDevice.open();
-        console.log(`Device opened successfully: ${hidDevice.productName}`);
+        try {
+          await hidDevice.open();
+          console.log(`Device opened successfully: ${hidDevice.productName}`);
+        } catch (openError) {
+          // On macOS, NKRO keyboards fail to open (kIOReturnNotReady) because
+          // the kernel HID Event System seizes the USB interface.  Fall back to
+          // the bridge server if it's running.
+          console.warn(`device.open() failed for ${hidDevice.productName}:`, openError);
+          console.log('Checking for bridge server on ws://127.0.0.1:9876...');
+
+          if (await BridgeDeviceAdapter.isAvailable()) {
+            console.log('Bridge server available — using bridge fallback');
+            const adapter = new BridgeDeviceAdapter(hidDevice);
+            await adapter.open();
+            deviceToUse = adapter as unknown as HIDDevice;
+          } else {
+            throw new DeviceOpenBlockedError(pid);
+          }
+        }
       } else {
         console.log(`Device already open: ${hidDevice.productName}`);
       }
 
       // Create KeyboardDevice instance
-      const device = new KeyboardDevice(hidDevice, config);
+      const device = new KeyboardDevice(deviceToUse, config);
       this.devices.set(device.id, device);
 
       return device;

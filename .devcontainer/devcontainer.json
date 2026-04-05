@@ -1,0 +1,44 @@
+{
+  "name": "KludgeKnight Dev",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "postCreateCommand": "curl -fsSL https://bun.sh/install | bash && export PATH=\"$HOME/.bun/bin:$PATH\" && bun install && pip install pyusb websockets",
+  "forwardPorts": [5173, 9876],
+  "portsAttributes": {
+    "5173": {
+      "label": "Astro Dev Server",
+      "onAutoForward": "openBrowser"
+    },
+    "9876": {
+      "label": "RK Bridge Server",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "astro-build.astro-vscode",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "args": ["-l"],
+            "env": {
+              "PATH": "${env:HOME}/.bun/bin:${env:PATH}"
+            }
+          }
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
+  }
+}
