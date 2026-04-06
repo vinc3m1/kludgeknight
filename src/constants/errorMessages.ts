@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
   // Device connection errors
   UNSUPPORTED_KEYBOARD: 'This keyboard model is not supported. Check the device list for compatible models.',
   CONNECTION_FAILED: 'Failed to connect to keyboard. Please try again.',
+  DEVICE_OPEN_FAILED: 'Could not open this keyboard. Make sure no other applications (such as keyboard remapping tools) are using the device, then restart your browser and try again.',
   DISCONNECT_FAILED: 'Failed to disconnect from keyboard. The device may already be disconnected.',
   SCAN_FAILED: 'Failed to reconnect to previously authorized keyboards. Please try connecting again.',
 
