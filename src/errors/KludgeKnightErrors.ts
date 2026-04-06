@@ -39,10 +39,10 @@ export class UserCancelledError extends Error {
  * Thrown when device.open() fails with NotAllowedError.
  * Common cause: another application has exclusive access to the device.
  */
-export class DeviceOpenBlockedError extends Error {
+export class DeviceOpenError extends Error {
   constructor(public readonly pid: string) {
-    super(`Device open blocked by OS for PID ${pid}`);
-    this.name = 'DeviceOpenBlockedError';
+    super(`Failed to open device with PID ${pid}`);
+    this.name = 'DeviceOpenError';
   }
 }
 

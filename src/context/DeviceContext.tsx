@@ -3,7 +3,7 @@ import { HIDDeviceManager } from '../models/HIDDeviceManager';
 import { KeyboardDevice } from '../models/KeyboardDevice';
 import { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import { ToastContext } from './ToastContext';
-import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenBlockedError } from '../errors/KludgeKnightErrors';
+import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenError } from '../errors/KludgeKnightErrors';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { parseKBIni } from '../utils/kbIniParser';
 
@@ -138,8 +138,8 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
         errorMessage = ERROR_MESSAGES.WEBHID_NOT_AVAILABLE;
       } else if (error instanceof UnsupportedKeyboardError) {
         errorMessage = ERROR_MESSAGES.UNSUPPORTED_KEYBOARD;
-      } else if (error instanceof DeviceOpenBlockedError) {
-        errorMessage = ERROR_MESSAGES.DEVICE_OPEN_BLOCKED;
+      } else if (error instanceof DeviceOpenError) {
+        errorMessage = ERROR_MESSAGES.DEVICE_OPEN_FAILED;
       }
 
       toast?.showError(errorMessage);
