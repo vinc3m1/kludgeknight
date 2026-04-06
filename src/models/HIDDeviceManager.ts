@@ -202,8 +202,13 @@ export class HIDDeviceManager {
         try {
           await hidDevice.open();
         } catch (openError) {
-          console.error(`device.open() failed for ${hidDevice.productName}:`, openError);
-          throw new DeviceOpenBlockedError(pid);
+          if (openError instanceof DOMException && openError.name === 'InvalidStateError') {
+            // Device is already open, safe to proceed
+            console.log(`Device already open: ${hidDevice.productName}`);
+          } else {
+            console.error(`device.open() failed for ${hidDevice.productName}:`, openError);
+            throw new DeviceOpenBlockedError(pid);
+          }
         }
         console.log(`Device opened successfully: ${hidDevice.productName}`);
       } else {
