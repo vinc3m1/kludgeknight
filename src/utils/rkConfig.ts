@@ -1,6 +1,6 @@
 /**
  * Parse RK Cfg.ini to get device mappings
- * Shared code between Node.js (build-time) and browser (runtime)
+ * Browser/runtime loader for RK Cfg.ini.
  */
 
 export interface RKDevice {
@@ -31,7 +31,7 @@ export function parseCfgIni(text: string): Map<string, string> {
 }
 
 /**
- * Load and parse Cfg.ini (works in both Node.js and browser)
+ * Load and parse Cfg.ini from public assets.
  * Returns a map of PID -> Device Name
  */
 export async function getRKDevices(): Promise<Map<string, string>> {
@@ -40,19 +40,8 @@ export async function getRKDevices(): Promise<Map<string, string>> {
   }
 
   try {
-    let bytes: Uint8Array;
-
-    // Server-side (Node.js/Bun): Buffer extends Uint8Array
-    if (typeof window === 'undefined') {
-      const { readFileSync } = await import('fs');
-      const { join } = await import('path');
-      const cfgPath = join(process.cwd(), 'public', 'rk', 'Cfg.ini');
-      bytes = readFileSync(cfgPath);
-    } else {
-      // Client-side (browser)
-      const response = await fetch(`${import.meta.env.BASE_URL}rk/Cfg.ini`);
-      bytes = new Uint8Array(await response.arrayBuffer());
-    }
+    const response = await fetch(`${import.meta.env.BASE_URL}rk/Cfg.ini`);
+    const bytes = new Uint8Array(await response.arrayBuffer());
 
     // Decode UTF-16 LE
     const decoder = new TextDecoder('utf-16le');

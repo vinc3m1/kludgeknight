@@ -6,7 +6,7 @@
 export interface StandardLightingSettings {
   modeIndex: number;      // 1-21 (mode number from LedOpt#)
   speed: number;          // 1-5 (Very Slow → Very Fast)
-  brightness: number;     // 1-5
+  brightness: number;     // 0-5
   color: {                // RGB color (0-255 each)
     r: number;
     g: number;

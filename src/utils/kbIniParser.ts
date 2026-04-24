@@ -21,7 +21,7 @@ function parseKeyEntry(value: string, keyName: string): Key | null {
     return null;
   }
 
-  const keyInfo = parseVK(parts[5]);
+  const keyInfo = parseVK(parts[5], parts[6]);
   if (!keyInfo) {
     console.warn(`Skipping unsupported key format ${keyName}: ${parts[5]}`);
     return null;

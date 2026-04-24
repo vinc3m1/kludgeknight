@@ -227,9 +227,19 @@ export function vkToLabel(vk: VKCode): string {
 /**
  * Parse VK hex string (e.g., "0x41") to KeyInfo
  */
-export function parseVK(vkHex: string): KeyInfo | undefined {
+export function parseVK(vkHex: string, fallbackFirmwareHex?: string): KeyInfo | undefined {
   const vk = parseInt(vkHex, 16);
   if (KEY_MAP[vk]) return KEY_MAP[vk];
+
+  const fallbackFirmware = fallbackFirmwareHex ? parseInt(fallbackFirmwareHex, 16) : NaN;
+  if (Number.isFinite(fallbackFirmware) && fallbackFirmware > 0) {
+    return {
+      vk,
+      fw: fallbackFirmware,
+      category: 'Special',
+      label: `VK 0x${vk.toString(16).toUpperCase()}`,
+    };
+  }
 
   // Skip VK codes that are sequential indices (0x00-0x05) used by
   // A72-style keyboards with a different encoding scheme
