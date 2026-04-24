@@ -158,7 +158,7 @@ const structuredData = {
     </script>
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-YBJQ3DKPZR"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -170,7 +170,7 @@ const structuredData = {
     </script>
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
     <script src="https://tweakcn.com/live-preview.min.js"></script>
   </head>

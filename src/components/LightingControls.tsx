@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../hooks/useToast';
 import type { KeyboardDevice } from '../models/KeyboardDevice';
-import type { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import type { LightingMode } from '../types/keyboard';
 import type { StandardLightingSettings } from '../models/LightingCodec';
 import { Slider } from '@/components/ui/slider';
@@ -14,7 +13,7 @@ const SPEED_LABELS = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
 const SLEEP_LABELS = ['5 min', '10 min', '20 min', '30 min', 'Off'];
 
 interface LightingControlsProps {
-  device: KeyboardDevice | DemoKeyboardDevice;
+  device: KeyboardDevice;
   initialSettings: StandardLightingSettings | null;
 }
 
@@ -27,7 +26,7 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
 
-  const isDemo = 'isDemo' in device && device.isDemo;
+  const isDemo = !!device.isDemo;
   const selectedModeIndex = settings?.modeIndex ?? null;
 
   // Scroll to initially selected mode after layout and update shadows
@@ -77,7 +76,7 @@ export function LightingControls({ device, initialSettings }: LightingControlsPr
         console.error('Failed to update lighting:', error);
 
         // Provide specific error message based on error type
-        let errorMessage = ERROR_MESSAGES.LIGHTING_UPDATE_FAILED;
+        let errorMessage: string = ERROR_MESSAGES.LIGHTING_UPDATE_FAILED;
         if (error instanceof LightingNotSupportedError) {
           errorMessage = ERROR_MESSAGES.LIGHTING_NOT_SUPPORTED;
         } else if (error instanceof RGBNotSupportedError) {

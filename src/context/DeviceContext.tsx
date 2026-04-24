@@ -1,18 +1,19 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import { HIDDeviceManager } from '../models/HIDDeviceManager';
-import { KeyboardDevice } from '../models/KeyboardDevice';
+import { HIDKeyboardDevice } from '../models/HIDKeyboardDevice';
 import { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 import { ToastContext } from './ToastContext';
 import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenError } from '../errors/KludgeKnightErrors';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import { parseKBIni } from '../utils/kbIniParser';
 
 export interface DeviceContextValue {
-  devices: (KeyboardDevice | DemoKeyboardDevice)[];
-  selectedDevice: KeyboardDevice | DemoKeyboardDevice | null;
-  selectDevice: (device: KeyboardDevice | DemoKeyboardDevice | null) => void;
+  devices: KeyboardDevice[];
+  selectedDevice: KeyboardDevice | null;
+  selectDevice: (device: KeyboardDevice | null) => void;
   requestDevice: () => Promise<void>;
-  disconnectDevice: (device: KeyboardDevice | DemoKeyboardDevice) => Promise<void>;
+  disconnectDevice: (device: KeyboardDevice) => Promise<void>;
   isConnecting: boolean;
   isScanning: boolean;
   isDemoMode: boolean;
@@ -25,7 +26,7 @@ export const DeviceContext = createContext<DeviceContextValue | null>(null);
 
 export function DeviceProvider({ children, ledManifest }: { children: ReactNode; ledManifest?: string }) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | DemoKeyboardDevice | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<KeyboardDevice | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(false);
@@ -42,7 +43,7 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
   }, [ledManifest, manager]);
 
   // Helper to setup device callbacks
-  const setupDeviceCallbacks = useCallback((device: KeyboardDevice) => {
+  const setupDeviceCallbacks = useCallback((device: HIDKeyboardDevice) => {
     device.notify = forceUpdate;
     const deviceId = device.id;
     device.onDisconnect = () => {
@@ -132,7 +133,7 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
       console.error('Failed to connect device:', error);
 
       // Provide user-friendly error messages based on error type
-      let errorMessage = ERROR_MESSAGES.CONNECTION_FAILED;
+      let errorMessage: string = ERROR_MESSAGES.CONNECTION_FAILED;
 
       if (error instanceof WebHIDNotAvailableError) {
         errorMessage = ERROR_MESSAGES.WEBHID_NOT_AVAILABLE;
@@ -148,9 +149,9 @@ export function DeviceProvider({ children, ledManifest }: { children: ReactNode;
     }
   };
 
-  const disconnectDevice = async (device: KeyboardDevice | DemoKeyboardDevice) => {
+  const disconnectDevice = async (device: KeyboardDevice) => {
     // Handle demo device disconnect
-    if ('isDemo' in device && device.isDemo) {
+    if (device.isDemo) {
       exitDemoMode();
       return;
     }

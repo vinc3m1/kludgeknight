@@ -20,14 +20,25 @@ bun run dev
 # Lint code
 bun run lint
 
+# Type-check (runs astro check against tsconfig.app.json)
+bun run typecheck
+
+# Run tests
+bun run test
+
 # Build for production
 bun run build
 
 # Preview production build
 bun run preview
+
+# Full pre-merge check: lint + typecheck + test + build
+bun run validate
 ```
 
 **IMPORTANT: This project uses Bun, not Node.js.** Always use `bun` commands (e.g., `bun install`, `bun run dev`) instead of `npm` or `node`. The dev server supports network access by default and can optionally use HTTPS for testing on other devices.
+
+**Before completing any code change, run `bun run validate`.** It chains lint → typecheck → test → build and is what CI runs on every PR. Vite/esbuild does not type-check during `bun run build`, so `bun run typecheck` (or `bun run validate`) is the only thing that catches type errors locally. The CI workflow at `.github/workflows/pr-check.yml` uses the same script, so if `validate` passes locally it will pass in CI.
 
 ### Build Process
 

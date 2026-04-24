@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { KeyboardDevice } from '../models/KeyboardDevice';
-import { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
+import type { KeyboardDevice } from '../models/KeyboardDevice';
 import { KeyRemapper, KeyRemapperActionButton } from './KeyRemapper';
 import { LightingControls } from './LightingControls';
 import { KeyboardSelector } from './KeyboardSelector';
@@ -16,9 +15,9 @@ import { isRKWebSoftwareSupported, RK_WEB_SOFTWARE_URL } from '../constants/rkWe
 type Tab = 'keys' | 'lighting';
 
 interface DeviceEditorProps {
-  device: KeyboardDevice | DemoKeyboardDevice;
+  device: KeyboardDevice;
   imageManifest?: ImageManifest;
-  onDisconnect: (device: KeyboardDevice | DemoKeyboardDevice) => Promise<void>;
+  onDisconnect: (device: KeyboardDevice) => Promise<void>;
 }
 
 export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEditorProps) {
@@ -28,7 +27,7 @@ export function DeviceEditor({ device, imageManifest, onDisconnect }: DeviceEdit
   const [keyboards, setKeyboards] = useState<Array<{ pid: string; name: string }>>([]);
   const { switchDemoKeyboard } = useDevices();
 
-  const isDemo = 'isDemo' in device && device.isDemo;
+  const isDemo = !!device.isDemo;
 
   // Load keyboards for switcher
   useEffect(() => {

@@ -40,14 +40,16 @@ export async function getRKDevices(): Promise<Map<string, string>> {
   }
 
   try {
-    let buffer: ArrayBuffer;
+    let buffer: ArrayBufferLike;
 
     // Server-side (Node.js/Bun)
     if (typeof window === 'undefined') {
       const { readFileSync } = await import('fs');
       const { join } = await import('path');
       const cfgPath = join(process.cwd(), 'public', 'rk', 'Cfg.ini');
-      buffer = readFileSync(cfgPath);
+      // Node Buffer extends Uint8Array; take the underlying ArrayBuffer slice
+      const nodeBuf = readFileSync(cfgPath);
+      buffer = nodeBuf.buffer.slice(nodeBuf.byteOffset, nodeBuf.byteOffset + nodeBuf.byteLength);
     } else {
       // Client-side (browser)
       const response = await fetch(`${import.meta.env.BASE_URL}rk/Cfg.ini`);

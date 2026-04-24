@@ -7,10 +7,13 @@ import type { FirmwareCode } from '../types/keycode';
  * Translates profile mappings to HID buffers and sends to keyboard
  */
 export class ProtocolTranslator {
-  constructor(
-    private device: HIDDevice,
-    private config: KeyboardConfig
-  ) {}
+  private device: HIDDevice;
+  private config: KeyboardConfig;
+
+  constructor(device: HIDDevice, config: KeyboardConfig) {
+    this.device = device;
+    this.config = config;
+  }
 
   /**
    * Send profile mappings to keyboard hardware

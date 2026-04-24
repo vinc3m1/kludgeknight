@@ -3,12 +3,13 @@ import type { KeyInfo } from './keycode';
 /**
  * Type of keyboard lighting system
  */
-export enum LightingType {
-  None = 'none',           // No lighting
-  Backlit = 'backlit',     // Single-color backlight (tc_led1-20)
-  RGB = 'rgb',             // Full RGB lighting (tc_led_mode1-21)
-  EFT = 'eft',             // Per-key reactive RGB effects (tc_eft1-19)
-}
+export const LightingType = {
+  None: 'none',           // No lighting
+  Backlit: 'backlit',     // Single-color backlight (tc_led1-20)
+  RGB: 'rgb',             // Full RGB lighting (tc_led_mode1-21)
+  EFT: 'eft',             // Per-key reactive RGB effects (tc_eft1-19)
+} as const;
+export type LightingType = typeof LightingType[keyof typeof LightingType];
 
 /**
  * Lighting mode capability flags from LedOpt in KB.ini

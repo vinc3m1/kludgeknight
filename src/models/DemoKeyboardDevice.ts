@@ -1,12 +1,13 @@
 import type { KeyboardConfig } from '../types/keyboard';
 import type { StandardLightingSettings, PerKeyColors } from './LightingCodec';
 import type { FirmwareCode } from '../types/keycode';
+import type { KeyboardDevice } from './KeyboardDevice';
 
 /**
  * Demo keyboard device that simulates all operations without hardware
  * Used for demo mode to let users explore the UI without a physical keyboard
  */
-export class DemoKeyboardDevice {
+export class DemoKeyboardDevice implements KeyboardDevice {
   readonly id: string;
   readonly hidDevice: HIDDevice; // Mock HIDDevice
   readonly config: KeyboardConfig;
@@ -87,18 +88,6 @@ export class DemoKeyboardDevice {
   }
 
   /**
-   * Simulate device disconnect (for demo mode)
-   */
-  private handleDisconnect() {
-    if (!this.connected) return;
-
-    console.log('Demo device disconnect simulated');
-    this.connected = false;
-    this.onDisconnect?.();
-    this.notify?.();
-  }
-
-  /**
    * No-op cleanup for demo device
    */
   cleanup(): void {
@@ -155,13 +144,6 @@ export class DemoKeyboardDevice {
       this.isMappingLoading = false;
       this.notify?.();
     }
-  }
-
-  /**
-   * Simulate resetting all mappings to default
-   */
-  async resetAllMappings(): Promise<void> {
-    return this.clearAll();
   }
 
   /**

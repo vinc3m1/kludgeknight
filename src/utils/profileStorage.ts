@@ -106,7 +106,7 @@ export function loadFullProfile(deviceId: string): {
           lightingSettings: null,
         };
       } else {
-        console.warn('Invalid legacy profile format:', legacyResult.error.flatten());
+        console.warn('Invalid legacy profile format:', z.prettifyError(legacyResult.error));
         return { mappings: null, lightingSettings: null };
       }
     }
@@ -121,7 +121,7 @@ export function loadFullProfile(deviceId: string): {
         lightingSettings: result.data.lightingSettings as StandardLightingSettings | undefined || null,
       };
     } else {
-      console.warn('Invalid profile format:', result.error.flatten());
+      console.warn('Invalid profile format:', z.prettifyError(result.error));
       return { mappings: null, lightingSettings: null };
     }
   } catch (error) {

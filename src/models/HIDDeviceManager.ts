@@ -1,5 +1,5 @@
 import type { KeyboardConfig } from '../types/keyboard';
-import { KeyboardDevice } from './KeyboardDevice';
+import { HIDKeyboardDevice } from './HIDKeyboardDevice';
 import { parseKBIni } from '../utils/kbIniParser';
 import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, DeviceOpenError } from '../errors/KludgeKnightErrors';
 
@@ -8,9 +8,9 @@ import { WebHIDNotAvailableError, UnsupportedKeyboardError, UserCancelledError, 
  */
 export class HIDDeviceManager {
   private static instance: HIDDeviceManager;
-  private devices: Map<string, KeyboardDevice> = new Map();
+  private devices: Map<string, HIDKeyboardDevice> = new Map();
   private configs: Map<string, KeyboardConfig> = new Map();
-  private opening: Map<string, Promise<KeyboardDevice | null>> = new Map(); // Track devices currently being opened
+  private opening: Map<string, Promise<HIDKeyboardDevice | null>> = new Map(); // Track devices currently being opened
   private ledManifest: string | null = null;
 
   private constructor() {
@@ -65,9 +65,9 @@ export class HIDDeviceManager {
 
   /**
    * Request device from user (shows browser picker)
-   * Opens device and creates KeyboardDevice instance
+   * Opens device and creates HIDKeyboardDevice instance
    */
-  async requestDevice(): Promise<KeyboardDevice | null> {
+  async requestDevice(): Promise<HIDKeyboardDevice | null> {
     if (!navigator.hid) {
       throw new WebHIDNotAvailableError();
     }
@@ -103,7 +103,7 @@ export class HIDDeviceManager {
    * Scan for previously authorized devices
    * Useful for reconnecting on page reload
    */
-  async scanAuthorizedDevices(): Promise<KeyboardDevice[]> {
+  async scanAuthorizedDevices(): Promise<HIDKeyboardDevice[]> {
     if (!navigator.hid) {
       throw new WebHIDNotAvailableError();
     }
@@ -111,7 +111,7 @@ export class HIDDeviceManager {
     try {
       const hidDevices = await navigator.hid.getDevices();
       console.log(`Found ${hidDevices.length} authorized HID devices`);
-      const keyboards: KeyboardDevice[] = [];
+      const keyboards: HIDKeyboardDevice[] = [];
 
       for (const hidDevice of hidDevices) {
         // Only process RK keyboards (vendor ID 0x258a) with configuration interface
@@ -146,9 +146,9 @@ export class HIDDeviceManager {
   }
 
   /**
-   * Open a HID device and create KeyboardDevice instance
+   * Open a HID device and create HIDKeyboardDevice instance
    */
-  private async openDevice(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
+  private async openDevice(hidDevice: HIDDevice): Promise<HIDKeyboardDevice | null> {
     // Generate device ID early
     const serial = hidDevice.serialNumber ? `-${hidDevice.serialNumber}` : '';
     const deviceId = `${hidDevice.vendorId}-${hidDevice.productId}-${hidDevice.productName}${serial}`;
@@ -181,7 +181,7 @@ export class HIDDeviceManager {
   /**
    * Internal method to perform the actual device opening
    */
-  private async performOpen(hidDevice: HIDDevice): Promise<KeyboardDevice | null> {
+  private async performOpen(hidDevice: HIDDevice): Promise<HIDKeyboardDevice | null> {
     try {
       // Load config for this device on-demand
       const pid = hidDevice.productId.toString(16).padStart(4, '0');
@@ -215,8 +215,8 @@ export class HIDDeviceManager {
         console.log(`Device already open: ${hidDevice.productName}`);
       }
 
-      // Create KeyboardDevice instance
-      const device = new KeyboardDevice(hidDevice, config);
+      // Create HIDKeyboardDevice instance
+      const device = new HIDKeyboardDevice(hidDevice, config);
       this.devices.set(device.id, device);
 
       return device;
@@ -229,14 +229,14 @@ export class HIDDeviceManager {
   /**
    * Get device by ID
    */
-  getDevice(id: string): KeyboardDevice | undefined {
+  getDevice(id: string): HIDKeyboardDevice | undefined {
     return this.devices.get(id);
   }
 
   /**
    * Get all connected devices
    */
-  getAllDevices(): KeyboardDevice[] {
+  getAllDevices(): HIDKeyboardDevice[] {
     return Array.from(this.devices.values());
   }
 

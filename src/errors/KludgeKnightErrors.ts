@@ -18,9 +18,11 @@ export class WebHIDNotAvailableError extends Error {
  * Thrown when a keyboard model is not supported (no configuration found)
  */
 export class UnsupportedKeyboardError extends Error {
-  constructor(public readonly pid: string) {
+  readonly pid: string;
+  constructor(pid: string) {
     super(`Keyboard with PID ${pid} is not supported`);
     this.name = 'UnsupportedKeyboardError';
+    this.pid = pid;
   }
 }
 
@@ -40,9 +42,11 @@ export class UserCancelledError extends Error {
  * Common cause: another application has exclusive access to the device.
  */
 export class DeviceOpenError extends Error {
-  constructor(public readonly pid: string) {
+  readonly pid: string;
+  constructor(pid: string) {
     super(`Failed to open device with PID ${pid}`);
     this.name = 'DeviceOpenError';
+    this.pid = pid;
   }
 }
 
@@ -50,9 +54,11 @@ export class DeviceOpenError extends Error {
  * Thrown when attempting lighting operations on a keyboard without lighting support
  */
 export class LightingNotSupportedError extends Error {
-  constructor(public readonly keyboardName: string) {
+  readonly keyboardName: string;
+  constructor(keyboardName: string) {
     super(`Keyboard ${keyboardName} does not support lighting`);
     this.name = 'LightingNotSupportedError';
+    this.keyboardName = keyboardName;
   }
 }
 
@@ -60,8 +66,10 @@ export class LightingNotSupportedError extends Error {
  * Thrown when attempting RGB operations on a keyboard without RGB support
  */
 export class RGBNotSupportedError extends Error {
-  constructor(public readonly keyboardName: string) {
+  readonly keyboardName: string;
+  constructor(keyboardName: string) {
     super(`Keyboard ${keyboardName} does not support RGB lighting`);
     this.name = 'RGBNotSupportedError';
+    this.keyboardName = keyboardName;
   }
 }

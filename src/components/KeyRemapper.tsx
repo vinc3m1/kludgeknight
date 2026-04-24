@@ -9,7 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { KeyboardDevice } from '../models/KeyboardDevice';
-import type { DemoKeyboardDevice } from '../models/DemoKeyboardDevice';
 import type { ImageManifest } from '../utils/buildImageManifest';
 import { ERROR_MESSAGES } from '../constants/errorMessages';
 import {
@@ -58,13 +57,13 @@ function renderIcon(iconName: string, className?: string) {
   return <Icon className={className} size={16} />;
 }
 
-export function KeyRemapperActionButton({ device }: { device: KeyboardDevice | DemoKeyboardDevice }) {
+export function KeyRemapperActionButton({ device }: { device: KeyboardDevice }) {
   const toast = useToast();
-  const isDemo = 'isDemo' in device && device.isDemo;
+  const isDemo = !!device.isDemo;
 
   const handleResetAll = async () => {
     try {
-      await device.resetAllMappings();
+      await device.clearAll();
       const message = isDemo ? 'All keys reset to default (Simulated)' : 'All keys reset to default';
       toast.showSuccess(message);
     } catch (err) {
@@ -130,7 +129,7 @@ export function KeyRemapperActionButton({ device }: { device: KeyboardDevice | D
 }
 
 interface KeyRemapperProps {
-  device: KeyboardDevice | DemoKeyboardDevice;
+  device: KeyboardDevice;
   imageManifest?: ImageManifest;
 }
 
@@ -139,7 +138,7 @@ export function KeyRemapper({ device, imageManifest }: KeyRemapperProps) {
   const [selectedKeyIndex, setSelectedKeyIndex] = useState<number | null>(null);
   const [selectedTargetKey, setSelectedTargetKey] = useState<FirmwareCode | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const isDemo = 'isDemo' in device && device.isDemo;
+  const isDemo = !!device.isDemo;
 
   const handleConfirmRemap = async () => {
     if (selectedKeyIndex === null || selectedTargetKey === null) return;
